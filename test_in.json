@@ -1,0 +1,161 @@
+{
+    "meta": {
+        "name": "test",
+        "author": "Syntax James",
+        "id": 12345,
+        "metric": ["all"]
+    },
+    "region_meta": {
+        "1": "prefix",
+        "2": "NP1",
+        "3": "Verb",
+        "4": "Prep",
+        "5": "NP3",
+        "6": "End",
+        "7": "EOS"
+    },
+    "items": [
+        {
+            "item_number": 1,
+            "conditions": [
+                {
+                    "condition_name": "that",
+                    "regions": [
+                        {
+                            "region_number": 1,
+                            "content": "I know that"
+                        },
+                        {
+                            "region_number": 2,
+                            "content": "our aunt"
+                        },
+                        {
+                            "region_number": 3,
+                            "content": "grabbed"
+                        },
+                        {
+                            "region_number": 4,
+                            "content": "in front of"
+                        },
+                        {
+                            "region_number": 5,
+                            "content": "the guests"
+                        },
+                        {
+                            "region_number": 6,
+                            "content": "at the holiday party"
+                        },
+                        {
+                            "region_number": 7,
+                            "content": ". <eos>"
+                        }
+                    ]
+                },
+                {
+                    "condition_name": "what",
+                    "regions": [
+                        {
+                            "region_number": 1,
+                            "content": "I know what"
+                        },
+                        {
+                            "region_number": 2,
+                            "content": "our aunt"
+                        },
+                        {
+                            "region_number": 3,
+                            "content": "grabbed"
+                        },
+                        {
+                            "region_number": 4,
+                            "content": "in front of"
+                        },
+                        {
+                            "region_number": 5,
+                            "content": "the guests"
+                        },
+                        {
+                            "region_number": 6,
+                            "content": "at the holiday party"
+                        },
+                        {
+                            "region_number": 7,
+                            "content": ". <eos>"
+                        }
+                    ]
+                }   
+            ]
+        },
+        {
+            "item_number": 2,
+            "conditions": [
+                {
+                    "condition_name": "that",
+                    "regions": [
+                        {
+                            "region_number": 1,
+                            "content": "My neighbor told me that"
+                        },
+                        {
+                            "region_number": 2,
+                            "content": "the dog"
+                        },
+                        {
+                            "region_number": 3,
+                            "content": "caught"
+                        },
+                        {
+                            "region_number": 4,
+                            "content": "in full view of"
+                        },
+                        {
+                            "region_number": 5,
+                            "content": "the neighbors"
+                        },
+                        {
+                            "region_number": 6,
+                            "content": "yesterday"
+                        },
+                        {
+                            "region_number": 7,
+                            "content": ". <eos>"
+                        }
+                    ]
+                },
+                {
+                    "condition_name": "what",
+                    "regions": [
+                        {
+                            "region_number": 1,
+                            "content": "My neighbor told me what"
+                        },
+                        {
+                            "region_number": 2,
+                            "content": "the dog"
+                        },
+                        {
+                            "region_number": 3,
+                            "content": "caught"
+                        },
+                        {
+                            "region_number": 4,
+                            "content": "in full view of"
+                        },
+                        {
+                            "region_number": 5,
+                            "content": "the neighbors"
+                        },
+                        {
+                            "region_number": 6,
+                            "content": "yesterday"
+                        },
+                        {
+                            "region_number": 7,
+                            "content": ". <eos>"
+                        }
+                    ]
+                }   
+            ]
+        }
+    ]
+}
