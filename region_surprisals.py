@@ -26,9 +26,9 @@ def get_agg_surprisals(surprisals, in_data, tokenizer):
     return in_data
 
 def main(args):
-    print(args)
+    cols = ['sentence_id', 'token_id', 'token', 'surprisal']
     in_data = utils.load_json(args.i)
-    surprisals = pd.read_csv(args.surprisal, delim_whitespace=True, names=['token', 'surprisal'])
+    surprisals = pd.read_csv(args.surprisal, delim_whitespace=True, names=cols)
     out_data = get_agg_surprisals(surprisals, in_data, args.tokenizer)
     utils.write_json(out_data, args.o)
     print('Wrote results to %s' % args.o)

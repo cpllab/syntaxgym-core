@@ -40,3 +40,11 @@ def write_json(d, path):
     """
     with path.open('w') as f:
         json.dump(d, f, indent=4)
+
+def write_lines(lines, path):
+    """
+    Writes list to Path, separated by \n.
+    """
+    with path.open('w') as f:
+        for l in lines:
+            f.write(str(l) + '\n')
