@@ -15,7 +15,6 @@ def main(args):
     in_data = utils.load_json(args.i)
     sentences = get_sentences(in_data)
     utils.write_lines(sentences, args.o)
-    print('Wrote sentences to %s' % args.o)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='make sentences from JSON file')

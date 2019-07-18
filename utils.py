@@ -41,6 +41,15 @@ def write_json(d, path):
     with path.open('w') as f:
         json.dump(d, f, indent=4)
 
+def read_lines(path):
+    """
+    Reads lines from file into list with leading and trailing whitespace removed.
+    """
+    with path.open() as f:
+        lines = f.readlines()
+    lines = [l.strip() for l in lines]
+    return lines
+
 def write_lines(lines, path):
     """
     Writes list to Path, separated by \n.

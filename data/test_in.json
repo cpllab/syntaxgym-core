@@ -11,8 +11,7 @@
         "3": "Verb",
         "4": "Prep",
         "5": "NP3",
-        "6": "End",
-        "7": "EOS"
+        "6": "End"
     },
     "items": [
         {
@@ -43,11 +42,7 @@
                         },
                         {
                             "region_number": 6,
-                            "content": "at the holiday party"
-                        },
-                        {
-                            "region_number": 7,
-                            "content": ". <eos>"
+                            "content": "at the holiday party."
                         }
                     ]
                 },
@@ -76,11 +71,7 @@
                         },
                         {
                             "region_number": 6,
-                            "content": "at the holiday party"
-                        },
-                        {
-                            "region_number": 7,
-                            "content": ". <eos>"
+                            "content": "at the holiday party."
                         }
                     ]
                 }   
@@ -114,11 +105,7 @@
                         },
                         {
                             "region_number": 6,
-                            "content": "yesterday"
-                        },
-                        {
-                            "region_number": 7,
-                            "content": ". <eos>"
+                            "content": "yesterday."
                         }
                     ]
                 },
@@ -147,11 +134,7 @@
                         },
                         {
                             "region_number": 6,
-                            "content": "yesterday"
-                        },
-                        {
-                            "region_number": 7,
-                            "content": ". <eos>"
+                            "content": "yesterday."
                         }
                     ]
                 }   

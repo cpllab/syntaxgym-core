@@ -1,4 +1,4 @@
-I know that our aunt grabbed in front of the guests at the holiday party . <eos>
-I know what our aunt grabbed in front of the guests at the holiday party . <eos>
-My neighbor told me that the dog caught in full view of the neighbors yesterday . <eos>
-My neighbor told me what the dog caught in full view of the neighbors yesterday . <eos>
+I know that our aunt grabbed in front of the guests at the holiday party.
+I know what our aunt grabbed in front of the guests at the holiday party.
+My neighbor told me that the dog caught in full view of the neighbors yesterday.
+My neighbor told me what the dog caught in full view of the neighbors yesterday.

@@ -1,0 +1,26 @@
+#!/bin/bash
+IN_JSON="data/test_in.json"
+SENTENCES="data/test_sentences.txt"
+MODEL="grnn"
+CONTAINER="cpllab/language-models:${MODEL}"
+SURPRISAL="data/test_surp_${MODEL}.txt"
+OUT_JSON="data/test_out_${MODEL}.json"
+
+echo "INPUT FILE: ${IN_JSON}"
+echo "CONTAINER: ${CONTAINER}"
+
+echo -ne "** Extracting sentences \r"
+python get_sentences.py --i ${IN_JSON} --o ${SENTENCES}
+echo "** Extracting sentences ---> ${SENTENCES}"
+
+echo -ne "** Getting surprisals \r"
+docker run --rm -it -v `pwd`:/mount ${CONTAINER} get_surprisals /mount/${SENTENCES} > ${SURPRISAL}
+echo "** Getting surprisals ---> ${SURPRISAL}"
+
+echo -ne "** Cleaning surprisals \r"
+python clean_surprisals.py --i ${SURPRISAL} --o ${SURPRISAL}
+echo "** Cleaning surprisals ---> overwrite ${SURPRISAL}"
+
+echo -ne "** Aggregating surprisals \r"
+python agg_surprisals.py --surprisal ${SURPRISAL} --model ${MODEL} --i ${IN_JSON} --o ${OUT_JSON}
+echo "** Aggregating surprisals ---> ${OUT_JSON}"
