@@ -8,6 +8,8 @@ class TokenMismatch(Exception):
     pass
 
 def validate_metrics(metrics):
+    # if only one metric specified, convert to list
+    metrics = [metrics] if len(metrics) == 1 else metrics
     if any(m not in utils.METRICS for m in metrics):
         bad_metrics = [m for m in metrics if m not in utils.METRICS]
         raise ValueError('Unknown metrics: {}'.format(bad_metrics))
@@ -15,7 +17,7 @@ def validate_metrics(metrics):
 def get_agg_surprisals(surprisals, in_data, model):
     # check that specified metrics are implemented in utils.METRICS
     metrics = in_data['meta']['metric']
-    if metrics == ['all']:
+    if metrics == 'all':
         metrics = utils.METRICS.keys()
     else:
         validate_metrics(metrics)

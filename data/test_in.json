@@ -2,8 +2,8 @@
     "meta": {
         "name": "test",
         "author": "Syntax James",
-        "id": 12345,
-        "metric": ["all"]
+        "reference": "James, Syntax (1956). Syntactic Strucgyms.",
+        "metric": "all"
     },
     "region_meta": {
         "1": "prefix",
