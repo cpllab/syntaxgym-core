@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e
+
 IN_JSON="data/test_in.json"
 SENTENCES="data/test_sentences.txt"
 MODEL="grnn"
