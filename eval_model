@@ -17,11 +17,11 @@ printf "\r** Extracting sentences ===> ${SENTENCES}\n"
 
 # show spinning progress icon while getting surprisals
 docker run --rm -i ${CONTAINER} \
-    get_surprisals /dev/stdin < $SENTENCES > ${SURPRISAL} 2>err &
+  get_surprisals /dev/stdin < $SENTENCES > ${SURPRISAL} 2>/dev/null &
 pid=$! # process id of command
 spin='-\|/'
 i=0
-while kill -0 $pid 2>err
+while kill -0 $pid 2>/dev/null
 do
   i=$(( (i+1) %4 ))
   printf "\r** Getting surprisals... ${spin:$i:1}"
@@ -30,5 +30,7 @@ done
 printf "\r** Getting surprisals ===> ${SURPRISAL}\n"
 
 printf "** Aggregating surprisals..."
-python agg_surprisals.py --surprisal ${SURPRISAL} --model ${MODEL} --i ${IN_JSON} --o ${OUT_JSON}
+python agg_surprisals.py \
+  --surprisal ${SURPRISAL} --sentences ${SENTENCES} --model ${MODEL} \
+  --i ${IN_JSON} --o ${OUT_JSON} 
 printf "\r** Aggregating surprisals ===> ${OUT_JSON}\n"

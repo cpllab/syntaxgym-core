@@ -1,42 +1,23 @@
-import os
 import utils
-import subprocess
-import tempfile
 
 class Sentence:
-    def __init__(self, condition_name='', regions=None, model=None):
+    def __init__(self, condition_name='', regions=None, tokens=[]):
         self.regions = [Region(**r) for r in regions]
         self.content = ' '.join(r.content for r in self.regions)
-        self.tokens = self.tokenize(model=model)
+        self.tokens = tokens
         self.region2tokens = self.tokenize_regions()
         for i, r in enumerate(self.regions):
             r.tokens = self.region2tokens[r.region_number]
             self.regions[i] = r
 
-    def tokenize(self, model=None):
-        if model is None:
-            return self.content.split(' ')
-        else:
-            dir_path = os.path.dirname(os.path.realpath(__file__))
-
-            with tempfile.NamedTemporaryFile("w") as f:
-                f.write(self.content)
-
-                # feed temp file into tokenizer
-                cmd = 'docker run --rm cpllab/language-models:%s tokenize /dev/stdin < %s' % (model, f.name)
-                cmd = cmd.split()
-                tokens = subprocess.run(cmd, stdout=subprocess.PIPE)
-
-            tokens = tokens.stdout.decode('utf-8').strip().split(' ')
-            return tokens
-
     def tokenize_regions(self):
         """
-        Converts self.tokens (list of tokens) to dict of <region_number, token list> pairs.
+        Converts self.tokens (list of tokens) to dictionary of 
+        <region_number, token list> pairs.
         """
-        # set current region
-        cur_region_idx = 0
-        r = self.regions[cur_region_idx]
+        # initialize current region, content, and counter
+        r_idx = 0
+        r = self.regions[r_idx]
         content = r.content
 
         # initialize region-to-token dict
@@ -56,14 +37,14 @@ class Sentence:
                     # remove token from content
                     content = content[len(token):]
                     # if end of content, and before last region
-                    if content == '' and cur_region_idx < len(self.regions) - 1:
-                        cur_region_idx += 1
-                        r = self.regions[cur_region_idx]
+                    if content == '' and r_idx < len(self.regions) - 1:
+                        r_idx += 1
+                        r = self.regions[r_idx]
                         content = r.content
                 # otherwise, move to next region
                 else:
-                    cur_region_idx += 1
-                    r = self.regions[cur_region_idx]
+                    r_idx += 1
+                    r = self.regions[r_idx]
                     content = r.content
         return region_tokens
 

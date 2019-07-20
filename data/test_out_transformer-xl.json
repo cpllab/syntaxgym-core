@@ -1,0 +1,337 @@
+{
+    "meta": {
+        "name": "test",
+        "author": "Syntax James",
+        "reference": "James, Syntax (1956). Syntactic Strucgyms.",
+        "metric": "all",
+        "model": "transformer-xl"
+    },
+    "region_meta": {
+        "1": "prefix",
+        "2": "NP1",
+        "3": "Verb",
+        "4": "Prep",
+        "5": "NP3",
+        "6": "End"
+    },
+    "items": [
+        {
+            "item_number": 1,
+            "conditions": [
+                {
+                    "condition_name": "that",
+                    "regions": [
+                        {
+                            "region_number": 1,
+                            "content": "I know that",
+                            "metric_value": {
+                                "sum": 17.498206,
+                                "mean": 5.832735333333333,
+                                "median": 4.220998000000001,
+                                "range": 13.277207999999998,
+                                "max": 13.277207999999998,
+                                "min": 0.0
+                            }
+                        },
+                        {
+                            "region_number": 2,
+                            "content": "our aunt",
+                            "metric_value": {
+                                "sum": 22.271368000000002,
+                                "mean": 11.135684000000001,
+                                "median": 11.135684000000001,
+                                "range": 4.250434,
+                                "max": 13.260901,
+                                "min": 9.010467
+                            }
+                        },
+                        {
+                            "region_number": 3,
+                            "content": "grabbed",
+                            "metric_value": {
+                                "sum": 18.601279,
+                                "mean": 18.601279,
+                                "median": 18.601279,
+                                "range": 0.0,
+                                "max": 18.601279,
+                                "min": 18.601279
+                            }
+                        },
+                        {
+                            "region_number": 4,
+                            "content": "in front of",
+                            "metric_value": {
+                                "sum": 16.7245,
+                                "mean": 5.574833333333333,
+                                "median": 6.631765,
+                                "range": 8.872065,
+                                "max": 9.4824,
+                                "min": 0.6103350000000001
+                            }
+                        },
+                        {
+                            "region_number": 5,
+                            "content": "the guests",
+                            "metric_value": {
+                                "sum": 12.162466,
+                                "mean": 6.081233,
+                                "median": 6.081233,
+                                "range": 7.688132000000001,
+                                "max": 9.925299,
+                                "min": 2.237167
+                            }
+                        },
+                        {
+                            "region_number": 6,
+                            "content": "at the holiday party.",
+                            "metric_value": {
+                                "sum": 23.24352,
+                                "mean": 4.648704,
+                                "median": 4.432347,
+                                "range": 9.172375,
+                                "max": 9.172375,
+                                "min": 0.0
+                            }
+                        }
+                    ]
+                },
+                {
+                    "condition_name": "what",
+                    "regions": [
+                        {
+                            "region_number": 1,
+                            "content": "I know what",
+                            "metric_value": {
+                                "sum": 20.370964999999998,
+                                "mean": 6.790321666666666,
+                                "median": 7.093757000000001,
+                                "range": 13.277207999999998,
+                                "max": 13.277207999999998,
+                                "min": 0.0
+                            }
+                        },
+                        {
+                            "region_number": 2,
+                            "content": "our aunt",
+                            "metric_value": {
+                                "sum": 27.140326,
+                                "mean": 13.570163,
+                                "median": 13.570163,
+                                "range": 3.564724,
+                                "max": 15.352525,
+                                "min": 11.787801
+                            }
+                        },
+                        {
+                            "region_number": 3,
+                            "content": "grabbed",
+                            "metric_value": {
+                                "sum": 16.767409,
+                                "mean": 16.767409,
+                                "median": 16.767409,
+                                "range": 0.0,
+                                "max": 16.767409,
+                                "min": 16.767409
+                            }
+                        },
+                        {
+                            "region_number": 4,
+                            "content": "in front of",
+                            "metric_value": {
+                                "sum": 14.963176,
+                                "mean": 4.987725333333334,
+                                "median": 6.018505,
+                                "range": 8.160229000000001,
+                                "max": 8.55245,
+                                "min": 0.392221
+                            }
+                        },
+                        {
+                            "region_number": 5,
+                            "content": "the guests",
+                            "metric_value": {
+                                "sum": 13.074503,
+                                "mean": 6.5372515,
+                                "median": 6.5372515,
+                                "range": 7.692941,
+                                "max": 10.383722,
+                                "min": 2.6907810000000003
+                            }
+                        },
+                        {
+                            "region_number": 6,
+                            "content": "at the holiday party.",
+                            "metric_value": {
+                                "sum": 24.162402,
+                                "mean": 4.8324804,
+                                "median": 4.873819999999999,
+                                "range": 9.290293,
+                                "max": 9.290293,
+                                "min": 0.0
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "item_number": 2,
+            "conditions": [
+                {
+                    "condition_name": "that",
+                    "regions": [
+                        {
+                            "region_number": 1,
+                            "content": "My neighbor told me that",
+                            "metric_value": {
+                                "sum": 35.785925000000006,
+                                "mean": 7.157185000000001,
+                                "median": 4.917127,
+                                "range": 18.426884,
+                                "max": 18.426884,
+                                "min": 0.0
+                            }
+                        },
+                        {
+                            "region_number": 2,
+                            "content": "the dog",
+                            "metric_value": {
+                                "sum": 13.469567000000001,
+                                "mean": 6.734783500000001,
+                                "median": 6.734783500000001,
+                                "range": 6.802703000000001,
+                                "max": 10.136135000000001,
+                                "min": 3.333432
+                            }
+                        },
+                        {
+                            "region_number": 3,
+                            "content": "caught",
+                            "metric_value": {
+                                "sum": 12.215142,
+                                "mean": 12.215142,
+                                "median": 12.215142,
+                                "range": 0.0,
+                                "max": 12.215142,
+                                "min": 12.215142
+                            }
+                        },
+                        {
+                            "region_number": 4,
+                            "content": "in full view of",
+                            "metric_value": {
+                                "sum": 29.109783,
+                                "mean": 7.27744575,
+                                "median": 7.827289499999999,
+                                "range": 11.543000000000001,
+                                "max": 12.499102,
+                                "min": 0.956102
+                            }
+                        },
+                        {
+                            "region_number": 5,
+                            "content": "the neighbors",
+                            "metric_value": {
+                                "sum": 12.623040999999999,
+                                "mean": 6.311520499999999,
+                                "median": 6.311520499999999,
+                                "range": 10.201011,
+                                "max": 11.412026,
+                                "min": 1.211015
+                            }
+                        },
+                        {
+                            "region_number": 6,
+                            "content": "yesterday.",
+                            "metric_value": {
+                                "sum": 10.175235,
+                                "mean": 5.0876175,
+                                "median": 5.0876175,
+                                "range": 10.175235,
+                                "max": 10.175235,
+                                "min": 0.0
+                            }
+                        }
+                    ]
+                },
+                {
+                    "condition_name": "what",
+                    "regions": [
+                        {
+                            "region_number": 1,
+                            "content": "My neighbor told me what",
+                            "metric_value": {
+                                "sum": 41.570946000000006,
+                                "mean": 8.314189200000001,
+                                "median": 7.572583,
+                                "range": 18.426884,
+                                "max": 18.426884,
+                                "min": 0.0
+                            }
+                        },
+                        {
+                            "region_number": 2,
+                            "content": "the dog",
+                            "metric_value": {
+                                "sum": 14.987665,
+                                "mean": 7.4938325,
+                                "median": 7.4938325,
+                                "range": 8.204075,
+                                "max": 11.59587,
+                                "min": 3.3917949999999997
+                            }
+                        },
+                        {
+                            "region_number": 3,
+                            "content": "caught",
+                            "metric_value": {
+                                "sum": 11.373839,
+                                "mean": 11.373839,
+                                "median": 11.373839,
+                                "range": 0.0,
+                                "max": 11.373839,
+                                "min": 11.373839
+                            }
+                        },
+                        {
+                            "region_number": 4,
+                            "content": "in full view of",
+                            "metric_value": {
+                                "sum": 26.290432,
+                                "mean": 6.572608,
+                                "median": 5.621157500000001,
+                                "range": 12.805974999999998,
+                                "max": 13.927045999999999,
+                                "min": 1.121071
+                            }
+                        },
+                        {
+                            "region_number": 5,
+                            "content": "the neighbors",
+                            "metric_value": {
+                                "sum": 15.026250000000001,
+                                "mean": 7.5131250000000005,
+                                "median": 7.5131250000000005,
+                                "range": 11.290552000000002,
+                                "max": 13.158401000000001,
+                                "min": 1.867849
+                            }
+                        },
+                        {
+                            "region_number": 6,
+                            "content": "yesterday.",
+                            "metric_value": {
+                                "sum": 11.481194,
+                                "mean": 5.740597,
+                                "median": 5.740597,
+                                "range": 11.481194,
+                                "max": 11.481194,
+                                "min": 0.0
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

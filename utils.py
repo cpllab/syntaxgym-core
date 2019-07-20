@@ -11,6 +11,8 @@ METRICS = {
     'min': min
 }
 
+MODELS = ['grnn', 'transformer-xl', 'rnng', 'jrnn']
+
 def flatten(l):
     """
     Flattens a list. Credit to https://stackoverflow.com/a/952952
@@ -57,3 +59,10 @@ def write_lines(lines, path):
     with path.open('w') as f:
         for l in lines:
             f.write(str(l) + '\n')
+
+def validate_metrics(metrics):
+    # if only one metric specified, convert to list
+    metrics = [metrics] if len(metrics) == 1 else metrics
+    if any(m not in METRICS for m in metrics):
+        bad_metrics = [m for m in metrics if m not in METRICS]
+        raise ValueError('Unknown metrics: {}'.format(bad_metrics))
