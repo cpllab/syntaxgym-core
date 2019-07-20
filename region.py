@@ -1,6 +1,7 @@
 import os
 import utils
 import subprocess
+import tempfile
 
 class Sentence:
     def __init__(self, condition_name='', regions=None, model=None):
@@ -17,15 +18,16 @@ class Sentence:
             return self.content.split(' ')
         else:
             dir_path = os.path.dirname(os.path.realpath(__file__))
-            # write region content to temp file
-            subprocess.call('echo \"%s\" > %s/temp' % (self.content, dir_path), shell=True)
-            # feed temp file into tokenizer
-            cmd = 'docker run --rm -v %s:/out cpllab/language-models:%s tokenize /out/temp' % (dir_path, model)
-            cmd = cmd.split()
-            tokens = subprocess.run(cmd, stdout=subprocess.PIPE)
+
+            with tempfile.NamedTemporaryFile("w") as f:
+                f.write(self.content)
+
+                # feed temp file into tokenizer
+                cmd = 'docker run --rm cpllab/language-models:%s tokenize /dev/stdin < %s' % (model, f.name)
+                cmd = cmd.split()
+                tokens = subprocess.run(cmd, stdout=subprocess.PIPE)
+
             tokens = tokens.stdout.decode('utf-8').strip().split(' ')
-            # remove temp file
-            subprocess.run(['rm', 'temp'])
             return tokens
 
     def tokenize_regions(self):
@@ -39,7 +41,7 @@ class Sentence:
 
         # initialize region-to-token dict
         region_tokens = {r.region_number : [] for r in self.regions}
-        
+
         # iterate over all tokens in sentence
         for token in self.tokens:
             # handle <eos> separately
