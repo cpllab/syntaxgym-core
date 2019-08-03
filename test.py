@@ -6,7 +6,7 @@ import subprocess
 from nose.tools import *
 
 
-MODELS = ["grnn"]
+MODELS = ["grnn", "transformer-xl", "rnng", "jrnn"]
 TEST_CASES = {
     "basic": (Path(__file__).parent / "data" / "test_in.json").open("r").read(),
 }
