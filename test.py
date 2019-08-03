@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 import subprocess
@@ -17,14 +18,13 @@ def _get_sentences(input_json_f, sentences_f):
 
 def _get_surprisals(container, sentences_f, surprisals_f):
     return subprocess.run(
-            (f"docker run --rm -i {container} get_surprisals /dev/stdin < {sentences_f.name} "
-             "> {surprisals_f.name} 2>/dev/null").split(" "),
-            check=True)
+            f"docker run --rm -i {container} get_surprisals /dev/stdin".split(),
+            check=True, stdin=sentences_f, stdout=surprisals_f)
 
-def _agg_surprisals(container, input_json_f, sentences_f, surprisals_f):
+def _agg_surprisals(model, input_json_f, sentences_f, surprisals_f, out_json_f):
     return subprocess.run(
-            ("python agg_surprisals.py --surprisal {surprisals_f.name} --sentences {sentences_f.name} "
-             "--model {container} --i {input_json_f.name} --o {out_json_f.name}"),
+            (f"python agg_surprisals.py --surprisal {surprisals_f.name} --sentences {sentences_f.name} "
+             f"--model {model} --i {input_json_f.name} --o {out_json_f.name}").split(" "),
             check=True)
 
 
@@ -32,22 +32,23 @@ def _test_case(model_name, input_json):
     container = f"cpllab/language-models:{model_name}"
 
     with NamedTemporaryFile("w") as input_json_f, \
-            NamedTemporaryFile("w") as sentences_f, \
-            NamedTemporaryFile("w") as surprisals_f, \
-            NamedTemporaryFile("w") as out_json_f:
+            NamedTemporaryFile("w+") as sentences_f, \
+            NamedTemporaryFile("w+") as surprisals_f, \
+            NamedTemporaryFile("w+") as out_json_f:
 
         input_json_f.write(input_json)
         input_json_f.flush()
 
         _get_sentences(input_json_f, sentences_f)
         _get_surprisals(container, sentences_f, surprisals_f)
-        _agg_surprisals(container, input_json_f, sentences_f, surprisals_f, out_json_f)
+        _agg_surprisals(model_name, input_json_f, sentences_f, surprisals_f, out_json_f)
 
         sentences = sentences_f.read()
         surprisals = surprisals_f.read()
-        out_json = out_json_f.read()
+        out_json = json.load(out_json_f)
 
-    eq_(out_json, "")
+    # TODO add tests :)
+    ok_(out_json is not None)
 
 
 def test_all_cases():
