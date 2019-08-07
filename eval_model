@@ -1,7 +1,9 @@
 #!/bin/bash
+set -e
+MODEL=$1
+
 IN_JSON="data/test_in.json"
 SENTENCES="data/test_sentences.txt"
-MODEL="grnn"
 CONTAINER="cpllab/language-models:${MODEL}"
 SURPRISAL="data/test_surp_${MODEL}.txt"
 OUT_JSON="data/test_out_${MODEL}.json"
@@ -9,18 +11,26 @@ OUT_JSON="data/test_out_${MODEL}.json"
 echo "INPUT FILE: ${IN_JSON}"
 echo "CONTAINER: ${CONTAINER}"
 
-echo -ne "** Extracting sentences \r"
+printf "** Extracting sentences..."
 python get_sentences.py --i ${IN_JSON} --o ${SENTENCES}
-echo "** Extracting sentences ---> ${SENTENCES}"
+printf "\r** Extracting sentences ===> ${SENTENCES}\n"
 
-echo -ne "** Getting surprisals \r"
-docker run --rm -it -v `pwd`:/mount ${CONTAINER} get_surprisals /mount/${SENTENCES} > ${SURPRISAL}
-echo "** Getting surprisals ---> ${SURPRISAL}"
+# show spinning progress icon while getting surprisals
+docker run --rm -i ${CONTAINER} \
+  get_surprisals /dev/stdin < $SENTENCES > ${SURPRISAL} 2>/dev/null &
+pid=$! # process id of command
+spin='-\|/'
+i=0
+while kill -0 $pid 2>/dev/null
+do
+  i=$(( (i+1) %4 ))
+  printf "\r** Getting surprisals... ${spin:$i:1}"
+  sleep .1
+done
+printf "\r** Getting surprisals ===> ${SURPRISAL}\n"
 
-echo -ne "** Cleaning surprisals \r"
-python clean_surprisals.py --i ${SURPRISAL} --o ${SURPRISAL}
-echo "** Cleaning surprisals ---> overwrite ${SURPRISAL}"
-
-echo -ne "** Aggregating surprisals \r"
-python agg_surprisals.py --surprisal ${SURPRISAL} --model ${MODEL} --i ${IN_JSON} --o ${OUT_JSON}
-echo "** Aggregating surprisals ---> ${OUT_JSON}"
+printf "** Aggregating surprisals..."
+python agg_surprisals.py \
+  --surprisal ${SURPRISAL} --sentences ${SENTENCES} --model ${MODEL} \
+  --i ${IN_JSON} --o ${OUT_JSON} 
+printf "\r** Aggregating surprisals ===> ${OUT_JSON}\n"
