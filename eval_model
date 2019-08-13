@@ -1,12 +1,13 @@
 #!/bin/bash
 set -e
 MODEL=$1
-
-IN_JSON="data/test_in.json"
-SENTENCES="data/test_sentences.txt"
 CONTAINER="cpllab/language-models:${MODEL}"
-SURPRISAL="data/test_surp_${MODEL}.txt"
-OUT_JSON="data/test_out_${MODEL}.json"
+
+PREFIX="data/test-unk/"
+IN_JSON="${PREFIX}in.json"
+SENTENCES="${PREFIX}sentences.txt"
+SURPRISAL="${PREFIX}surp_${MODEL}.txt"
+OUT_JSON="${PREFIX}out_${MODEL}.json"
 
 echo "INPUT FILE: ${IN_JSON}"
 echo "CONTAINER: ${CONTAINER}"

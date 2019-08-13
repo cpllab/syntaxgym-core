@@ -1,0 +1,153 @@
+{
+    "meta": {
+        "name": "test",
+        "author": "Syntax James",
+        "reference": "James, Syntax (1956). Syntactic Strucgyms.",
+        "metric": "all",
+        "tags": ["filler-gap"]
+    },
+    "region_meta": {
+        "1": "prefix",
+        "2": "NP1",
+        "3": "Verb",
+        "4": "Prep",
+        "5": "NP3",
+        "6": "End"
+    },
+    "predictions": [
+        {
+            "relation": "greaterthan",
+            "region_number": 3,
+            "l_operand": "that",
+            "r_operand": "what"
+        }
+    ],
+    "items": [
+        {
+            "item_number": 1,
+            "conditions": [
+                {
+                    "condition_name": "that",
+                    "regions": [
+                        {
+                            "region_number": 1,
+                            "content": "I know that"
+                        },
+                        {
+                            "region_number": 2,
+                            "content": "our aunt"
+                        },
+                        {
+                            "region_number": 3,
+                            "content": "grabbed"
+                        },
+                        {
+                            "region_number": 4,
+                            "content": "in front of"
+                        },
+                        {
+                            "region_number": 5,
+                            "content": "the guests"
+                        },
+                        {
+                            "region_number": 6,
+                            "content": "at the holiday party."
+                        }
+                    ]
+                },
+                {
+                    "condition_name": "what",
+                    "regions": [
+                        {
+                            "region_number": 1,
+                            "content": "I know what"
+                        },
+                        {
+                            "region_number": 2,
+                            "content": "our aunt"
+                        },
+                        {
+                            "region_number": 3,
+                            "content": "grabbed"
+                        },
+                        {
+                            "region_number": 4,
+                            "content": "in front of"
+                        },
+                        {
+                            "region_number": 5,
+                            "content": "the guests"
+                        },
+                        {
+                            "region_number": 6,
+                            "content": "at the holiday party."
+                        }
+                    ]
+                }   
+            ]
+        },
+        {
+            "item_number": 2,
+            "conditions": [
+                {
+                    "condition_name": "that",
+                    "regions": [
+                        {
+                            "region_number": 1,
+                            "content": "My neighbor told me that"
+                        },
+                        {
+                            "region_number": 2,
+                            "content": "the dog"
+                        },
+                        {
+                            "region_number": 3,
+                            "content": "caught"
+                        },
+                        {
+                            "region_number": 4,
+                            "content": "in full view of"
+                        },
+                        {
+                            "region_number": 5,
+                            "content": "the neighbors"
+                        },
+                        {
+                            "region_number": 6,
+                            "content": "yesterday."
+                        }
+                    ]
+                },
+                {
+                    "condition_name": "what",
+                    "regions": [
+                        {
+                            "region_number": 1,
+                            "content": "My neighbor told me what"
+                        },
+                        {
+                            "region_number": 2,
+                            "content": "the dog"
+                        },
+                        {
+                            "region_number": 3,
+                            "content": "caught"
+                        },
+                        {
+                            "region_number": 4,
+                            "content": "in full view of"
+                        },
+                        {
+                            "region_number": 5,
+                            "content": "the neighbors"
+                        },
+                        {
+                            "region_number": 6,
+                            "content": "yesterday."
+                        }
+                    ]
+                }   
+            ]
+        }
+    ]
+}
