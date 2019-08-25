@@ -4,7 +4,7 @@
         "author": "Syntax James",
         "reference": "James, Syntax (1956). Syntactic Strucgyms.",
         "metric": "all",
-        "model": "grnn"
+        "model": "GRNN"
     },
     "region_meta": {
         "1": "prefix",
