@@ -1,10 +1,10 @@
 {
     "meta": {
-        "name": "getting late",
+        "name": "test",
         "author": "Syntax James",
         "reference": "James, Syntax (1956). Syntactic Strucgyms.",
         "metric": "all",
-        "model": "GRNN"
+        "model": "grnn"
     },
     "region_meta": {
         "1": "prefix",
