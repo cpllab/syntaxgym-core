@@ -36,8 +36,8 @@ class Sentence:
                     region_tokens[r.region_number].append(token)
                     # remove token from content
                     content = content[len(token):]
-                    # if end of content, and before last region
-                    if content == '' and r_idx < len(self.regions) - 1:
+                    # if end of content (removing spaces), and before last region
+                    if content.strip() == '' and r_idx < len(self.regions) - 1:
                         r_idx += 1
                         r = self.regions[r_idx]
                         content = r.content
@@ -54,10 +54,7 @@ class Region:
         self.token_surprisals = []
 
     def __repr__(self):
-        s = '''Region(
-    {}
-)
-    '''.format(str(vars(self)))
+        s = 'Region(\n\t{}\n)'.format(str(vars(self)))
         return s
 
     def agg_surprisal(self, metric):

@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 MODEL=$1
-CONTAINER="cpllab/language-models:${MODEL}"
+IMAGE="cpllab/language-models:${MODEL}"
 
 PREFIX="data/test-unk/"
 IN_JSON="${PREFIX}in.json"
@@ -10,14 +10,14 @@ SURPRISAL="${PREFIX}surp_${MODEL}.txt"
 OUT_JSON="${PREFIX}out_${MODEL}.json"
 
 echo "INPUT FILE: ${IN_JSON}"
-echo "CONTAINER: ${CONTAINER}"
+echo "IMAGE: ${IMAGE}"
 
 printf "** Extracting sentences..."
 python get_sentences.py --i ${IN_JSON} --o ${SENTENCES}
 printf "\r** Extracting sentences ===> ${SENTENCES}\n"
 
 # show spinning progress icon while getting surprisals
-docker run --rm -i ${CONTAINER} \
+docker run --rm -i ${IMAGE} \
   get_surprisals /dev/stdin < $SENTENCES > ${SURPRISAL} 2>/dev/null &
 pid=$! # process id of command
 spin='-\|/'
@@ -32,6 +32,6 @@ printf "\r** Getting surprisals ===> ${SURPRISAL}\n"
 
 printf "** Aggregating surprisals..."
 python agg_surprisals.py \
-  --surprisal ${SURPRISAL} --sentences ${SENTENCES} --model ${MODEL} \
+  --surprisal ${SURPRISAL} --sentences ${SENTENCES} --image ${IMAGE} \
   --i ${IN_JSON} --o ${OUT_JSON} 
 printf "\r** Aggregating surprisals ===> ${OUT_JSON}\n"
