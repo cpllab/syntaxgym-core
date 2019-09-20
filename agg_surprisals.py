@@ -29,7 +29,7 @@ def agg_surprisals(surprisals, sentence_tokens, unks, in_data, model_name):
     # iterate through surprisal file, matching tokens with regions
     for i_idx, item in enumerate(in_data['items']):
         for c_idx, cond in enumerate(item['conditions']):
-            sentence = Sentence(**cond, tokens=sentence_tokens[s_idx])
+            sentence = Sentence(**cond, tokens=sentence_tokens[s_idx], model=model_name)
             for r_idx, region in enumerate(sentence.regions):
                 for token in region.tokens:
                     # find matching surprisal value for token,

@@ -1,16 +1,17 @@
 import utils
+import string
 
 class Sentence:
-    def __init__(self, condition_name='', regions=None, tokens=[]):
+    def __init__(self, condition_name='', regions=None, tokens=[], model=None):
         self.regions = [Region(**r) for r in regions]
         self.content = ' '.join(r.content for r in self.regions)
         self.tokens = tokens
-        self.region2tokens = self.tokenize_regions()
+        self.region2tokens = self.tokenize_regions(model=model)
         for i, r in enumerate(self.regions):
             r.tokens = self.region2tokens[r.region_number]
             self.regions[i] = r
 
-    def tokenize_regions(self):
+    def tokenize_regions(self, model=None):
         """
         Converts self.tokens (list of tokens) to dictionary of 
         <region_number, token list> pairs.
@@ -25,27 +26,41 @@ class Sentence:
 
         # iterate over all tokens in sentence
         for token in self.tokens:
+
+            # remove casing and punctuation for ordered-neurons only
+            if model == 'ordered-neurons':
+                content = content.lower()
+                content = content.translate(
+                    str.maketrans('', '', string.punctuation)
+                )
+
             # handle <eos> separately
             if token == '<eos>':
                 region_tokens[r.region_number].append(token)
+
+            # for non-<eos> tokens
             else:
                 # remove leading spaces of current content
                 content = content.lstrip()
+
                 # if exact match with beginning of content
                 if token == content[:len(token)]:
                     region_tokens[r.region_number].append(token)
                     # remove token from content
                     content = content[len(token):]
+
                     # if end of content (removing spaces), and before last region
                     if content.strip() == '' and r_idx < len(self.regions) - 1:
                         r_idx += 1
                         r = self.regions[r_idx]
                         content = r.content
+
                 # otherwise, move to next region
                 else:
                     r_idx += 1
                     r = self.regions[r_idx]
                     content = r.content
+
         return region_tokens
 
 class Region:

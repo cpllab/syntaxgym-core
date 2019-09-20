@@ -12,7 +12,7 @@ METRICS = {
     'min': min
 }
 
-MODELS = ['grnn', 'transformer-xl', 'rnng', 'jrnn']
+MODELS = ['grnn', 'transformer-xl', 'rnng', 'jrnn', 'ordered-neurons']
 
 def flatten(l):
     """
