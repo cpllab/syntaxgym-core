@@ -34,7 +34,9 @@ def agg_surprisals(surprisals, sentence_tokens, unks, in_data, model_name):
                 for token in region.tokens:
                     # find matching surprisal value for token,
                     # or simply store surprisal if token is UNK
-                    if (token == TOKENS[t_idx] or unks[t_idx] == 1):
+                    # NOTE: quick, untested, dirty hack for roBERTa
+                    if (token == TOKENS[t_idx] or unks[t_idx] == 1 or \
+                       (model_name == 'roberta' and 'Ġ'+token == TOKENS[t_idx])):
                         region.token_surprisals.append(SURPRISALS[t_idx])
                         t_idx += 1
                     else:

@@ -11,7 +11,7 @@ class Sentence:
             r.tokens = self.region2tokens[r.region_number]
             self.regions[i] = r
 
-    def tokenize_regions(self, model=None):
+    def tokenize_regions(self, model=None, eos_tokens=['<eos>', '</S>']):
         """
         Converts self.tokens (list of tokens) to dictionary of 
         <region_number, token list> pairs.
@@ -34,14 +34,22 @@ class Sentence:
                     str.maketrans('', '', string.punctuation)
                 )
 
-            # handle <eos> separately
-            if token == '<eos>':
+            # handle end-of-sentence tokens separately
+            if token in eos_tokens:
                 region_tokens[r.region_number].append(token)
 
-            # for non-<eos> tokens
+            # for non-eos tokens
             else:
                 # remove leading spaces of current content
                 content = content.lstrip()
+
+                # NOTE: quick, untested, dirty hack for roBERTa tokenization
+                # deal with token boundaries and decomposition, e.g.
+                # This token will decompose. --> ĠThis Ġtoken Ġwill Ġdecom pose .
+                if model == 'roberta':
+                    if token[0] == 'Ġ':
+                        # remove token boundary
+                        token = token[1:]
 
                 # if exact match with beginning of content
                 if token == content[:len(token)]:
