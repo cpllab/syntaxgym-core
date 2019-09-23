@@ -11,9 +11,9 @@ class Sentence:
             r.tokens = self.region2tokens[r.region_number]
             self.regions[i] = r
 
-    def tokenize_regions(self, model=None, eos_tokens=['<eos>', '</S>']):
+    def tokenize_regions(self, model=None, eos_tokens=['<eos>', '</S>', '</s>']):
         """
-        Converts self.tokens (list of tokens) to dictionary of 
+        Converts self.tokens (list of tokens) to dictionary of
         <region_number, token list> pairs.
         """
         # initialize current region, content, and counter
