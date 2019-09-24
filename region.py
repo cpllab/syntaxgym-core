@@ -27,12 +27,15 @@ class Sentence:
         # iterate over all tokens in sentence
         for token in self.tokens:
 
-            # remove casing and punctuation for ordered-neurons only
+            # HACK: remove casing and punctuation for ordered-neurons only
             if model == 'ordered-neurons':
                 content = content.lower()
                 content = content.translate(
                     str.maketrans('', '', string.punctuation)
                 )
+            # HACK: remove casing for ngram
+            elif model == "ngram":
+                content = content.lower()
 
             # handle end-of-sentence tokens separately
             if token in eos_tokens:
