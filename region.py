@@ -1,5 +1,7 @@
 import utils
-import string
+import re
+
+punct_re = re.compile(r"^[-.?!,\*]+$")
 
 class Sentence:
     def __init__(self, condition_name='', regions=None, tokens=[], model=None):
@@ -27,12 +29,11 @@ class Sentence:
         # iterate over all tokens in sentence
         for token in self.tokens:
 
-            # HACK: remove casing and punctuation for ordered-neurons only
+            # HACK: remove casing and punctuation for ordered-neurons
             if model == 'ordered-neurons':
                 content = content.lower()
-                content = content.translate(
-                    str.maketrans('', '', string.punctuation)
-                )
+                content = ' '.join([s for s in content.split(' ') if not punct_re.match(s)])
+
             # HACK: remove casing for ngram
             elif model == "ngram":
                 content = content.lower()
