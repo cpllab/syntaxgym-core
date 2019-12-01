@@ -66,8 +66,6 @@ def validate_metrics(metrics):
     Checks if specified metrics are valid. Returns None if check passes,
     else raises ValueError.
     """
-    # if only one metric specified, convert to list
-    metrics = [metrics] if len(metrics) == 1 else metrics
     if any(m not in METRICS for m in metrics):
         bad_metrics = [m for m in metrics if m not in METRICS]
         raise ValueError('Unknown metrics: {}'.format(bad_metrics))
@@ -80,34 +78,37 @@ def run(cmd_str):
     res = subprocess.run(cmd_str.split(), stdout=subprocess.PIPE)
     return res.stdout.decode('utf-8').split('\n')
 
-def tokenize_file(sentence_path, model):
+def tokenize_file(sentence_path, image):
     """
-    Tokenizes file at sentence_path according to model.
-    If model is None, then split tokens based on whitespace.
+    Tokenizes file at sentence_path according to specified Docker image.
+    If image is None, then split tokens based on whitespace.
     """
-    if model is None:
+    if image is None:
         with open(sentence_path, 'r') as f:
             sentences = f.readlines()
     else:
         # need to call external script to avoid hanging PIPE
-        cmd = './tokenize_file %s %s' % (model, sentence_path)
+        cmd = './tokenize_file %s %s' % (image, sentence_path)
         sentences = run(cmd)
     tokens = [s.strip().split(' ') for s in sentences]
     return tokens
     
-def unkify_file(sentence_path, model):
+def unkify_file(sentence_path, image):
     """
-    Unkifies file at sentence_path according to model.
-    If model is None, then return no unks (all 0s).
-    Note that the returned list is flattened over sentences.
+    Unkifies file at sentence_path according to image.
+    If image is None, then return no unks (all 0s).
     """
-    if model is None:
-        tokens = tokenize_file(sentence_path, model)
-        unks = [0 for sentence in tokens for t in sentence]
+    if image is None:
+        tokens = tokenize_file(sentence_path, image)
+        mask = [[0 for t in sent_tokens] for sent_tokens in tokens]
     else:
         # need to call external script to avoid hanging PIPE
-        cmd = './unkify_file %s %s' % (model, sentence_path)
-        unk_mask = run(cmd)
-        unk_mask = [u for u in unk_mask if u != '']
-        unks = [int(s) for u in unk_mask for s in u.split(' ')]
-    return unks
+        cmd = './unkify_file %s %s' % (image, sentence_path)
+        mask = run(cmd)
+        # split on newlines to get sentences
+        # print(raw_mask)
+        # mask = raw_mask.split('\n')
+        mask = [u for u in mask if u != '']
+        # split on whitespace and convert strings to ints
+        mask = [[int(u) for u in sent_unks.split(' ')] for sent_unks in mask]
+    return mask
