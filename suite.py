@@ -42,6 +42,11 @@ class Sentence:
             # if token == '.':
             #     continue
 
+            # handle end-of-sentence tokens separately
+            if token in eos_tokens:
+                region_tokens[r.region_number].append(token)
+                break
+
             # if empty region, automatically proceed to next region
             if content == '':
                 r_idx += 1
@@ -60,10 +65,6 @@ class Sentence:
                     # remove token boundary
                     token = token[1:]
 
-            # handle end-of-sentence tokens separately
-            if token in eos_tokens:
-                region_tokens[r.region_number].append(token)
-
             # handle out-of-vocabulary tokens separately
             # elif self.unks[t_idx] == 1:
             #     raise NotImplementedError(
@@ -71,28 +72,26 @@ class Sentence:
             #         .format(token, model)
             #     )
 
-            # for non-eos tokens
-            else:
-                # remove leading spaces of current content
-                content = content.lstrip()
+            # remove leading spaces of current content
+            content = content.lstrip()
 
-                # if exact match with beginning of content
-                if token == content[:len(token)]:
-                    region_tokens[r.region_number].append(token)
-                    # remove token from content
-                    content = content[len(token):]
+            # if exact match with beginning of content
+            if token == content[:len(token)]:
+                region_tokens[r.region_number].append(token)
+                # remove token from content
+                content = content[len(token):]
 
-                    # if end of content (removing spaces), and before last region
-                    if content.strip() == '' and r_idx < len(self.regions) - 1:
-                        r_idx += 1
-                        r = self.regions[r_idx]
-                        content = r.content
-                        
-                # otherwise, move to next region
-                else:
+                # if end of content (removing spaces), and before last region
+                if content.strip() == '' and r_idx < len(self.regions) - 1:
                     r_idx += 1
                     r = self.regions[r_idx]
                     content = r.content
+                    
+            # otherwise, move to next region
+            else:
+                r_idx += 1
+                r = self.regions[r_idx]
+                content = r.content
 
         return region_tokens
 
