@@ -54,13 +54,13 @@ class Sentence:
                 content = r.content
 
             # HACK: remove casing and punctuation for ordered-neurons
-            if model == 'ordered-neurons':
-                content = ' '.join([s for s in content.split(' ') if not punct_re.match(s)])
+            # if model == 'ordered-neurons':
+            #     content = ' '.join([s for s in content.split(' ') if not punct_re.match(s)])
 
             # HACK: quick, untested, dirty hack for roBERTa tokenization
             # deal with token boundaries and decomposition, e.g.
             # This token will decompose. --> ĠThis Ġtoken Ġwill Ġdecom pose .
-            elif model == 'roberta':
+            if model == 'roberta':
                 if token[0] == 'Ġ':
                     # remove token boundary
                     token = token[1:]
@@ -92,7 +92,6 @@ class Sentence:
                 r_idx += 1
                 r = self.regions[r_idx]
                 content = r.content
-
         return region_tokens
 
 class Region:

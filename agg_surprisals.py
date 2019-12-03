@@ -33,7 +33,7 @@ def agg_surprisals(surprisals, tokens, unks, in_data, model):
         for c_idx, cond in enumerate(item['conditions']):
             # sent_tokens must match TOKENS exactly
             sent_tokens = tokens[s_idx]
-            sent_unks = unks[s_idx]
+            sent_unks = [] #unks[s_idx]
             sent = Sentence(**cond, tokens=sent_tokens, unks=sent_unks, model=model)
             for r_idx, region in enumerate(sent.regions):
                 for token in region.tokens:
@@ -56,10 +56,13 @@ def main(args):
     # read input test suite and token-level surprisals
     in_data = utils.load_json(args.i)
     surprisals = pd.read_csv(args.surprisal, delim_whitespace=True)
+    tokens = utils.read_lines(args.sentences)
+    tokens = [l.split() for l in tokens]
 
     # obtain tokens and unk mask for sentences
-    tokens = utils.tokenize_file(args.sentences, args.image)
-    unks = utils.unkify_file(args.sentences, args.image)
+    # tokens = utils.tokenize_file(args.sentences, args.image)
+    # unks = utils.unkify_file(args.sentences, args.image)
+    unks = None
 
     # aggregate token-level --> region-level surprisals
     out_data = agg_surprisals(surprisals, tokens, unks, in_data, args.model)

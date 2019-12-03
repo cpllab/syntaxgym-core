@@ -17,7 +17,7 @@ do
     echo $SUITE_NAME
     python agg_surprisals.py \
         -surprisal ${SURPRISAL_ROOT}/${MODEL_NAME}/${CORPUS}/${SUITE_NAME}_${MODEL}.csv \
-        -sentences ${SUITE_ROOT}/txt/${SUITE_NAME}.txt \
+        -sentences ${SUITE_ROOT}/token/${SUITE_NAME}.txt \
         -m ${MODEL} \
         -image cpllab/language-models:tiny-lstm \
         -i ${SUITE_ROOT}/json/${SUITE_NAME}.json \
