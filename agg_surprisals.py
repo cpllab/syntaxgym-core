@@ -24,21 +24,28 @@ def agg_surprisals(surprisals, tokens, unks, in_data, model):
     # store tokens and surprisal values from surprisal file
     TOKENS = surprisals['token'].values
     SURPRISALS = surprisals['surprisal'].values
-
+    
     # initialize counters for token and sentence from in_data
     t_idx, s_idx = 0, 0
+
+    # flatten unks so we can index into it with t_idx
+    flat_unks = utils.flatten(unks)
 
     # iterate through surprisal file, matching tokens with regions
     for i_idx, item in enumerate(in_data['items']):
         for c_idx, cond in enumerate(item['conditions']):
             # sent_tokens must match TOKENS exactly
             sent_tokens = tokens[s_idx]
-            sent_unks = [] #unks[s_idx]
+            sent_unks = unks[s_idx]
+            if any(sent_unks):
+                print('WARNING: <unk>s found for item {}:\n* {}'.format(
+                    i_idx, [sent_tokens[u] for u in sent_unks if u == 1]
+                ))
             sent = Sentence(**cond, tokens=sent_tokens, unks=sent_unks, model=model)
             for r_idx, region in enumerate(sent.regions):
                 for token in region.tokens:
-                    # find matching surprisal value for token
-                    if token == TOKENS[t_idx]:
+                    # find matching surprisal value for token, ignoring unks
+                    if token == TOKENS[t_idx] or flat_unks[t_idx] == 1:
                         region.token_surprisals.append(SURPRISALS[t_idx])
                         t_idx += 1
                     else:
@@ -56,13 +63,10 @@ def main(args):
     # read input test suite and token-level surprisals
     in_data = utils.load_json(args.i)
     surprisals = pd.read_csv(args.surprisal, delim_whitespace=True)
-    tokens = utils.read_lines(args.sentences)
-    tokens = [l.split() for l in tokens]
 
     # obtain tokens and unk mask for sentences
-    # tokens = utils.tokenize_file(args.sentences, args.image)
-    # unks = utils.unkify_file(args.sentences, args.image)
-    unks = None
+    tokens = utils.tokenize_file(args.sentences, args.image)
+    unks = utils.unkify_file(args.sentences, args.image)
 
     # aggregate token-level --> region-level surprisals
     out_data = agg_surprisals(surprisals, tokens, unks, in_data, args.model)
