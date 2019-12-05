@@ -69,7 +69,7 @@ class Sentence:
                 content = r.content.lstrip()
             
             # if exact match with beginning of content, or unk
-            elif content.startswith(token) or self.unks[t_idx] == 1:
+            if content.startswith(token) or (self.unks and self.unks[t_idx] == 1):
                 # add token to list of tokens for current region
                 region_tokens[r.region_number].append(token)
                 
