@@ -1,10 +1,10 @@
 {
     "meta": {
-        "name": "test",
+        "name": "test-unk",
         "author": "Syntax James",
         "reference": "James, Syntax (1956). Syntactic Strucgyms.",
         "metric": "all",
-        "model": "grnn"
+        "model": "GRNN"
     },
     "region_meta": {
         "1": "prefix",
@@ -160,13 +160,13 @@
                         },
                         {
                             "region_number": 6,
-                            "content": "at the holiday party.",
+                            "content": "at the WEIRDSCARYWORD party.",
                             "metric_value": {
-                                "sum": 25.690093,
-                                "mean": 4.281682166666667,
-                                "median": 3.287984,
-                                "range": 11.191925,
-                                "max": 11.191925,
+                                "sum": 21.395284,
+                                "mean": 3.5658806666666667,
+                                "median": 3.430026,
+                                "range": 8.123581,
+                                "max": 8.123581,
                                 "min": -0.0
                             }
                         }

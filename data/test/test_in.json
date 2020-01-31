@@ -3,7 +3,8 @@
         "name": "test",
         "author": "Syntax James",
         "reference": "James, Syntax (1956). Syntactic Strucgyms.",
-        "metric": "all"
+        "metric": "all",
+        "tags": ["filler-gap"]
     },
     "region_meta": {
         "1": "prefix",
@@ -13,6 +14,14 @@
         "5": "NP3",
         "6": "End"
     },
+    "predictions": [
+        {
+            "relation": "greaterthan",
+            "region_number": 3,
+            "l_operand": "that",
+            "r_operand": "what"
+        }
+    ],
     "items": [
         {
             "item_number": 1,
