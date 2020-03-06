@@ -14,6 +14,13 @@ METRICS = {
 
 MODELS = ['grnn', 'transformer-xl', 'rnng', 'jrnn', 'ordered-neurons', 'roberta']
 
+class TokenMismatch(Exception):
+    def __init__(self, token1, token2, t_idx):
+        msg = '''
+tokens \"%s\" and \"%s\" do not match (line %d in surprisal file)
+        ''' % (token1, token2, t_idx)
+        Exception.__init__(self, msg)
+
 def flatten(l):
     """
     Flattens a list. Credit to https://stackoverflow.com/a/952952
@@ -77,6 +84,15 @@ def run(cmd_str):
     """
     res = subprocess.run(cmd_str.split(), stdout=subprocess.PIPE)
     return res.stdout.decode('utf-8').split('\n')
+
+def get_spec(image):
+    """
+    Gets model spec from specified Docker image.
+    """
+    cmd = 'docker run --rm -i %s spec' % image
+    spec_str = run(cmd)[0]
+    spec_dict = json.loads(spec_str)
+    return spec_dict
 
 def tokenize_file(sentence_path, image):
     """

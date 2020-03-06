@@ -1,33 +1,30 @@
 import utils
-import re
+from pprint import pformat
+import warnings
+# import re
 
-punct_re = re.compile(r"^[-.?!,\*]+$")
-
-UNCASED_MODELS = ['ordered_neurons', 'ngram']
-BPE_MODELS = ['gpt-2', 'roberta']
+# punct_re = re.compile(r"^[-.?!,\*]+$")
 
 class Sentence:
-    def __init__(self, condition_name='', regions=None, 
-                 tokens=[], unks=[], model=None):
+    def __init__(self, spec, tokens, unks, item_num=None, condition_name='', regions=None):
         self.regions = [Region(**r) for r in regions]
         self.content = ' '.join(r.content for r in self.regions)
         self.tokens = tokens
         self.unks = unks
-        # TODO: require containers to specify casing scheme of model
-        self.region2tokens = self.tokenize_regions(
-            model=model, uncased=(model in UNCASED_MODELS), bpe=(model in BPE_MODELS)
-        )
+        self.item_num = item_num
+
+        # compute region-to-token mapping upon initialization
+        self.region2tokens = self.tokenize_regions(spec) 
         for i, r in enumerate(self.regions):
             r.tokens = self.region2tokens[r.region_number]
             self.regions[i] = r
 
-    def tokenize_regions(self, model=None, uncased=False, nopunct=False, 
-                         bpe=False, eos_tokens=['<eos>', '</S>', '</s>']):
+    def tokenize_regions(self, spec):
         """
         Converts self.tokens (list of tokens) to dictionary of
         <region_number, token list> pairs.
         """
-        # initialize current region, content, and counter
+        # initialize counter, current region, and content
         r_idx = 0
         r = self.regions[r_idx]
         content = r.content
@@ -37,27 +34,30 @@ class Sentence:
 
         # iterate over all tokens in sentence
         for t_idx, token in enumerate(self.tokens):
-            # handle end-of-sentence tokens separately
-            if token in eos_tokens:
+            # exit loop upon encountering end-of-sentence token
+            if token in spec['vocabulary']['suffix_types']:
                 region_tokens[r.region_number].append(token)
                 break
-            # handle out-of-vocabulary tokens separately
-            # elif self.unks[t_idx] == 1:
-                # raise RuntimeError(
-                #     '"{}" is out-of-vocabulary for {}'.format(token, model)
-                # )
+
+            # ignore token if start-of-sentence token
+            elif token in spec['vocabulary']['prefix_types']:
+                continue
+
+            # warn user if token is out-of-vocabulary
+            elif self.unks[t_idx]:
+                warnings.warn('Item {} contains OOVs: {}'.format(self.item_num, content.split()[0]), RuntimeWarning)
 
             # HACK: remove casing and punctuation
-            if uncased:
-                content = content.lower()
-            if nopunct:
-                content = ' '.join([s for s in content.split(' ') if not punct_re.match(s)])
+            # if uncased:
+            #     content = content.lower()
+            # if nopunct:
+            #     content = ' '.join([s for s in content.split(' ') if not punct_re.match(s)])
 
             # HACK: quick, untested, dirty hack for BPE tokenization, e.g.
             # This token will decompose. --> ĠThis Ġtoken Ġwill Ġdecom pose .
-            if bpe and token.startswith('Ġ'):
-                # remove token boundary
-                token = token[1:]
+            # if bpe and token.startswith('Ġ'):
+            #     # remove token boundary
+            #     token = token[1:]
 
             # remove leading spaces of current content
             content = content.lstrip()
@@ -68,13 +68,17 @@ class Sentence:
                 r = self.regions[r_idx]
                 content = r.content.lstrip()
             
-            # if exact match with beginning of content, or unk
-            if content.startswith(token) or (self.unks and self.unks[t_idx] == 1):
+            # if token has exact match with beginning of content, or unk
+            if content.startswith(token) or token in spec['vocabulary']['unk_types']:
                 # add token to list of tokens for current region
                 region_tokens[r.region_number].append(token)
                 
                 # remove token from content
-                content = content[len(token):]
+                if content.startswith(token):
+                    content = content[len(token):]
+                else:
+                    # for unk, skip the first token of content
+                    content = ' '.join(content.split()[1:])
 
                 # if end of content (removing spaces), and before last region
                 if content.strip() == '' and r_idx < len(self.regions) - 1:
@@ -95,7 +99,7 @@ class Region:
         self.token_surprisals = []
 
     def __repr__(self):
-        s = 'Region(\n\t{}\n)'.format(str(vars(self)))
+        s = 'Region(\n{}\n)'.format(pformat(vars(self)))
         return s
 
     def agg_surprisal(self, metric):

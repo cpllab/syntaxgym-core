@@ -4,14 +4,7 @@ import pandas as pd
 from pathlib import Path
 from suite import Sentence, Region
 
-class TokenMismatch(Exception):
-    def __init__(self, token1, token2, t_idx):
-        msg = '''
-tokens \"%s\" and \"%s\" do not match (line %d in surprisal file)
-        ''' % (token1, token2, t_idx)
-        Exception.__init__(self, msg)
-
-def agg_surprisals(surprisals, tokens, unks, in_data, model):
+def aggregate_surprisals(surprisals, tokens, unks, in_data, spec):
     # check that specified metrics are implemented in utils.METRICS
     metrics = in_data['meta']['metric']
     if metrics == 'all':
@@ -28,62 +21,66 @@ def agg_surprisals(surprisals, tokens, unks, in_data, model):
     # initialize counters for token and sentence from in_data
     t_idx, s_idx = 0, 0
 
-    # flatten unks so we can index into it with t_idx
-    flat_unks = utils.flatten(unks)
-
     # iterate through surprisal file, matching tokens with regions
     for i_idx, item in enumerate(in_data['items']):
         for c_idx, cond in enumerate(item['conditions']):
-            # sent_tokens must match TOKENS exactly
+            # grab tokens and unks for current sentence from Docker image output
             sent_tokens = tokens[s_idx]
             sent_unks = unks[s_idx]
-            if any(sent_unks):
-                print('WARNING: <unk>s found for item {}:\n* {}'.format(
-                    i_idx, [sent_tokens[u] for u in sent_unks if u == 1]
-                ))
-            sent = Sentence(**cond, tokens=sent_tokens, unks=sent_unks, model=model)
+
+            # initialize Sentence object for current sentence
+            sent = Sentence(spec, sent_tokens, sent_unks, item_num=i_idx+1, **cond)
+
+            # iterate through regions in sentence
             for r_idx, region in enumerate(sent.regions):
+                print(region)
                 for token in region.tokens:
-                    # find matching surprisal value for token, ignoring unks
-                    if token == TOKENS[t_idx] or flat_unks[t_idx] == 1:
+                    # append to region surprisals if exact token match
+                    if token == TOKENS[t_idx]:
                         region.token_surprisals.append(SURPRISALS[t_idx])
                         t_idx += 1
                     else:
-                        raise TokenMismatch(token, TOKENS[t_idx], t_idx + 2)
-                # get dictionary of aggregate surprisal values for each metric
+                        raise utils.TokenMismatch(token, TOKENS[t_idx], t_idx+2)
+
+                # get dictionary of region-level surprisal values for each metric
                 vals = {m : region.agg_surprisal(m) for m in metrics}
-                # add to original dict
+
+                # insert surprisal values into original dict
                 in_data['items'][i_idx]['conditions'][c_idx]['regions'][r_idx]['metric_value'] = vals
+
             # update sentence counter
             s_idx += 1
-    in_data['meta']['model'] = model
+
+    # update meta information with model name
+    in_data['meta']['model'] = spec['name']
     return in_data
 
 def main(args):
     # read input test suite and token-level surprisals
-    in_data = utils.load_json(args.i)
+    in_data = utils.load_json(args.input)
     surprisals = pd.read_csv(args.surprisal, delim_whitespace=True)
+
+    # obtain spec for model
+    spec = utils.get_spec(args.image)
 
     # obtain tokens and unk mask for sentences
     tokens = utils.tokenize_file(args.sentences, args.image)
     unks = utils.unkify_file(args.sentences, args.image)
 
     # aggregate token-level --> region-level surprisals
-    out_data = agg_surprisals(surprisals, tokens, unks, in_data, args.model)
-    utils.write_json(out_data, args.o)
+    out_data = aggregate_surprisals(surprisals, tokens, unks, in_data, spec)
+    utils.write_json(out_data, args.output)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='aggregate surprisal')
-    parser.add_argument('--surprisal', '-surprisal', type=Path,
+    parser.add_argument('--surprisal', type=Path,
                         help='path to file containing token-based surprisals')
-    parser.add_argument('--sentences', '-sentences', type=Path,
+    parser.add_argument('--sentences', type=Path,
                         help='path to file containing sentences')
-    parser.add_argument('--model', '-m', type=str,
-                        help='model name')
-    parser.add_argument('--image', '-image', type=str, help='Docker image name')
-    parser.add_argument('--i', '-i', type=Path,
+    parser.add_argument('--image', type=str, help='Docker image name')
+    parser.add_argument('--input', type=Path,
                         help='path to JSON file with input data')
-    parser.add_argument('--o', '-o', type=Path,
+    parser.add_argument('--output', '-o', type=Path,
                         help='path to JSON file to write output data')
     args = parser.parse_args()
     main(args)
