@@ -33,7 +33,6 @@ def aggregate_surprisals(surprisals, tokens, unks, in_data, spec):
 
             # iterate through regions in sentence
             for r_idx, region in enumerate(sent.regions):
-                print(region)
                 for token in region.tokens:
                     # append to region surprisals if exact token match
                     if token == TOKENS[t_idx]:
@@ -47,6 +46,10 @@ def aggregate_surprisals(surprisals, tokens, unks, in_data, spec):
 
                 # insert surprisal values into original dict
                 in_data['items'][i_idx]['conditions'][c_idx]['regions'][r_idx]['metric_value'] = vals
+                
+                # update original dict with OOV information
+                region_oovs = sent.oovs[r_idx] if r_idx in sent.oovs else None
+                in_data['items'][i_idx]['conditions'][c_idx]['regions'][r_idx]['oovs'] = region_oovs
 
             # update sentence counter
             s_idx += 1

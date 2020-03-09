@@ -1,17 +1,20 @@
 import utils
 from pprint import pformat
 import warnings
+from collections import defaultdict
 # import re
 
 # punct_re = re.compile(r"^[-.?!,\*]+$")
 
 class Sentence:
     def __init__(self, spec, tokens, unks, item_num=None, condition_name='', regions=None):
-        self.regions = [Region(**r) for r in regions]
-        self.content = ' '.join(r.content for r in self.regions)
         self.tokens = tokens
         self.unks = unks
         self.item_num = item_num
+        self.condition_name = condition_name
+        self.regions = [Region(**r) for r in regions]
+        self.content = ' '.join(r.content for r in self.regions)
+        self.oovs = defaultdict(list)
 
         # compute region-to-token mapping upon initialization
         self.region2tokens = self.tokenize_regions(spec) 
@@ -39,17 +42,19 @@ class Sentence:
                 region_tokens[r.region_number].append(token)
                 break
 
-            # ignore token if start-of-sentence token
-            elif token in spec['vocabulary']['prefix_types']:
+            # proceed to next token for special cases
+            elif token in spec['vocabulary']['prefix_types'] or token in spec['vocabulary']['special_types']:
                 continue
 
             # warn user if token is out-of-vocabulary
             elif self.unks[t_idx]:
-                warnings.warn('Item {} contains OOVs: {}'.format(self.item_num, content.split()[0]), RuntimeWarning)
+                next_word = content.split()[0]
+                warnings.warn('OOV found in Item {}, Condition "{}": "{}"'.format(
+                    self.item_num, self.condition_name, next_word
+                ), RuntimeWarning)
+                self.oovs[r_idx].append(next_word)
 
-            # HACK: remove casing and punctuation
-            # if uncased:
-            #     content = content.lower()
+            # HACK: remove punctuation
             # if nopunct:
             #     content = ' '.join([s for s in content.split(' ') if not punct_re.match(s)])
 
@@ -67,6 +72,10 @@ class Sentence:
                 r_idx += 1
                 r = self.regions[r_idx]
                 content = r.content.lstrip()
+
+            # remove casing if necessary
+            if spec['cased']:
+                content = content.lower()
             
             # if token has exact match with beginning of content, or unk
             if content.startswith(token) or token in spec['vocabulary']['unk_types']:
@@ -77,7 +86,7 @@ class Sentence:
                 if content.startswith(token):
                     content = content[len(token):]
                 else:
-                    # for unk, skip the first token of content
+                    # for unk token, skip the first token of content
                     content = ' '.join(content.split()[1:])
 
                 # if end of content (removing spaces), and before last region
