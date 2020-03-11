@@ -1,0 +1,1 @@
+{"name": "eos_sos", "ref_url": "", "cased": true, "image": {"maintainer": "jon@gauthiers.net", "version": "", "datetime": "", "gpu": {"required": false, "supported": false}}, "vocabulary": {"unk_types": ["<unk>"], "prefix_types": ["<s>"], "suffix_types": ["</s>"], "special_types": ["[CLS]"], "items": ["This", "is", "a", "test", "."], "drop_token_pattern": ""}}
