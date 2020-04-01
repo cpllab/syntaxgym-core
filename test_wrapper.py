@@ -1,7 +1,29 @@
+import json
+from pathlib import Path
+
+import nose
+import jsonschema
+import requests
+
 from agg_surprisals import aggregate_surprisals
 from suite import Sentence
-import nose
-import json
+
+
+SPEC_SCHEMA_URL = "https://cpllab.github.io/lm-zoo/schemas/language_model_spec.json"
+
+def _test_individual_spec(spec_name, spec, schema):
+    print(spec_name)
+    jsonschema.validate(instance=spec, schema=schema)
+
+def test_specs():
+    """
+    Validate the dummy specs against the lm-zoo standard.
+    """
+    schema_json = requests.get(SPEC_SCHEMA_URL).json()
+    for spec_path in Path("dummy_specs").glob("*.json"):
+        with spec_path.open("r") as spec_f:
+            yield _test_individual_spec, spec_path.name, json.load(spec_f), schema_json
+
 
 def test_eos_sos():
     regions = [
@@ -75,7 +97,7 @@ def test_empty_region():
     assert sentence.region2tokens == {
         1: [],
         2: ["This"],
-        3: ["is"], 
+        3: ["is"],
         4: [],
         5: ["a", "test", "."],
         6: []

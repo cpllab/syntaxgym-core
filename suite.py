@@ -15,7 +15,7 @@ class Sentence:
         self.oovs = defaultdict(list)
 
         # compute region-to-token mapping upon initialization
-        self.region2tokens = self.tokenize_regions(spec) 
+        self.region2tokens = self.tokenize_regions(spec)
         for i, r in enumerate(self.regions):
             r.tokens = self.region2tokens[r.region_number]
             self.regions[i] = r
@@ -38,7 +38,9 @@ class Sentence:
         region2tokens = defaultdict(list)
 
         # compile regex for dropping
-        drop_pattern = re.compile(spec['vocabulary']['drop_token_pattern'])
+        drop_pattern = None
+        if spec['tokenizer'].get('drop_token_pattern') is not None:
+            drop_pattern = re.compile(spec['tokenizer']['drop_token_pattern'])
 
         # iterate over all tokens in sentence
         for t_idx, token in enumerate(self.tokens):
@@ -56,7 +58,7 @@ class Sentence:
             elif token in spec['vocabulary']['prefix_types']:
                 region2tokens[r.region_number].append(token)
                 continue
-            
+
             # skip current token for special cases
             elif token in spec['vocabulary']['special_types']:
                 # TODO: which region should special_type associate with?
@@ -87,7 +89,8 @@ class Sentence:
             content = content.lstrip()
 
             # drop characters specified by regex
-            content = re.sub(drop_pattern, '', content)
+            if drop_pattern is not None:
+                content = re.sub(drop_pattern, '', content)
 
             # if empty region, proceed to next region (keeping current token)
             if content == '':
@@ -95,14 +98,14 @@ class Sentence:
                 r, content = self.get_next_region(r_idx)
 
             # remove casing if necessary
-            if not spec['cased']:
+            if not spec['tokenizer']['cased']:
                 content = content.lower()
-            
+
             # if token has exact match with beginning of content, or unk
             if content.startswith(token) or token in spec['vocabulary']['unk_types']:
                 # add token to list of tokens for current region
                 region2tokens[r.region_number].append(token)
-                
+
                 if content.startswith(token):
                     # remove token from content
                     content = content[len(token):]
@@ -145,7 +148,7 @@ class Sentence:
                         ), RuntimeWarning)
                     r_idx += 1
                     r, content = self.get_next_region(r_idx)
-                    
+
             # otherwise, move to next region and token
             else:
                 r_idx += 1
