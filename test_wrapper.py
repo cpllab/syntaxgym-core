@@ -70,6 +70,11 @@ def test_unk():
     })
 
 def test_consecutive_unk():
+    """
+    Consecutive UNKs are mapped to regions by lookahead -- we look ahead in the
+    token string for the next non-unk token, and associate all unks up to that
+    token with the current region.
+    """
     regions = [
         {"region_number": 1, "content": "This"},
         {"region_number": 2, "content": "is"},
@@ -85,8 +90,37 @@ def test_consecutive_unk():
         0: [],
         1: [],
         2: [],
-        3 : ["WEIRDADVERB", "WEIRDADJECTIVE", "WEIRDNOUN", "."]
+        3 : ["WEIRDADVERB", "WEIRDADJECTIVE", "WEIRDNOUN"]
     })
+
+
+def test_consecutive_unk2():
+    """
+    Consecutive UNKs are mapped to regions by lookahead -- we look ahead in the
+    token string for the next non-unk token, and associate all unks up to that
+    token with the current region.
+    """
+    regions = [
+        {"region_number": 1, "content": "This"},
+        {"region_number": 2, "content": "is"},
+        {"region_number": 3, "content": "a"},
+        {"region_number": 4, "content": "WEIRDADVERB test WEIRDADJECTIVE WEIRDNOUN"},
+        {"region_number": 5, "content": "and some more content."}
+    ]
+    with open("dummy_specs/basic.json", "r") as f:
+        spec = json.load(f)
+    tokens = "This is a <unk> test <unk> <unk> <unk> and some more content .".split()
+    unks = [0, 0, 0, 1, 0, 1, 1, 1]
+    sentence = Sentence(spec, tokens, unks, regions=regions)
+    eq_(sentence.oovs, {
+        0: [],
+        1: [],
+        2: [],
+        3 : ["WEIRDADVERB", "WEIRDADJECTIVE", "WEIRDNOUN"],
+        4: [],
+        5: [],
+    })
+
 
 def test_empty_region():
     regions = [

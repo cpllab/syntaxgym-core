@@ -110,7 +110,8 @@ class Sentence:
                     # remove token from content
                     content = content[len(token):]
                 else:
-                    # find OOVs by looking for match with next non-OOV token
+                    # extract maximal string of OOVs by looking for match with
+                    # next non-OOV token
                     tokens_remaining = len(self.tokens) - t_idx
                     oov_str = None
                     for token_window_size in range(1, tokens_remaining+1):
