@@ -130,8 +130,9 @@ class Sentence:
                                     break
                             if oov_str:
                                 break
+
                     # add OOVs to self.oovs
-                    self.oovs[r_idx].append(oov_str)
+                    self.oovs[r_idx].extend(oov_str.split(" "))
 
                     # remove OOVs from content
                     content = content[len(oov_str):]

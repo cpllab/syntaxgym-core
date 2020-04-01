@@ -1,9 +1,14 @@
 import json
 from pathlib import Path
 
-import nose
 import jsonschema
 import requests
+
+import nose
+from nose.tools import *
+
+import logging
+logging.getLogger("matplotlib").setLevel(logging.ERROR)
 
 from agg_surprisals import aggregate_surprisals
 from suite import Sentence
@@ -38,12 +43,12 @@ def test_eos_sos():
     unks = [0, 0, 0, 0, 0, 0, 0]
     sentence = Sentence(spec, tokens, unks, regions=regions)
     print(sentence.region2tokens)
-    assert sentence.region2tokens == {
+    eq_(sentence.region2tokens, {
         1: ["<s>", "This"],
         2: ["is"],
         3: ["a"],
         4 : ["test", ".", "</s>"]
-    }
+    })
 
 def test_unk():
     regions = [
@@ -57,12 +62,12 @@ def test_unk():
     tokens = "This is <unk> a <unk> .".split()
     unks = [0, 0, 1, 0, 1, 0]
     sentence = Sentence(spec, tokens, unks, regions=regions)
-    assert sentence.oovs == {
+    eq_(sentence.oovs, {
         0: [],
         1: ["WEIRDADVERB"],
         2: [],
         3 : ["WEIRDNOUN"]
-    }
+    })
 
 def test_consecutive_unk():
     regions = [
@@ -73,12 +78,15 @@ def test_consecutive_unk():
     ]
     with open("dummy_specs/basic.json", "r") as f:
         spec = json.load(f)
-    tokens = "This is a <unk> test <unk> <unk> <unk>".split()
+    tokens = "This is a <unk> test <unk> <unk> <unk> .".split()
     unks = [0, 0, 0, 1, 0, 1, 1, 1]
     sentence = Sentence(spec, tokens, unks, regions=regions)
-    assert sentence.oovs == {
+    eq_(sentence.oovs, {
+        0: [],
+        1: [],
+        2: [],
         3 : ["WEIRDADVERB", "WEIRDADJECTIVE", "WEIRDNOUN", "."]
-    }
+    })
 
 def test_empty_region():
     regions = [
@@ -94,14 +102,14 @@ def test_empty_region():
     tokens = "This is a test .".split()
     unks = [0, 0, 0, 0, 0]
     sentence = Sentence(spec, tokens, unks, regions=regions)
-    assert sentence.region2tokens == {
+    eq_(sentence.region2tokens, {
         1: [],
         2: ["This"],
         3: ["is"],
         4: [],
         5: ["a", "test", "."],
         6: []
-    }
+    })
 
 def test_punct_region():
     regions = [
@@ -117,14 +125,14 @@ def test_punct_region():
     tokens = "This is , a test .".split()
     unks = [0, 0, 0, 0, 0, 0]
     sentence = Sentence(spec, tokens, unks, regions=regions)
-    assert sentence.region2tokens == {
+    eq_(sentence.region2tokens, {
         1: ["This"],
         2: ["is"],
         3: [","],
         4: ["a"],
         5 : ["test"],
         6: ["."]
-    }
+    })
 
 def test_uncased():
     """
@@ -141,13 +149,13 @@ def test_uncased():
     tokens = "this is a test .".split()
     unks = [0, 0, 0, 0, 0]
     sentence = Sentence(spec, tokens, unks, regions=regions)
-    print(sentence.region2tokens)
-    assert sentence.region2tokens == {
+
+    eq_(sentence.region2tokens, {
         1: ["this"],
         2: ["is"],
         3: ["a"],
         4 : ["test", "."]
-    }
+    })
 
 def test_remove_punct():
     regions = [
@@ -163,14 +171,14 @@ def test_remove_punct():
     tokens = "This is a test".split()
     unks = [0, 0, 0, 0]
     sentence = Sentence(spec, tokens, unks, regions=regions)
-    assert sentence.region2tokens == {
+    eq_(sentence.region2tokens, {
         1: ["This"],
         2: ["is"],
         3: [],
         4: ["a"],
         5 : ["test"],
         6: []
-    }
+    })
 
 # def test_special_types():
 #     # TODO: if at region boundary, which region do we associate them with?
