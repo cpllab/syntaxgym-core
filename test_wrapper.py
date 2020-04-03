@@ -63,10 +63,10 @@ def test_unk():
     unks = [0, 0, 1, 0, 1, 0]
     sentence = Sentence(spec, tokens, unks, regions=regions)
     eq_(sentence.oovs, {
-        0: [],
         1: ["WEIRDADVERB"],
         2: [],
-        3 : ["WEIRDNOUN"]
+        3 : ["WEIRDNOUN"],
+        4: [],
     })
 
 def test_consecutive_unk():
@@ -87,10 +87,10 @@ def test_consecutive_unk():
     unks = [0, 0, 0, 1, 0, 1, 1, 1]
     sentence = Sentence(spec, tokens, unks, regions=regions)
     eq_(sentence.oovs, {
-        0: [],
         1: [],
         2: [],
-        3 : ["WEIRDADVERB", "WEIRDADJECTIVE", "WEIRDNOUN"]
+        3 : ["WEIRDADVERB", "WEIRDADJECTIVE", "WEIRDNOUN"],
+        4: [],
     })
 
 
@@ -113,10 +113,9 @@ def test_consecutive_unk2():
     unks = [0, 0, 0, 1, 0, 1, 1, 1]
     sentence = Sentence(spec, tokens, unks, regions=regions)
     eq_(sentence.oovs, {
-        0: [],
         1: [],
         2: [],
-        3 : ["WEIRDADVERB", "WEIRDADJECTIVE", "WEIRDNOUN"],
+        3: ["WEIRDADVERB", "WEIRDADJECTIVE", "WEIRDNOUN"],
         4: [],
         5: [],
     })

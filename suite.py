@@ -12,7 +12,7 @@ class Sentence:
         self.condition_name = condition_name
         self.regions = [Region(**r) for r in regions]
         self.content = ' '.join(r.content for r in self.regions)
-        self.oovs = defaultdict(list)
+        self.oovs = {region["region_number"]: [] for region in regions}
 
         # compute region-to-token mapping upon initialization
         self.region2tokens = self.tokenize_regions(spec)
@@ -144,7 +144,7 @@ class Sentence:
                 # if end of content (removing spaces), and before last region
                 if content.strip() == '' and r_idx < len(self.regions) - 1:
                     # warn user
-                    if self.oovs[r_idx]:
+                    if r_idx > 0 and self.oovs[r_idx]:
                         warnings.warn('OOVs found in Item {}, Condition "{}": "{}"'.format(
                             self.item_num, self.condition_name, self.oovs[r_idx]
                         ), RuntimeWarning)
