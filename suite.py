@@ -42,8 +42,21 @@ class Sentence:
         if spec['tokenizer'].get('drop_token_pattern') is not None:
             drop_pattern = re.compile(spec['tokenizer']['drop_token_pattern'])
 
+        # Sentinel: blindly add next N tokens to current region.
+        skip_n = 0
+
         # iterate over all tokens in sentence
-        for t_idx, token in enumerate(self.tokens):
+        t_idx = 0
+        while t_idx < len(self.tokens):
+            token = self.tokens[t_idx]
+
+            if skip_n > 0:
+                # Blindly add token to current region and continue.
+                region2tokens[r.region_number].append(token)
+
+                skip_n -= 1
+                t_idx += 1
+                continue
 
             #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             # Token-level operations
@@ -57,11 +70,13 @@ class Sentence:
             # append and continue upon encountering start-of-sentence token
             elif token in spec['vocabulary']['prefix_types']:
                 region2tokens[r.region_number].append(token)
+                t_idx += 1
                 continue
 
             # skip current token for special cases
             elif token in spec['vocabulary']['special_types']:
                 # TODO: which region should special_type associate with?
+                t_idx += 1
                 continue
 
             # HACK: quick, untested, dirty hack for BPE tokenization, e.g.
@@ -109,6 +124,7 @@ class Sentence:
                 if content.startswith(token):
                     # remove token from content
                     content = content[len(token):]
+                    t_idx += 1
                 else:
                     # extract maximal string of OOVs by looking for match with
                     # next non-OOV token
@@ -118,25 +134,58 @@ class Sentence:
                         # token_window_size is number of tokens to look ahead
                         if token_window_size == tokens_remaining:
                             oov_str = content
+                            skip_n = token_window_size
                             break
                         else:
                             if token_window_size > 1:
                                 warnings.warn('Consecutive OOVs found in Item {}, Condition "{}"!'.format(
                                     self.item_num, self.condition_name
                                 ), RuntimeWarning)
-                            for i in range(len(content)):
-                                next_token = self.tokens[t_idx + token_window_size]
-                                if content[i:i+len(next_token)] == next_token:
-                                    oov_str = content[:i].strip()
+
+                            next_token = self.tokens[t_idx + token_window_size]
+
+                            # Eat up content across regions until we come to a
+                            # token that we can match with `next_token`.
+                            eaten_content = []
+                            for next_r_idx in range(r_idx, len(self.regions)):
+                                if oov_str:
                                     break
+
+                                if next_r_idx == r_idx:
+                                    next_r_content = content
+                                else:
+                                    eaten_content.append(next_r_content.strip())
+                                    _, next_r_content = self.get_next_region(next_r_idx)
+
+                                for i in range(len(next_r_content)):
+                                    if next_r_content[i:i+len(next_token)] == next_token:
+                                        # We found a token which faithfully
+                                        # matches the reference token. Break
+                                        # just before that token.
+                                        eaten_content.append(next_r_content[:i].strip())
+                                        oov_str = " ".join(eaten_content).strip()
+
+                                        # track OOVs -- put them in the
+                                        # leftmost associated region
+                                        self.oovs[r_idx].extend(oov_str.split(" "))
+
+                                        # Blindly add all these eaten tokens
+                                        # from the content to the leftmost
+                                        # region -- not including the token
+                                        # that just matched, of course.
+                                        region2tokens[r_idx].extend(self.tokens[t_idx:t_idx + token_window_size])
+                                        t_idx += token_window_size
+
+                                        # Update the current region reference.
+                                        r_idx = next_r_idx
+                                        r = self.regions[r_idx]
+                                        content = next_r_content[i:]
+
+                                        break
+
                             if oov_str:
                                 break
 
-                    # add OOVs to self.oovs
-                    self.oovs[r_idx].extend(oov_str.split(" "))
-
-                    # remove OOVs from content
-                    content = content[len(oov_str):]
 
                     if content.strip() == '' and r_idx == len(self.regions) - 1:
                         return region2tokens
@@ -153,6 +202,7 @@ class Sentence:
 
             # otherwise, move to next region and token
             else:
+                t_idx += 1
                 r_idx += 1
                 r, content = self.get_next_region(r_idx)
 

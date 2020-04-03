@@ -96,9 +96,36 @@ def test_consecutive_unk():
 
 def test_consecutive_unk2():
     """
-    Consecutive UNKs are mapped to regions by lookahead -- we look ahead in the
-    token string for the next non-unk token, and associate all unks up to that
-    token with the current region.
+    consecutive unks in the middle of a region, with non-unks following in the
+    same region
+    """
+    regions = [
+        {"region_number": 1, "content": "This"},
+        {"region_number": 2, "content": "is"},
+        {"region_number": 3, "content": "a"},
+        {"region_number": 4, "content": "WEIRDADVERB test WEIRDADJECTIVE WEIRDNOUN and some more"},
+        {"region_number": 5, "content": "content."}
+    ]
+    with open("dummy_specs/basic.json", "r") as f:
+        spec = json.load(f)
+    tokens = "This is a <unk> test <unk> <unk> and some more content .".split()
+    unks = [0, 0, 0, 1, 0, 1, 1, 1]
+    sentence = Sentence(spec, tokens, unks, regions=regions)
+
+    from pprint import pprint
+    pprint(sentence.region2tokens)
+    eq_(sentence.oovs, {
+        1: [],
+        2: [],
+        3: ["WEIRDADVERB", "WEIRDADJECTIVE", "WEIRDNOUN"],
+        4: [],
+        5: [],
+    })
+
+
+def test_consecutive_unk3():
+    """
+    consecutive unks at the end of a region, with more regions after
     """
     regions = [
         {"region_number": 1, "content": "This"},
@@ -109,9 +136,13 @@ def test_consecutive_unk2():
     ]
     with open("dummy_specs/basic.json", "r") as f:
         spec = json.load(f)
-    tokens = "This is a <unk> test <unk> <unk> <unk> and some more content .".split()
+    tokens = "This is a <unk> test <unk> <unk> and some more content .".split()
     unks = [0, 0, 0, 1, 0, 1, 1, 1]
     sentence = Sentence(spec, tokens, unks, regions=regions)
+
+    from pprint import pprint
+    pprint(sentence.region2tokens)
+    pprint(sentence.oovs)
     eq_(sentence.oovs, {
         1: [],
         2: [],
