@@ -167,13 +167,13 @@ class Sentence:
 
                                         # track OOVs -- put them in the
                                         # leftmost associated region
-                                        self.oovs[r_idx].extend(oov_str.split(" "))
+                                        self.oovs[r.region_number].extend(oov_str.split(" "))
 
                                         # Blindly add all these eaten tokens
                                         # from the content to the leftmost
                                         # region -- not including the token
                                         # that just matched, of course.
-                                        region2tokens[r_idx].extend(self.tokens[t_idx:t_idx + token_window_size])
+                                        region2tokens[r.region_number].extend(self.tokens[t_idx:t_idx + token_window_size])
                                         t_idx += token_window_size
 
                                         # Update the current region reference.

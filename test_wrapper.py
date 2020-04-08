@@ -63,11 +63,37 @@ def test_unk():
     unks = [0, 0, 1, 0, 1, 0]
     sentence = Sentence(spec, tokens, unks, regions=regions)
     eq_(sentence.oovs, {
-        1: ["WEIRDADVERB"],
-        2: [],
-        3 : ["WEIRDNOUN"],
-        4: [],
+        1: [],
+        2: ["WEIRDADVERB"],
+        3: [],
+        4: ["WEIRDNOUN"],
     })
+
+
+def test_unk2():
+    regions = [
+        {"region_number": 1, "content": "The"},
+        {"region_number": 2, "content": "horse"},
+        {"region_number": 3, "content": "raced"},
+        {"region_number": 4, "content": "past the barn"},
+        {"region_number": 5, "content": "fell"},
+    ]
+    with open("dummy_specs/basic.json", "r") as f:
+        spec = json.load(f)
+
+    tokens = "The horse <unk> past the barn fell".split()
+    spec["vocabulary"]["items"] = set(tokens) - {"<unk>"}
+    unks = [0, 0, 1, 0, 0, 0, 0]
+
+    sentence = Sentence(spec, tokens, unks, regions=regions)
+    eq_(sentence.oovs, {
+        1: [],
+        2: [],
+        3: ["raced"],
+        4: [],
+        5: [],
+    })
+
 
 def test_consecutive_unk():
     """
@@ -89,8 +115,8 @@ def test_consecutive_unk():
     eq_(sentence.oovs, {
         1: [],
         2: [],
-        3 : ["WEIRDADVERB", "WEIRDADJECTIVE", "WEIRDNOUN"],
-        4: [],
+        3: [],
+        4: ["WEIRDADVERB", "WEIRDADJECTIVE", "WEIRDNOUN"],
     })
 
 
@@ -117,8 +143,8 @@ def test_consecutive_unk2():
     eq_(sentence.oovs, {
         1: [],
         2: [],
-        3: ["WEIRDADVERB", "WEIRDADJECTIVE", "WEIRDNOUN"],
-        4: [],
+        3: [],
+        4: ["WEIRDADVERB", "WEIRDADJECTIVE", "WEIRDNOUN"],
         5: [],
     })
 
@@ -146,8 +172,8 @@ def test_consecutive_unk3():
     eq_(sentence.oovs, {
         1: [],
         2: [],
-        3: ["WEIRDADVERB", "WEIRDADJECTIVE", "WEIRDNOUN"],
-        4: [],
+        3: [],
+        4: ["WEIRDADVERB", "WEIRDADJECTIVE", "WEIRDNOUN"],
         5: [],
     })
 
