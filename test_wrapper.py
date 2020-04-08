@@ -62,36 +62,19 @@ def test_unk():
     tokens = "This is <unk> a <unk> .".split()
     unks = [0, 0, 1, 0, 1, 0]
     sentence = Sentence(spec, tokens, unks, regions=regions)
+
+    eq_(sentence.region2tokens, {
+        1: ["This"],
+        2: ["is", "<unk>"],
+        3: ["a"],
+        4: ["<unk>", "."],
+    })
+
     eq_(sentence.oovs, {
         1: [],
         2: ["WEIRDADVERB"],
         3: [],
         4: ["WEIRDNOUN"],
-    })
-
-
-def test_unk2():
-    regions = [
-        {"region_number": 1, "content": "The"},
-        {"region_number": 2, "content": "horse"},
-        {"region_number": 3, "content": "raced"},
-        {"region_number": 4, "content": "past the barn"},
-        {"region_number": 5, "content": "fell"},
-    ]
-    with open("dummy_specs/basic.json", "r") as f:
-        spec = json.load(f)
-
-    tokens = "The horse <unk> past the barn fell".split()
-    spec["vocabulary"]["items"] = set(tokens) - {"<unk>"}
-    unks = [0, 0, 1, 0, 0, 0, 0]
-
-    sentence = Sentence(spec, tokens, unks, regions=regions)
-    eq_(sentence.oovs, {
-        1: [],
-        2: [],
-        3: ["raced"],
-        4: [],
-        5: [],
     })
 
 
@@ -109,9 +92,17 @@ def test_consecutive_unk():
     ]
     with open("dummy_specs/basic.json", "r") as f:
         spec = json.load(f)
-    tokens = "This is a <unk> test <unk> <unk> <unk> .".split()
+    tokens = "This is a <unk> test <unk> <unk> .".split()
     unks = [0, 0, 0, 1, 0, 1, 1, 1]
     sentence = Sentence(spec, tokens, unks, regions=regions)
+
+    eq_(sentence.region2tokens, {
+        1: ["This"],
+        2: ["is"],
+        3: ["a"],
+        4: ["<unk>", "test", "<unk>", "<unk>", "."],
+    })
+
     eq_(sentence.oovs, {
         1: [],
         2: [],
@@ -138,8 +129,14 @@ def test_consecutive_unk2():
     unks = [0, 0, 0, 1, 0, 1, 1, 1]
     sentence = Sentence(spec, tokens, unks, regions=regions)
 
-    from pprint import pprint
-    pprint(sentence.region2tokens)
+    eq_(sentence.region2tokens, {
+        1: ["This"],
+        2: ["is"],
+        3: ["a"],
+        4: ["<unk>", "test", "<unk>", "<unk>", "and", "some", "more"],
+        5: ["content", "."],
+    })
+
     eq_(sentence.oovs, {
         1: [],
         2: [],
@@ -166,9 +163,14 @@ def test_consecutive_unk3():
     unks = [0, 0, 0, 1, 0, 1, 1, 1]
     sentence = Sentence(spec, tokens, unks, regions=regions)
 
-    from pprint import pprint
-    pprint(sentence.region2tokens)
-    pprint(sentence.oovs)
+    eq_(sentence.region2tokens, {
+        1: ["This"],
+        2: ["is"],
+        3: ["a"],
+        4: ["<unk>", "test", "<unk>", "<unk>"],
+        5: ["and", "some", "more", "content", "."],
+    })
+
     eq_(sentence.oovs, {
         1: [],
         2: [],

@@ -118,10 +118,11 @@ class Sentence:
 
             # if token has exact match with beginning of content, or unk
             if content.startswith(token) or token in spec['vocabulary']['unk_types']:
-                # add token to list of tokens for current region
-                region2tokens[r.region_number].append(token)
 
                 if content.startswith(token):
+                    # add token to list of tokens for current region
+                    region2tokens[r.region_number].append(token)
+
                     # remove token from content
                     content = content[len(token):]
                     t_idx += 1

@@ -63,12 +63,53 @@ def main(args):
     in_data = utils.load_json(args.input)
     surprisals = pd.read_csv(args.surprisal, delim_whitespace=True)
 
-    # obtain spec for model
-    spec = utils.get_spec(args.image)
+    ## HACK: Fixed spec + tokenization setup for problem set.
+    with args.vocab.open("r") as vocab_f:
+      vocab = set(x.strip() for x in vocab_f.read().strip().split("\n"))
 
-    # obtain tokens and unk mask for sentences
-    tokens = utils.tokenize_file(args.sentences, args.image)
-    unks = utils.unkify_file(args.sentences, args.image)
+    spec = {
+      "name": "neural-complexity",
+      "ref_url": "",
+      "image": {
+        "maintainer": "jon@gauthiers.net",
+        "version": "",
+        "datetime": "",
+        "gpu": {
+          "required": False,
+          "supported": True
+        }
+      },
+      "vocabulary": {
+        "unk_types": ["<unk>"],
+        "prefix_types": [],
+        "suffix_types": [],
+        "special_types": [],
+        "items": vocab
+      },
+      "tokenizer": {
+        "cased": True, 
+        "type": "word",
+        "drop_token_pattern": None
+      }
+    }
+
+    # with args.sentences.open("r") as sentence_f:
+    #   tokens = [line.strip().split(" ") for line in sentence_f.read().strip().split("\n")]
+    with args.unked.open("r") as unked_f:
+      tokens = [line.strip().split(" ") for line in unked_f.read().strip().split("\n")]
+      unks = [[1 if tok in spec["vocabulary"]["unk_types"] else 0
+               for tok in sentence]
+              for sentence in tokens]
+      # unks = [[1 if tok == "<unk>" else 0
+      #          for tok in line.strip().split(" ")]
+      #         for line in unked_f.read().strip().split("\n")]
+
+    # # obtain spec for model
+    # spec = utils.get_spec(args.image)
+
+    # # obtain tokens and unk mask for sentences
+    # tokens = utils.tokenize_file(args.sentences, args.image)
+    # unks = utils.unkify_file(args.sentences, args.image)
 
     # aggregate token-level --> region-level surprisals
     out_data = aggregate_surprisals(surprisals, tokens, unks, in_data, spec)
@@ -79,8 +120,12 @@ if __name__ == '__main__':
     parser.add_argument('--surprisal', type=Path,
                         help='path to file containing token-based surprisals')
     parser.add_argument('--sentences', type=Path,
-                        help='path to file containing sentences')
+                        help='path to file containing pre-tokenized sentences')
+    parser.add_argument("--unked", type=Path,
+                        help="Path to unked sentence file")
+
     parser.add_argument('--image', type=str, help='Docker image name')
+    parser.add_argument("--vocab", type=Path, help="Path to model vocab")
     parser.add_argument('--input', type=Path,
                         help='path to JSON file with input data')
     parser.add_argument('--output', '-o', type=Path,
