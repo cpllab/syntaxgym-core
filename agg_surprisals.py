@@ -48,8 +48,8 @@ def aggregate_surprisals(surprisals, tokens, unks, in_data, spec):
                 in_data['items'][i_idx]['conditions'][c_idx]['regions'][r_idx]['metric_value'] = vals
                 
                 # update original dict with OOV information
-                region_oovs = sent.oovs[r_idx] if sent.oovs[r_idx] else None
-                in_data['items'][i_idx]['conditions'][c_idx]['regions'][r_idx]['oovs'] = region_oovs
+                in_data['items'][i_idx]['conditions'][c_idx]['regions'][r_idx]['oovs'] = \
+                  sent.oovs[region.region_number]
 
             # update sentence counter
             s_idx += 1
