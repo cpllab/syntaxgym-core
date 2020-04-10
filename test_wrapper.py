@@ -1,6 +1,9 @@
+from io import StringIO
 import json
 from pathlib import Path
+import sys
 
+import docker
 import jsonschema
 import requests
 
@@ -9,25 +12,105 @@ from nose.tools import *
 
 import logging
 logging.getLogger("matplotlib").setLevel(logging.ERROR)
+L = logging.getLogger(__name__)
 
 from agg_surprisals import aggregate_surprisals
 from suite import Sentence
 
 
+LM_ZOO_IMAGES = [
+    ("lmzoo-basic", "latest"),
+    ("lmzoo-basic-eos-sos", "latest"),
+]
+
+LM_ZOO_IMAGES_TO_BUILD = [
+    ("basic", "lmzoo-basic"),
+    ("basic_eos_sos", "lmzoo-basic-eos-sos"),
+]
+
 SPEC_SCHEMA_URL = "https://cpllab.github.io/lm-zoo/schemas/language_model_spec.json"
 
-def _test_individual_spec(spec_name, spec, schema):
-    print(spec_name)
+
+def run_image_command(image, command_str, tag=None, pull=False,
+                      stdin=None, stdout=sys.stdout, stderr=sys.stderr):
+    """
+    Run the given shell command inside a container instantiating the given
+    image, and stream the output.
+    """
+    client = docker.APIClient()
+
+    if pull:
+        # First pull the image.
+        L.info("Pulling latest Docker image for %s:%s." % (image, tag))
+        try:
+            image_ret = client.pull(f"{image}", tag=tag)
+        except docker.errors.NotFound:
+            raise RuntimeError("Image not found.")
+
+    container = client.create_container(f"{image}:{tag}", stdin_open=True,
+                                        command=command_str)
+    client.start(container)
+
+    if stdin is not None:
+        # Send file contents to stdin of container.
+        in_stream = client.attach_socket(container, params={"stdin": 1, "stream": 1})
+        in_stream._sock.send(stdin.read())
+        in_stream.close()
+
+    # Stop container and collect results.
+    client.stop(container)
+
+    # Collect output.
+    container_stdout = client.logs(container, stdout=True, stderr=False)
+    container_stderr = client.logs(container, stdout=False, stderr=True)
+    if isinstance(container_stdout, bytes):
+        container_stdout = container_stdout.decode("utf-8")
+    if isinstance(container_stderr, bytes):
+        container_stderr = container_stderr.decode("utf-8")
+
+    client.remove_container(container)
+    stdout.write(container_stdout)
+    stderr.write(container_stderr)
+
+
+def run_image_command_get_stdout(*args, **kwargs):
+    stdout = StringIO()
+    kwargs["stdout"] = stdout
+    run_image_command(*args, **kwargs)
+    return stdout.getvalue()
+
+
+def setup_module():
+    # Build relevant lm-zoo images.
+    client = docker.APIClient()
+    for directory, target in LM_ZOO_IMAGES_TO_BUILD:
+        path = Path(__file__).parent / "dummy_images" / directory
+
+        with (path / "Dockerfile").open("r") as docker_f:
+            out = client.build(path=str(path), rm=True,
+                         tag=target)
+            list(out)
+
+def teardown_module():
+    # Remove built images.
+    pass
+
+
+##################################
+
+
+def _test_individual_spec(image, tag, schema):
+    print(f"{image}:{tag}")
+    spec = json.loads(run_image_command_get_stdout(image, "spec", tag=tag))
     jsonschema.validate(instance=spec, schema=schema)
 
 def test_specs():
     """
-    Validate the dummy specs against the lm-zoo standard.
+    Validate specs against the lm-zoo standard.
     """
     schema_json = requests.get(SPEC_SCHEMA_URL).json()
-    for spec_path in Path("dummy_specs").glob("*.json"):
-        with spec_path.open("r") as spec_f:
-            yield _test_individual_spec, spec_path.name, json.load(spec_f), schema_json
+    for image, tag in LM_ZOO_IMAGES:
+        yield _test_individual_spec, image, tag, schema_json
 
 
 def test_eos_sos():
@@ -49,6 +132,7 @@ def test_eos_sos():
         3: ["a"],
         4 : ["test", ".", "</s>"]
     })
+
 
 def test_unk():
     regions = [
