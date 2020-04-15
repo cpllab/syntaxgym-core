@@ -266,8 +266,7 @@ def test_remove_punct():
         {"region_number": 5, "content": "test"},
         {"region_number": 6, "content": "."}
     ]
-    with (DUMMY_SPEC_PATH / "basic_nopunct.json").open("r") as f:
-        spec = json.load(f)
+    spec = _get_spec("lmzoo-basic-nopunct")
     tokens = "This is a test".split()
     unks = [0, 0, 0, 0]
     sentence = Sentence(spec, tokens, unks, regions=regions)

@@ -13,6 +13,7 @@ LM_ZOO_IMAGES_TO_BUILD = {
     "basic": "lmzoo-basic",
     "basic_eos_sos": "lmzoo-basic-eos-sos",
     "basic_uncased": "lmzoo-basic-uncased",
+    "basic_nopunct": "lmzoo-basic-nopunct",
 }
 LM_ZOO_IMAGE_TO_DIRECTORY = {image: directory
                              for directory, image in LM_ZOO_IMAGES_TO_BUILD.items()}
@@ -25,7 +26,12 @@ BUILT_IMAGES = []
 
 
 def build_image(image, tag="latest"):
-    image_dir = LM_ZOO_IMAGE_TO_DIRECTORY[image]
+    try:
+        image_dir = LM_ZOO_IMAGE_TO_DIRECTORY[image]
+    except KeyError:
+        print("Image %s not found in dummy images directory." % image, file=sys.stderr)
+        raise
+
     image_dir = Path(__file__).parent / "dummy_images" / image_dir
 
     client = docker.APIClient()
