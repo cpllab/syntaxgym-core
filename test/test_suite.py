@@ -1,9 +1,8 @@
-from io import StringIO
+from functools import lru_cache
 import json
 from pathlib import Path
 import sys
 
-import docker
 import jsonschema
 import requests
 
@@ -14,95 +13,28 @@ import logging
 logging.getLogger("matplotlib").setLevel(logging.ERROR)
 L = logging.getLogger(__name__)
 
-from agg_surprisals import aggregate_surprisals
 from suite import Sentence
 
+sys.path.append(str(Path(__file__).parent))
+from harness import LM_ZOO_IMAGES, run_image_command_get_stdout
 
-LM_ZOO_IMAGES = [
-    ("lmzoo-basic", "latest"),
-    ("lmzoo-basic-eos-sos", "latest"),
-]
-
-LM_ZOO_IMAGES_TO_BUILD = [
-    ("basic", "lmzoo-basic"),
-    ("basic_eos_sos", "lmzoo-basic-eos-sos"),
-]
 
 SPEC_SCHEMA_URL = "https://cpllab.github.io/lm-zoo/schemas/language_model_spec.json"
 
+DUMMY_SPEC_PATH = Path(__file__).parent / "dummy_specs"
 
-def run_image_command(image, command_str, tag=None, pull=False,
-                      stdin=None, stdout=sys.stdout, stderr=sys.stderr):
-    """
-    Run the given shell command inside a container instantiating the given
-    image, and stream the output.
-    """
-    client = docker.APIClient()
-
-    if pull:
-        # First pull the image.
-        L.info("Pulling latest Docker image for %s:%s." % (image, tag))
-        try:
-            image_ret = client.pull(f"{image}", tag=tag)
-        except docker.errors.NotFound:
-            raise RuntimeError("Image not found.")
-
-    container = client.create_container(f"{image}:{tag}", stdin_open=True,
-                                        command=command_str)
-    client.start(container)
-
-    if stdin is not None:
-        # Send file contents to stdin of container.
-        in_stream = client.attach_socket(container, params={"stdin": 1, "stream": 1})
-        in_stream._sock.send(stdin.read())
-        in_stream.close()
-
-    # Stop container and collect results.
-    client.stop(container)
-
-    # Collect output.
-    container_stdout = client.logs(container, stdout=True, stderr=False)
-    container_stderr = client.logs(container, stdout=False, stderr=True)
-    if isinstance(container_stdout, bytes):
-        container_stdout = container_stdout.decode("utf-8")
-    if isinstance(container_stderr, bytes):
-        container_stderr = container_stderr.decode("utf-8")
-
-    client.remove_container(container)
-    stdout.write(container_stdout)
-    stderr.write(container_stderr)
-
-
-def run_image_command_get_stdout(*args, **kwargs):
-    stdout = StringIO()
-    kwargs["stdout"] = stdout
-    run_image_command(*args, **kwargs)
-    return stdout.getvalue()
-
-
-def setup_module():
-    # Build relevant lm-zoo images.
-    client = docker.APIClient()
-    for directory, target in LM_ZOO_IMAGES_TO_BUILD:
-        path = Path(__file__).parent / "dummy_images" / directory
-
-        with (path / "Dockerfile").open("r") as docker_f:
-            out = client.build(path=str(path), rm=True,
-                         tag=target)
-            list(out)
-
-def teardown_module():
-    # Remove built images.
-    pass
 
 
 ##################################
 
+@lru_cache(maxsize=None)
+def _get_spec(image, tag=None):
+    return json.loads(run_image_command_get_stdout(image, "spec", tag=tag))
 
-def _test_individual_spec(image, tag, schema):
+
+def _test_individual_spec(image, schema, tag=None):
     print(f"{image}:{tag}")
-    spec = json.loads(run_image_command_get_stdout(image, "spec", tag=tag))
-    jsonschema.validate(instance=spec, schema=schema)
+    jsonschema.validate(instance=_get_spec(image, tag=tag), schema=schema)
 
 def test_specs():
     """
@@ -110,7 +42,7 @@ def test_specs():
     """
     schema_json = requests.get(SPEC_SCHEMA_URL).json()
     for image, tag in LM_ZOO_IMAGES:
-        yield _test_individual_spec, image, tag, schema_json
+        yield _test_individual_spec, image, schema_json, tag
 
 
 def test_eos_sos():
@@ -120,8 +52,7 @@ def test_eos_sos():
         {"region_number": 3, "content": "a"},
         {"region_number": 4, "content": "test."}
     ]
-    with open("dummy_specs/eos_sos.json", "r") as f:
-        spec = json.load(f)
+    spec = _get_spec("lmzoo-basic-eos-sos")
     tokens = "<s> This is a test . </s>".split()
     unks = [0, 0, 0, 0, 0, 0, 0]
     sentence = Sentence(spec, tokens, unks, regions=regions)
@@ -141,8 +72,7 @@ def test_unk():
         {"region_number": 3, "content": "a"},
         {"region_number": 4, "content": "WEIRDNOUN."}
     ]
-    with open("dummy_specs/basic.json", "r") as f:
-        spec = json.load(f)
+    spec = _get_spec("lmzoo-basic")
     tokens = "This is <unk> a <unk> .".split()
     unks = [0, 0, 1, 0, 1, 0]
     sentence = Sentence(spec, tokens, unks, regions=regions)
@@ -174,8 +104,7 @@ def test_consecutive_unk():
         {"region_number": 3, "content": "a"},
         {"region_number": 4, "content": "WEIRDADVERB test WEIRDADJECTIVE WEIRDNOUN."}
     ]
-    with open("dummy_specs/basic.json", "r") as f:
-        spec = json.load(f)
+    spec = _get_spec("lmzoo-basic")
     tokens = "This is a <unk> test <unk> <unk> .".split()
     unks = [0, 0, 0, 1, 0, 1, 1, 1]
     sentence = Sentence(spec, tokens, unks, regions=regions)
@@ -207,8 +136,7 @@ def test_consecutive_unk2():
         {"region_number": 4, "content": "WEIRDADVERB test WEIRDADJECTIVE WEIRDNOUN and some more"},
         {"region_number": 5, "content": "content."}
     ]
-    with open("dummy_specs/basic.json", "r") as f:
-        spec = json.load(f)
+    spec = _get_spec("lmzoo-basic")
     tokens = "This is a <unk> test <unk> <unk> and some more content .".split()
     unks = [0, 0, 0, 1, 0, 1, 1, 1]
     sentence = Sentence(spec, tokens, unks, regions=regions)
@@ -241,8 +169,7 @@ def test_consecutive_unk3():
         {"region_number": 4, "content": "WEIRDADVERB test WEIRDADJECTIVE WEIRDNOUN"},
         {"region_number": 5, "content": "and some more content."}
     ]
-    with open("dummy_specs/basic.json", "r") as f:
-        spec = json.load(f)
+    spec = _get_spec("lmzoo-basic")
     tokens = "This is a <unk> test <unk> <unk> and some more content .".split()
     unks = [0, 0, 0, 1, 0, 1, 1, 1]
     sentence = Sentence(spec, tokens, unks, regions=regions)
@@ -273,8 +200,7 @@ def test_empty_region():
         {"region_number": 5, "content": "a test."},
         {"region_number": 6, "content": ""}
     ]
-    with open("dummy_specs/basic.json", "r") as f:
-        spec = json.load(f)
+    spec = _get_spec("lmzoo-basic")
     tokens = "This is a test .".split()
     unks = [0, 0, 0, 0, 0]
     sentence = Sentence(spec, tokens, unks, regions=regions)
@@ -296,8 +222,7 @@ def test_punct_region():
         {"region_number": 5, "content": "test"},
         {"region_number": 6, "content": "."}
     ]
-    with open("dummy_specs/basic.json", "r") as f:
-        spec = json.load(f)
+    spec = _get_spec("lmzoo-basic")
     tokens = "This is , a test .".split()
     unks = [0, 0, 0, 0, 0, 0]
     sentence = Sentence(spec, tokens, unks, regions=regions)
@@ -320,7 +245,7 @@ def test_uncased():
         {"region_number": 3, "content": "a"},
         {"region_number": 4, "content": "test."}
     ]
-    with open("dummy_specs/basic_uncased.json", "r") as f:
+    with (DUMMY_SPEC_PATH / "basic_uncased.json").open("r") as f:
         spec = json.load(f)
     tokens = "this is a test .".split()
     unks = [0, 0, 0, 0, 0]
@@ -342,7 +267,7 @@ def test_remove_punct():
         {"region_number": 5, "content": "test"},
         {"region_number": 6, "content": "."}
     ]
-    with open("dummy_specs/basic_nopunct.json", "r") as f:
+    with (DUMMY_SPEC_PATH / "basic_nopunct.json").open("r") as f:
         spec = json.load(f)
     tokens = "This is a test".split()
     unks = [0, 0, 0, 0]
