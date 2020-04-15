@@ -245,8 +245,7 @@ def test_uncased():
         {"region_number": 3, "content": "a"},
         {"region_number": 4, "content": "test."}
     ]
-    with (DUMMY_SPEC_PATH / "basic_uncased.json").open("r") as f:
-        spec = json.load(f)
+    spec = _get_spec("lmzoo-basic-uncased")
     tokens = "this is a test .".split()
     unks = [0, 0, 0, 0, 0]
     sentence = Sentence(spec, tokens, unks, regions=regions)

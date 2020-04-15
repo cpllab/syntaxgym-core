@@ -9,17 +9,17 @@ import sys
 import docker
 
 
-LM_ZOO_IMAGES = [
-    ("lmzoo-basic", "latest"),
-    ("lmzoo-basic-eos-sos", "latest"),
-]
-
 LM_ZOO_IMAGES_TO_BUILD = {
     "basic": "lmzoo-basic",
     "basic_eos_sos": "lmzoo-basic-eos-sos",
+    "basic_uncased": "lmzoo-basic-uncased",
 }
 LM_ZOO_IMAGE_TO_DIRECTORY = {image: directory
                              for directory, image in LM_ZOO_IMAGES_TO_BUILD.items()}
+
+# Images to test -- harness images and, optionally, real images
+LM_ZOO_IMAGES = []
+LM_ZOO_IMAGES.extend((image, "latest") for image in LM_ZOO_IMAGES_TO_BUILD.values())
 
 BUILT_IMAGES = []
 
@@ -29,10 +29,12 @@ def build_image(image, tag="latest"):
     image_dir = Path(__file__).parent / "dummy_images" / image_dir
 
     client = docker.APIClient()
-    out = client.build(path=str(image_dir), rm=True, tag=tag)
+    out = client.build(path=str(image_dir), rm=True, tag=f"{image}:{tag}")
 
     BUILT_IMAGES.append(f"{image}:{tag}")
-    return list(out)
+    ret = list(out)
+
+    return ret
 
 
 def run_image_command(image, command_str, tag=None, pull=False,
