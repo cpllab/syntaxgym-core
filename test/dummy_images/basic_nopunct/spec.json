@@ -1,0 +1,28 @@
+{
+    "name": "lmzoo-basic",
+    "ref_url": "",
+
+    "image": {
+        "maintainer": "jon@gauthiers.net",
+        "version": "NA",
+        "datetime": "NA",
+        "gpu": {
+            "required": false,
+            "supported": false
+        }
+    },
+
+    "vocabulary": {
+        "unk_types": ["<unk>"],
+        "prefix_types": [],
+        "suffix_types": [],
+        "special_types": [],
+        "items": ["This", "is", "a", "test", "sentence", "and", "some", "more", "content"]
+    },
+
+    "tokenizer": {
+        "type": "word",
+        "cased": true,
+        "drop_token_pattern": "^[-!?._]+$"
+    }
+}
