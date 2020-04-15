@@ -16,7 +16,7 @@ L = logging.getLogger(__name__)
 from suite import Sentence
 
 sys.path.append(str(Path(__file__).parent))
-from harness import LM_ZOO_IMAGES, run_image_command_get_stdout
+from harness import LM_ZOO_IMAGES, image_spec, image_tokenize
 
 
 SPEC_SCHEMA_URL = "https://cpllab.github.io/lm-zoo/schemas/language_model_spec.json"
@@ -27,14 +27,10 @@ DUMMY_SPEC_PATH = Path(__file__).parent / "dummy_specs"
 
 ##################################
 
-@lru_cache(maxsize=None)
-def _get_spec(image, tag=None):
-    return json.loads(run_image_command_get_stdout(image, "spec", tag=tag))
-
 
 def _test_individual_spec(image, schema, tag=None):
     print(f"{image}:{tag}")
-    jsonschema.validate(instance=_get_spec(image, tag=tag), schema=schema)
+    jsonschema.validate(instance=image_spec(image, tag=tag), schema=schema)
 
 def test_specs():
     """
@@ -52,7 +48,7 @@ def test_eos_sos():
         {"region_number": 3, "content": "a"},
         {"region_number": 4, "content": "test."}
     ]
-    spec = _get_spec("lmzoo-basic-eos-sos")
+    spec = image_spec("lmzoo-basic-eos-sos")
     tokens = "<s> This is a test . </s>".split()
     unks = [0, 0, 0, 0, 0, 0, 0]
     sentence = Sentence(spec, tokens, unks, regions=regions)
@@ -72,7 +68,7 @@ def test_unk():
         {"region_number": 3, "content": "a"},
         {"region_number": 4, "content": "WEIRDNOUN."}
     ]
-    spec = _get_spec("lmzoo-basic")
+    spec = image_spec("lmzoo-basic")
     tokens = "This is <unk> a <unk> .".split()
     unks = [0, 0, 1, 0, 1, 0]
     sentence = Sentence(spec, tokens, unks, regions=regions)
@@ -104,7 +100,7 @@ def test_consecutive_unk():
         {"region_number": 3, "content": "a"},
         {"region_number": 4, "content": "WEIRDADVERB test WEIRDADJECTIVE WEIRDNOUN."}
     ]
-    spec = _get_spec("lmzoo-basic")
+    spec = image_spec("lmzoo-basic")
     tokens = "This is a <unk> test <unk> <unk> .".split()
     unks = [0, 0, 0, 1, 0, 1, 1, 1]
     sentence = Sentence(spec, tokens, unks, regions=regions)
@@ -136,7 +132,7 @@ def test_consecutive_unk2():
         {"region_number": 4, "content": "WEIRDADVERB test WEIRDADJECTIVE WEIRDNOUN and some more"},
         {"region_number": 5, "content": "content."}
     ]
-    spec = _get_spec("lmzoo-basic")
+    spec = image_spec("lmzoo-basic")
     tokens = "This is a <unk> test <unk> <unk> and some more content .".split()
     unks = [0, 0, 0, 1, 0, 1, 1, 1]
     sentence = Sentence(spec, tokens, unks, regions=regions)
@@ -169,7 +165,7 @@ def test_consecutive_unk3():
         {"region_number": 4, "content": "WEIRDADVERB test WEIRDADJECTIVE WEIRDNOUN"},
         {"region_number": 5, "content": "and some more content."}
     ]
-    spec = _get_spec("lmzoo-basic")
+    spec = image_spec("lmzoo-basic")
     tokens = "This is a <unk> test <unk> <unk> and some more content .".split()
     unks = [0, 0, 0, 1, 0, 1, 1, 1]
     sentence = Sentence(spec, tokens, unks, regions=regions)
@@ -200,7 +196,7 @@ def test_empty_region():
         {"region_number": 5, "content": "a test."},
         {"region_number": 6, "content": ""}
     ]
-    spec = _get_spec("lmzoo-basic")
+    spec = image_spec("lmzoo-basic")
     tokens = "This is a test .".split()
     unks = [0, 0, 0, 0, 0]
     sentence = Sentence(spec, tokens, unks, regions=regions)
@@ -222,7 +218,7 @@ def test_punct_region():
         {"region_number": 5, "content": "test"},
         {"region_number": 6, "content": "."}
     ]
-    spec = _get_spec("lmzoo-basic")
+    spec = image_spec("lmzoo-basic")
     tokens = "This is , a test .".split()
     unks = [0, 0, 0, 0, 0, 0]
     sentence = Sentence(spec, tokens, unks, regions=regions)
@@ -245,7 +241,7 @@ def test_uncased():
         {"region_number": 3, "content": "a"},
         {"region_number": 4, "content": "test."}
     ]
-    spec = _get_spec("lmzoo-basic-uncased")
+    spec = image_spec("lmzoo-basic-uncased")
     tokens = "this is a test .".split()
     unks = [0, 0, 0, 0, 0]
     sentence = Sentence(spec, tokens, unks, regions=regions)
@@ -266,7 +262,7 @@ def test_remove_punct():
         {"region_number": 5, "content": "test"},
         {"region_number": 6, "content": "."}
     ]
-    spec = _get_spec("lmzoo-basic-nopunct")
+    spec = image_spec("lmzoo-basic-nopunct")
     tokens = "This is a test".split()
     unks = [0, 0, 0, 0]
     sentence = Sentence(spec, tokens, unks, regions=regions)
@@ -277,6 +273,20 @@ def test_remove_punct():
         4: ["a"],
         5 : ["test"],
         6: []
+    })
+
+
+def test_bert_tokenization():
+    regions = [
+        {"region_number": 1, "content": "This is a test sentence."}
+    ]
+    spec = image_spec("lmzoo-bert-tokenization")
+    tokens = image_tokenize("lmzoo-bert-tokenization",
+                            " ".join(r["content"] for r in regions))
+
+    sentence = Sentence(spec, tokens, unks=[0] * len(tokens), regions=regions)
+    eq_(sentence.region2tokens, {
+        1: ["This", "is", "a", "test", "sen", "##tence", "."]
     })
 
 # def test_special_types():

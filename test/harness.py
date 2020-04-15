@@ -2,9 +2,14 @@
 Supporting code for running SyntaxGym CLI tests.
 """
 
-from io import StringIO
+from functools import lru_cache
+from io import BytesIO, StringIO
+import json
+import os
 from pathlib import Path
+import socket
 import sys
+import tempfile
 
 import docker
 
@@ -14,6 +19,7 @@ LM_ZOO_IMAGES_TO_BUILD = {
     "basic_eos_sos": "lmzoo-basic-eos-sos",
     "basic_uncased": "lmzoo-basic-uncased",
     "basic_nopunct": "lmzoo-basic-nopunct",
+    "bert_tokenization": "lmzoo-bert-tokenization",
 }
 LM_ZOO_IMAGE_TO_DIRECTORY = {image: directory
                              for directory, image in LM_ZOO_IMAGES_TO_BUILD.items()}
@@ -23,6 +29,25 @@ LM_ZOO_IMAGES = []
 LM_ZOO_IMAGES.extend((image, "latest") for image in LM_ZOO_IMAGES_TO_BUILD.values())
 
 BUILT_IMAGES = []
+
+
+@lru_cache(maxsize=None)
+def image_spec(image, tag=None):
+    return json.loads(run_image_command_get_stdout(image, "spec", tag=tag))
+
+def image_tokenize(image, content, tag=None):
+    fd, fpath = tempfile.mkstemp()
+    os.write(fd, content.encode("utf-8"))
+    os.close(fd)
+
+    guest_path = Path("/tmp/host") / os.path.basename(fpath)
+
+    ret = run_image_command_get_stdout(image, f"tokenize {guest_path}", tag=tag,
+                                       mounts=[("/tmp", "/tmp/host", "ro")])
+
+    os.remove(fpath)
+
+    return ret
 
 
 def build_image(image, tag="latest"):
@@ -44,7 +69,8 @@ def build_image(image, tag="latest"):
 
 
 def run_image_command(image, command_str, tag=None, pull=False,
-                      stdin=None, stdout=sys.stdout, stderr=sys.stderr):
+                      stdin=None, stdout=sys.stdout, stderr=sys.stderr,
+                      mounts=None):
     """
     Run the given shell command inside a Docker container instantiating the
     given image, and stream the output.
@@ -65,14 +91,27 @@ def run_image_command(image, command_str, tag=None, pull=False,
         except docker.errors.NotFound:
             raise RuntimeError("Image not found.")
 
-    container = client.create_container(f"{image}:{tag}", stdin_open=True,
+    if mounts is None:
+        mounts = []
+
+    container = client.create_container(f"{image}:{tag}",
+
+                                        volumes=[guest for _, guest, _ in mounts],
+                                        host_config=client.create_host_config(binds={
+                                            host: {"bind": guest,
+                                                   "mode": mode}
+                                            for host, guest, mode in mounts
+                                            }),
+
+                                        stdin_open=True,
                                         command=command_str)
     client.start(container)
 
     if stdin is not None:
         # Send file contents to stdin of container.
         in_stream = client.attach_socket(container, params={"stdin": 1, "stream": 1})
-        in_stream._sock.send(stdin.read())
+        in_stream._writing = True
+        in_stream.write(stdin.read())
         in_stream.close()
 
     # Stop container and collect results.
