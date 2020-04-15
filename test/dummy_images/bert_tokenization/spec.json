@@ -23,7 +23,7 @@
     "tokenizer": {
         "type": "subword",
         "cased": true,
-        "sentinel_position": "initial",
+        "sentinel_position": "medial",
         "sentinel_pattern": "##"
     }
 }
