@@ -1,6 +1,7 @@
 from functools import lru_cache
 import json
 from pathlib import Path
+from pprint import pprint
 import sys
 
 import jsonschema
@@ -236,6 +237,16 @@ DYNAMIC_CASES = [
 
 def _test_dynamic_case(image, regions, tokens, expected_region2tokens, expected_oovs):
     spec = image_spec(image)
+
+    print("Spec:")
+    pprint(spec)
+
+    print("\n\nRegions:")
+    pprint(regions)
+
+    print("\n\nTokens:")
+    print(tokens)
+
     # TODO do we need unks ?
     sentence = Sentence(spec, tokens, unks=None, regions=regions)
 
