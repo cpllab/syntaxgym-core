@@ -276,18 +276,51 @@ def test_remove_punct():
     })
 
 
-def test_bert_tokenization():
-    regions = [
-        {"region_number": 1, "content": "This is a test sentence."}
-    ]
-    spec = image_spec("lmzoo-bert-tokenization")
-    tokens = image_tokenize("lmzoo-bert-tokenization",
-                            " ".join(r["content"] for r in regions))
 
-    sentence = Sentence(spec, tokens, unks=[0] * len(tokens), regions=regions)
-    eq_(sentence.region2tokens, {
-        1: ["This", "is", "a", "test", "sen", "##tence", "."]
-    })
+DYNAMIC_CASES = [
+
+    ("Support BERT-style tokenization",
+     ["lmzoo-bert-tokenization"],
+     ["This is a test sentence."],
+     None,
+     {1: ["This", "is", "a", "test", "sen", "##tence", "."]},
+     {1: []}),
+
+]
+
+
+def _test_dynamic_case(image, regions, tokens, expected_region2tokens, expected_oovs):
+    spec = image_spec(image)
+    sentence = Sentence(spec, tokens, unks=None, regions=regions)
+
+    if expected_region2tokens is not None:
+        eq_(sentence.region2tokens, expected_region2tokens)
+
+    if expected_oovs is not None:
+        eq_(sentence.oovs, expected_oovs)
+
+def test_dynamic_cases():
+    for description, images, regions, tokens, expected_region2tokens, expected_oovs in DYNAMIC_CASES:
+        if images is None:
+            images = LM_ZOO_IMAGES
+
+        # Preprocess regions list.
+        if not isinstance(regions[0], dict):
+            regions = [{"region_number": i + 1, "content": region}
+                       for i, region in enumerate(regions)]
+
+        # Prepare yielded function with a nice description.
+        def this_case_fn(*args, **kwargs):
+            return _test_dynamic_case(*args, **kwargs)
+        this_case_fn.description = description
+
+        for image in images:
+            if tokens is None:
+                # Tokenize using image.
+                tokens = image_tokenize(image, " ".join(r["content"] for r in regions))
+
+            yield this_case_fn, image, regions, tokens, expected_region2tokens, expected_oovs
+
 
 # def test_special_types():
 #     # TODO: if at region boundary, which region do we associate them with?
