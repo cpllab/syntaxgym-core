@@ -5,6 +5,7 @@ Supporting code for running SyntaxGym CLI tests.
 from functools import lru_cache
 from io import BytesIO, StringIO
 import json
+import logging
 import os
 from pathlib import Path
 import socket
@@ -12,6 +13,11 @@ import sys
 import tempfile
 
 import docker
+
+# Silence a few loud modules
+logging.getLogger("docker").setLevel(logging.ERROR)
+import urllib3
+logging.getLogger("urllib3").setLevel(logging.ERROR)
 
 
 LM_ZOO_IMAGES_TO_BUILD = {
