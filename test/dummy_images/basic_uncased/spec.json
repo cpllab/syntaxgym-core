@@ -17,7 +17,7 @@
         "prefix_types": [],
         "suffix_types": [],
         "special_types": [],
-        "items": ["This", "is", "a", "test", "sentence", "and", "some", "more", "content"]
+        "items": ["this", "is", "a", "test", "sentence", "and", "some", "more", "content"]
     },
 
     "tokenizer": {
