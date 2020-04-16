@@ -187,97 +187,35 @@ def test_consecutive_unk3():
     })
 
 
-def test_empty_region():
-    regions = [
-        {"region_number": 1, "content": ""},
-        {"region_number": 2, "content": "This"},
-        {"region_number": 3, "content": "is"},
-        {"region_number": 4, "content": ""},
-        {"region_number": 5, "content": "a test."},
-        {"region_number": 6, "content": ""}
-    ]
-    spec = image_spec("lmzoo-basic")
-    tokens = "This is a test .".split()
-    unks = [0, 0, 0, 0, 0]
-    sentence = Sentence(spec, tokens, unks, regions=regions)
-    eq_(sentence.region2tokens, {
-        1: [],
-        2: ["This"],
-        3: ["is"],
-        4: [],
-        5: ["a", "test", "."],
-        6: []
-    })
-
-def test_punct_region():
-    regions = [
-        {"region_number": 1, "content": "This"},
-        {"region_number": 2, "content": "is"},
-        {"region_number": 3, "content": ","},
-        {"region_number": 4, "content": "a"},
-        {"region_number": 5, "content": "test"},
-        {"region_number": 6, "content": "."}
-    ]
-    spec = image_spec("lmzoo-basic")
-    tokens = "This is , a test .".split()
-    unks = [0, 0, 0, 0, 0, 0]
-    sentence = Sentence(spec, tokens, unks, regions=regions)
-    eq_(sentence.region2tokens, {
-        1: ["This"],
-        2: ["is"],
-        3: [","],
-        4: ["a"],
-        5 : ["test"],
-        6: ["."]
-    })
-
-def test_uncased():
-    """
-    Test uncased vocabulary.
-    """
-    regions = [
-        {"region_number": 1, "content": "This"},
-        {"region_number": 2, "content": "is"},
-        {"region_number": 3, "content": "a"},
-        {"region_number": 4, "content": "test."}
-    ]
-    spec = image_spec("lmzoo-basic-uncased")
-    tokens = "this is a test .".split()
-    unks = [0, 0, 0, 0, 0]
-    sentence = Sentence(spec, tokens, unks, regions=regions)
-
-    eq_(sentence.region2tokens, {
-        1: ["this"],
-        2: ["is"],
-        3: ["a"],
-        4 : ["test", "."]
-    })
-
-def test_remove_punct():
-    regions = [
-        {"region_number": 1, "content": "This!"},
-        {"region_number": 2, "content": "?is"},
-        {"region_number": 3, "content": ","},
-        {"region_number": 4, "content": "a ---"},
-        {"region_number": 5, "content": "test"},
-        {"region_number": 6, "content": "."}
-    ]
-    spec = image_spec("lmzoo-basic-nopunct")
-    tokens = "This is a test".split()
-    unks = [0, 0, 0, 0]
-    sentence = Sentence(spec, tokens, unks, regions=regions)
-    eq_(sentence.region2tokens, {
-        1: ["This"],
-        2: ["is"],
-        3: [],
-        4: ["a"],
-        5 : ["test"],
-        6: []
-    })
-
-
-
 DYNAMIC_CASES = [
+
+    ("Test empty regions",
+     ["lmzoo-basic"],
+     ["", "This", "is", "", "a test.", ""],
+     None,
+     {1: [], 2: ["This"], 3: ["is"], 4: [], 5: ["a", "test", "."], 6: []},
+     {1: [], 2: [], 3: [], 4: [], 5: [], 6: []}),
+
+    ("Test punctuation-only regions",
+     ["lmzoo-basic"],
+     "This is , a test .".split(" "),
+     None,
+     {1: ["This"], 2: ["is"], 3: [","], 4: ["a"], 5: ["test"], 6: ["."]},
+     {1: [], 2: [], 3: [], 4: [], 5: [], 6: []}),
+
+    ("Test with uncased image",
+     ["lmzoo-basic-uncased"],
+     "This is a test.".split(" "),
+     None,
+     {1: ["this"], 2: ["is"], 3: ["a"], 4: ["test", "."]},
+     {1: [], 2: [], 3: [], 4: []}),
+
+    ("Test with punctuation-dropping image",
+     ["lmzoo-basic-nopunct"],
+     ["This", "is", ",", "a ---", "test", "."],
+     None,
+     {1: ["This"], 2: ["is"], 3: [], 4: ["a"], 5: ["test"], 6: []},
+     {1: [], 2: [], 3: [], 4: [], 5: [], 6: []}),
 
     ("Support BERT-style tokenization",
      ["lmzoo-bert-tokenization"],
@@ -291,6 +229,7 @@ DYNAMIC_CASES = [
 
 def _test_dynamic_case(image, regions, tokens, expected_region2tokens, expected_oovs):
     spec = image_spec(image)
+    # TODO do we need unks ?
     sentence = Sentence(spec, tokens, unks=None, regions=regions)
 
     if expected_region2tokens is not None:
