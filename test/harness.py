@@ -47,7 +47,7 @@ def image_tokenize(image, content, tag=None):
 
     os.remove(fpath)
 
-    return ret
+    return ret.strip().split(" ")
 
 
 def build_image(image, tag="latest"):
