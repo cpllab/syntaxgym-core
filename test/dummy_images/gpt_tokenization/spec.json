@@ -1,0 +1,29 @@
+{
+    "name": "lmzoo-gpt-tokenization",
+    "ref_url": "",
+
+    "image": {
+        "maintainer": "jon@gauthiers.net",
+        "version": "NA",
+        "datetime": "NA",
+        "gpu": {
+            "required": false,
+            "supported": false
+        }
+    },
+
+    "vocabulary": {
+        "unk_types": ["<unk>"],
+        "prefix_types": [],
+        "suffix_types": [],
+        "special_types": [],
+        "items": ["This", "Ġis", "Ġa", "Ġtest", "Ġsen", "tence", "Ġand", "Ġsome", "Ġmore", "Ġcontent"]
+    },
+
+    "tokenizer": {
+        "type": "subword",
+        "cased": true,
+        "sentinel_position": "initial",
+        "sentinel_pattern": "Ġ"
+    }
+}

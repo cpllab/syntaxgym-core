@@ -224,6 +224,13 @@ DYNAMIC_CASES = [
      {1: ["This", "is", "a", "test", "sen", "##tence", "."]},
      {1: []}),
 
+    ("Support GPT2-style tokenization",
+     ["lmzoo-gpt-tokenization"],
+     ["This is a test sentence."],
+     None,
+     {1: ["This", "Ġis", "Ġa", "Ġtest", "Ġsen", "tence", "Ġ."]},
+     {1: []}),
+
 ]
 
 

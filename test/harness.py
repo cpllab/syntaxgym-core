@@ -26,6 +26,7 @@ LM_ZOO_IMAGES_TO_BUILD = {
     "basic_uncased": "lmzoo-basic-uncased",
     "basic_nopunct": "lmzoo-basic-nopunct",
     "bert_tokenization": "lmzoo-bert-tokenization",
+    "gpt_tokenization": "lmzoo-gpt-tokenization",
 }
 LM_ZOO_IMAGE_TO_DIRECTORY = {image: directory
                              for directory, image in LM_ZOO_IMAGES_TO_BUILD.items()}
