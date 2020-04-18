@@ -47,10 +47,11 @@ def image_tokenize(image, content, tag=None):
     os.write(fd, content.encode("utf-8"))
     os.close(fd)
 
+    host_dir = os.path.dirname(fpath)
     guest_path = Path("/tmp/host") / os.path.basename(fpath)
 
     ret = run_image_command_get_stdout(image, f"tokenize {guest_path}", tag=tag,
-                                       mounts=[("/tmp", "/tmp/host", "ro")])
+                                       mounts=[(host_dir, "/tmp/host", "ro")])
 
     os.remove(fpath)
 
