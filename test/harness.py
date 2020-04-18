@@ -13,6 +13,7 @@ import sys
 import tempfile
 
 import docker
+import docker.tls
 
 # Silence a few loud modules
 logging.getLogger("docker").setLevel(logging.ERROR)
@@ -36,6 +37,49 @@ LM_ZOO_IMAGES = []
 LM_ZOO_IMAGES.extend((image, "latest") for image in LM_ZOO_IMAGES_TO_BUILD.values())
 
 BUILT_IMAGES = []
+
+
+def _get_client():
+    environment = os.environ
+
+    host = environment.get('DOCKER_HOST')
+
+    # empty string for cert path is the same as unset.
+    cert_path = environment.get('DOCKER_CERT_PATH') or None
+
+    # empty string for tls verify counts as "false".
+    # Any value or 'unset' counts as true.
+    tls_verify = environment.get('DOCKER_TLS_VERIFY')
+    if tls_verify == '':
+        tls_verify = False
+    else:
+        tls_verify = tls_verify is not None
+    enable_tls = cert_path or tls_verify
+
+    params = {}
+
+    if host:
+        params['base_url'] = host
+
+    if not enable_tls:
+        return params
+
+    if not cert_path:
+        cert_path = os.path.join(os.path.expanduser('~'), '.docker')
+
+    if not tls_verify and assert_hostname is None:
+        # assert_hostname is a subset of TLS verification,
+        # so if it's not set already then set it to false.
+        assert_hostname = False
+
+    params['tls'] = docker.tls.TLSConfig(
+        client_cert=(os.path.join(cert_path, 'cert.pem'),
+                     os.path.join(cert_path, 'key.pem')),
+        ca_cert=os.path.join(cert_path, 'ca.pem'),
+        verify=tls_verify,
+    )
+
+    return docker.APIClient(**params)
 
 
 @lru_cache(maxsize=None)
@@ -67,7 +111,7 @@ def build_image(image, tag="latest"):
 
     image_dir = Path(__file__).parent / "dummy_images" / image_dir
 
-    client = docker.APIClient()
+    client = _get_client()
     out = client.build(path=str(image_dir), rm=True, tag=f"{image}:{tag}")
 
     BUILT_IMAGES.append(f"{image}:{tag}")
@@ -89,7 +133,7 @@ def run_image_command(image, command_str, tag=None, pull=False,
     if f"{image}:{tag}" not in BUILT_IMAGES:
         build_image(image, tag)
 
-    client = docker.APIClient()
+    client = _get_client()
 
     if pull:
         # First pull the image.
