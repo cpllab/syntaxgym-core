@@ -53,7 +53,6 @@ def test_eos_sos():
     tokens = "<s> This is a test . </s>".split()
     unks = [0, 0, 0, 0, 0, 0, 0]
     sentence = Sentence(spec, tokens, unks, regions=regions)
-    print(sentence.region2tokens)
     eq_(sentence.region2tokens, {
         1: ["<s>", "This"],
         2: ["is"],
@@ -213,9 +212,9 @@ DYNAMIC_CASES = [
 
     ("Test with punctuation-dropping image",
      ["lmzoo-basic-nopunct"],
-     ["This", "is", ",", "a ---", "test", "."],
+     ["Mr. This", "is", ",", "a ---", "test", "."],
      None,
-     {1: ["This"], 2: ["is"], 3: [], 4: ["a"], 5: ["test"], 6: []},
+     {1: ["Mr.", "This"], 2: ["is"], 3: [], 4: ["a"], 5: ["test"], 6: []},
      {1: [], 2: [], 3: [], 4: [], 5: [], 6: []}),
 
     ("Support BERT-style tokenization",
