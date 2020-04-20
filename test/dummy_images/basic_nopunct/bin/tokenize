@@ -7,7 +7,7 @@ from nltk.tokenize import TreebankWordTokenizer
 
 tokenizer = TreebankWordTokenizer()
 
-punct_re = re.compile(r"^[-!?._]+$")
+punct_re = re.compile(r"^[-!?._,]+$")
 
 for line in codecs.open(sys.argv[1], encoding="utf-8"):
     print(" ".join(token for token in tokenizer.tokenize(line.strip())
