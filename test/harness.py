@@ -61,23 +61,21 @@ def _get_client():
     if host:
         params['base_url'] = host
 
-    if not enable_tls:
-        return params
+    if enable_tls:
+        if not cert_path:
+            cert_path = os.path.join(os.path.expanduser('~'), '.docker')
 
-    if not cert_path:
-        cert_path = os.path.join(os.path.expanduser('~'), '.docker')
+        if not tls_verify and assert_hostname is None:
+            # assert_hostname is a subset of TLS verification,
+            # so if it's not set already then set it to false.
+            assert_hostname = False
 
-    if not tls_verify and assert_hostname is None:
-        # assert_hostname is a subset of TLS verification,
-        # so if it's not set already then set it to false.
-        assert_hostname = False
-
-    params['tls'] = docker.tls.TLSConfig(
-        client_cert=(os.path.join(cert_path, 'cert.pem'),
-                     os.path.join(cert_path, 'key.pem')),
-        ca_cert=os.path.join(cert_path, 'ca.pem'),
-        verify=tls_verify,
-    )
+        params['tls'] = docker.tls.TLSConfig(
+            client_cert=(os.path.join(cert_path, 'cert.pem'),
+                        os.path.join(cert_path, 'key.pem')),
+            ca_cert=os.path.join(cert_path, 'ca.pem'),
+            verify=tls_verify,
+        )
 
     return docker.APIClient(**params)
 
