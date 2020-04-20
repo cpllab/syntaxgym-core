@@ -23,6 +23,6 @@
     "tokenizer": {
         "type": "word",
         "cased": true,
-        "drop_token_pattern": "^[-!?._]+$"
+        "drop_token_pattern": "^[-!?._,]+$"
     }
 }
