@@ -86,16 +86,21 @@ def image_spec(image, tag=None):
 
 def image_tokenize(image, content, tag=None):
     fd, fpath = tempfile.mkstemp()
+    fpath = Path(fpath)
+
     os.write(fd, content.encode("utf-8"))
     os.close(fd)
 
-    host_dir = os.path.dirname(fpath)
-    guest_path = Path("/tmp/host") / os.path.basename(fpath)
+    host_dir = fpath.parent
+    # OS X fix: `/var` can't be mounted; mount `/private/var` instead
+    if str(host_dir).startswith("/var"):
+        host_dir = Path("/private") / host_dir
+    guest_path = Path("/tmp/host") / fpath.name
 
     ret = run_image_command_get_stdout(image, f"tokenize {guest_path}", tag=tag,
                                        mounts=[(host_dir, "/tmp/host", "ro")])
 
-    os.remove(fpath)
+    os.remove(str(fpath))
 
     return ret.strip().split(" ")
 
