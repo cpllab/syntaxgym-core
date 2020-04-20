@@ -88,6 +88,11 @@ def image_tokenize(image, content, tag=None):
     fd, fpath = tempfile.mkstemp()
     fpath = Path(fpath)
 
+    if not content.endswith("\n"):
+        # Images read line-by-line; make sure the last line doesn't get
+        # dropped.
+        content += "\n"
+
     os.write(fd, content.encode("utf-8"))
     os.close(fd)
 
@@ -108,8 +113,8 @@ def build_image(image, tag="latest"):
     try:
         image_dir = LM_ZOO_IMAGE_TO_DIRECTORY[image]
     except KeyError:
-        print("Image %s not found in dummy images directory." % image, file=sys.stderr)
-        raise
+        print("Image %s not found in dummy images directory. Skipping." % (image,), file=sys.stderr)
+        return
 
     image_dir = Path(__file__).parent / "dummy_images" / image_dir
 

@@ -1,3 +1,4 @@
+from copy import deepcopy
 from functools import lru_cache
 import json
 from pathlib import Path
@@ -234,11 +235,13 @@ DYNAMIC_CASES = [
 ]
 
 
-def _test_dynamic_case(image, regions, tokens, expected_region2tokens, expected_oovs):
-    spec = image_spec(image)
+def _test_dynamic_case(image, tag, regions, tokens, expected_region2tokens, expected_oovs):
+    spec = image_spec(image, tag=tag)
 
     print("Spec:")
-    pprint(spec)
+    spec_to_print = deepcopy(spec)
+    spec_to_print["vocabulary"]["items"] = ".... removed ...."
+    pprint(spec_to_print)
 
     print("\n\nRegions:")
     pprint(regions)
@@ -259,6 +262,7 @@ def test_dynamic_cases():
     for description, images, regions, tokens, expected_region2tokens, expected_oovs in DYNAMIC_CASES:
         if images is None:
             images = LM_ZOO_IMAGES
+        images = [(image, "latest") if isinstance(image, str) else image for image in images]
 
         # Preprocess regions list.
         if not isinstance(regions[0], dict):
@@ -270,12 +274,12 @@ def test_dynamic_cases():
             return _test_dynamic_case(*args, **kwargs)
         this_case_fn.description = description
 
-        for image in images:
+        for image, tag in images:
             if tokens is None:
                 # Tokenize using image.
-                tokens = image_tokenize(image, " ".join(r["content"] for r in regions))
+                tokens = image_tokenize(image, " ".join(r["content"] for r in regions), tag=tag)
 
-            yield this_case_fn, image, regions, tokens, expected_region2tokens, expected_oovs
+            yield this_case_fn, image, tag, regions, tokens, expected_region2tokens, expected_oovs
 
 
 # def test_special_types():
