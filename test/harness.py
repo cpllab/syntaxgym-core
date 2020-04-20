@@ -94,9 +94,8 @@ def image_tokenize(image, content, tag=None):
     host_dir = fpath.parent
     # OS X fix: `/var` can't be mounted; mount `/private/var` instead
     if str(host_dir).startswith("/var"):
-        host_dir = Path("/private") / host_dir
+        host_dir = host_dir.resolve()
     guest_path = Path("/tmp/host") / fpath.name
-
     ret = run_image_command_get_stdout(image, f"tokenize {guest_path}", tag=tag,
                                        mounts=[(host_dir, "/tmp/host", "ro")])
 
