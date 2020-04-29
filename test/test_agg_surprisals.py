@@ -6,7 +6,7 @@ from nose.tools import *
 import numpy as np
 import pandas as pd
 
-from agg_surprisals import agg_surprisals as aggregate_surprisals
+from agg_surprisals import aggregate_surprisals
 
 # # Add test harness
 # import sys
