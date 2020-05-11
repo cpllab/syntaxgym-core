@@ -6,10 +6,8 @@ from pprint import pprint
 import sys
 
 import jsonschema
+import pytest
 import requests
-
-import nose
-from nose.tools import *
 
 import logging
 logging.getLogger("matplotlib").setLevel(logging.ERROR)
@@ -30,17 +28,18 @@ DUMMY_SPEC_PATH = Path(__file__).parent / "dummy_specs"
 ##################################
 
 
-def _test_individual_spec(image, schema, tag=None):
-    print(f"{image}:{tag}")
-    jsonschema.validate(instance=image_spec(image, tag=tag), schema=schema)
+@pytest.fixture(scope="module")
+def spec_schema():
+    return requests.get(SPEC_SCHEMA_URL).json()
 
-def test_specs():
+
+@pytest.mark.parametrize("ref", LM_ZOO_IMAGES)
+def test_specs(ref, spec_schema):
     """
     Validate specs against the lm-zoo standard.
     """
-    schema_json = requests.get(SPEC_SCHEMA_URL).json()
-    for image, tag in LM_ZOO_IMAGES:
-        yield _test_individual_spec, image, schema_json, tag
+    image, tag = ref
+    jsonschema.validate(instance=image_spec(image, tag=tag), schema=spec_schema)
 
 
 def test_eos_sos():
@@ -54,12 +53,12 @@ def test_eos_sos():
     tokens = "<s> This is a test . </s>".split()
     unks = [0, 0, 0, 0, 0, 0, 0]
     sentence = Sentence(spec, tokens, unks, regions=regions)
-    eq_(sentence.region2tokens, {
+    assert sentence.region2tokens == {
         1: ["<s>", "This"],
         2: ["is"],
         3: ["a"],
         4 : ["test", ".", "</s>"]
-    })
+    }
 
 
 def test_unk():
@@ -74,19 +73,19 @@ def test_unk():
     unks = [0, 0, 1, 0, 1, 0]
     sentence = Sentence(spec, tokens, unks, regions=regions)
 
-    eq_(sentence.region2tokens, {
+    assert sentence.region2tokens == {
         1: ["This"],
         2: ["is", "<unk>"],
         3: ["a"],
         4: ["<unk>", "."],
-    })
+    }
 
-    eq_(sentence.oovs, {
+    assert sentence.oovs == {
         1: [],
         2: ["WEIRDADVERB"],
         3: [],
         4: ["WEIRDNOUN"],
-    })
+    }
 
 
 def test_consecutive_unk():
@@ -106,19 +105,19 @@ def test_consecutive_unk():
     unks = [0, 0, 0, 1, 0, 1, 1, 1]
     sentence = Sentence(spec, tokens, unks, regions=regions)
 
-    eq_(sentence.region2tokens, {
+    assert sentence.region2tokens == {
         1: ["This"],
         2: ["is"],
         3: ["a"],
         4: ["<unk>", "test", "<unk>", "<unk>", "."],
-    })
+    }
 
-    eq_(sentence.oovs, {
+    assert sentence.oovs == {
         1: [],
         2: [],
         3: [],
         4: ["WEIRDADVERB", "WEIRDADJECTIVE", "WEIRDNOUN"],
-    })
+    }
 
 
 def test_consecutive_unk2():
@@ -138,21 +137,21 @@ def test_consecutive_unk2():
     unks = [0, 0, 0, 1, 0, 1, 1, 1]
     sentence = Sentence(spec, tokens, unks, regions=regions)
 
-    eq_(sentence.region2tokens, {
+    assert sentence.region2tokens == {
         1: ["This"],
         2: ["is"],
         3: ["a"],
         4: ["<unk>", "test", "<unk>", "<unk>", "and", "some", "more"],
         5: ["content", "."],
-    })
+    }
 
-    eq_(sentence.oovs, {
+    assert sentence.oovs == {
         1: [],
         2: [],
         3: [],
         4: ["WEIRDADVERB", "WEIRDADJECTIVE", "WEIRDNOUN"],
         5: [],
-    })
+    }
 
 
 def test_consecutive_unk3():
@@ -171,62 +170,62 @@ def test_consecutive_unk3():
     unks = [0, 0, 0, 1, 0, 1, 1, 1]
     sentence = Sentence(spec, tokens, unks, regions=regions)
 
-    eq_(sentence.region2tokens, {
+    assert sentence.region2tokens == {
         1: ["This"],
         2: ["is"],
         3: ["a"],
         4: ["<unk>", "test", "<unk>", "<unk>"],
         5: ["and", "some", "more", "content", "."],
-    })
+    }
 
-    eq_(sentence.oovs, {
+    assert sentence.oovs == {
         1: [],
         2: [],
         3: [],
         4: ["WEIRDADVERB", "WEIRDADJECTIVE", "WEIRDNOUN"],
         5: [],
-    })
+    }
 
 
 DYNAMIC_CASES = [
 
     ("Test empty regions",
-     ["lmzoo-basic"],
+     "lmzoo-basic",
      ["", "This", "is", "", "a test.", ""],
      None,
      {1: [], 2: ["This"], 3: ["is"], 4: [], 5: ["a", "test", "."], 6: []},
      {1: [], 2: [], 3: [], 4: [], 5: [], 6: []}),
 
     ("Test punctuation-only regions",
-     ["lmzoo-basic"],
+     "lmzoo-basic",
      "This is , a test .".split(" "),
      None,
      {1: ["This"], 2: ["is"], 3: [","], 4: ["a"], 5: ["test"], 6: ["."]},
      {1: [], 2: [], 3: [], 4: [], 5: [], 6: []}),
 
     ("Test with uncased image",
-     ["lmzoo-basic-uncased"],
+     "lmzoo-basic-uncased",
      "This is a test.".split(" "),
      None,
      {1: ["this"], 2: ["is"], 3: ["a"], 4: ["test", "."]},
      {1: [], 2: [], 3: [], 4: []}),
 
     ("Test with punctuation-dropping image",
-     ["lmzoo-basic-nopunct"],
+     "lmzoo-basic-nopunct",
      ["Mr. This", "is", ",", "a ---", "test", "."],
      None,
      {1: ["Mr.", "This"], 2: ["is"], 3: [], 4: ["a"], 5: ["test"], 6: []},
      {1: [], 2: [], 3: [], 4: [], 5: [], 6: []}),
 
     ("Support BERT-style tokenization",
-     ["lmzoo-bert-tokenization"],
+     "lmzoo-bert-tokenization",
      ["This is a test sentence."],
      None,
      {1: ["This", "is", "a", "test", "sen", "##tence", "."]},
      {1: []}),
 
     ("Support GPT2-style tokenization",
-     ["lmzoo-gpt-tokenization"],
+     "lmzoo-gpt-tokenization",
      ["This is a test sentence."],
      None,
      {1: ["This", "Ġis", "Ġa", "Ġtest", "Ġsen", "tence", "Ġ."]},
@@ -234,8 +233,26 @@ DYNAMIC_CASES = [
 
 ]
 
+@pytest.mark.parametrize(argnames=("description", "image", "regions", "tokens",
+                                   "expected_region2tokens", "expected_oovs"),
+                         argvalues=DYNAMIC_CASES,
+                         ids=[x[0] for x in DYNAMIC_CASES])
+def test_dynamic_case(description, image, regions, tokens, expected_region2tokens, expected_oovs):
+    if isinstance(image, str):
+        image = image
+        tag = "latest"
+    else:
+        image, tag = image
 
-def _test_dynamic_case(image, tag, regions, tokens, expected_region2tokens, expected_oovs):
+    # Preprocess regions list.
+    if not isinstance(regions[0], dict):
+        regions = [{"region_number": i + 1, "content": region}
+                   for i, region in enumerate(regions)]
+
+    if tokens is None:
+        # Tokenize using image.
+        tokens = image_tokenize(image, " ".join(r["content"] for r in regions), tag=tag)
+
     spec = image_spec(image, tag=tag)
 
     print("Spec:")
@@ -253,33 +270,11 @@ def _test_dynamic_case(image, tag, regions, tokens, expected_region2tokens, expe
     sentence = Sentence(spec, tokens, unks=None, regions=regions)
 
     if expected_region2tokens is not None:
-        eq_(sentence.region2tokens, expected_region2tokens)
+        assert sentence.region2tokens == expected_region2tokens
 
     if expected_oovs is not None:
-        eq_(sentence.oovs, expected_oovs)
+        assert sentence.oovs == expected_oovs
 
-def test_dynamic_cases():
-    for description, images, regions, tokens, expected_region2tokens, expected_oovs in DYNAMIC_CASES:
-        if images is None:
-            images = LM_ZOO_IMAGES
-        images = [(image, "latest") if isinstance(image, str) else image for image in images]
-
-        # Preprocess regions list.
-        if not isinstance(regions[0], dict):
-            regions = [{"region_number": i + 1, "content": region}
-                       for i, region in enumerate(regions)]
-
-        # Prepare yielded function with a nice description.
-        def this_case_fn(*args, **kwargs):
-            return _test_dynamic_case(*args, **kwargs)
-        this_case_fn.description = description
-
-        for image, tag in images:
-            if tokens is None:
-                # Tokenize using image.
-                tokens = image_tokenize(image, " ".join(r["content"] for r in regions), tag=tag)
-
-            yield this_case_fn, image, tag, regions, tokens, expected_region2tokens, expected_oovs
 
 
 # def test_special_types():
