@@ -38,9 +38,10 @@ class Sentence:
         region2tokens = defaultdict(list)
 
         # compile regex for dropping
-        drop_pattern = None
         if spec['tokenizer'].get('drop_token_pattern') is not None:
             drop_pattern = re.compile(spec['tokenizer']['drop_token_pattern'])
+        else:
+            drop_pattern = None
 
         # Sentinel: blindly add next N tokens to current region.
         skip_n = 0
@@ -79,22 +80,20 @@ class Sentence:
                 t_idx += 1
                 continue
 
-            # HACK: quick, untested, dirty hack for BPE tokenization, e.g.
-            # This token will decompose. --> ĠThis Ġtoken Ġwill Ġdecom pose .
-            # if spec['tokenizer']['type'] == 'subword':
-            #     if spec['tokenizer']['sentinel_position'] == 'initial' and token.startswith(spec['tokenizer']['sentinel_pattern']):
-            #         # remove token boundary
-            #         token = token[len(spec['tokenizer']['sentinel_pattern']):]
-            #     elif spec['tokenizer']['sentinel_position'] == 'medial' and token.startswith(spec['tokenizer']['sentinel_pattern']):
+            #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            # Sub-word operations
+            #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-            #             "tokenizer": {
-            # "type": "subword",
-            # "sentinel_pattern": "##",
-            # "sentinel_position": "initial" || "medial" || "final",
-            # }
-            # if bpe and token.startswith('Ġ'):
-            #     # remove token boundary
-            #     token = token[1:]
+            # # remove token boundaries
+            # if spec['tokenizer']['type'] == 'subword':
+            #     if spec['tokenizer']['sentinel_position'] == 'initial' or spec['tokenizer']['sentinel_position'] == 'medial' \
+            #         and token.startswith(spec['tokenizer']['sentinel_pattern']):
+            #         # remove token boundary from beginning
+            #         token = token[len(spec['tokenizer']['sentinel_pattern']):]
+            #         # TODO: need to keep track of the fact that our word is not done
+            #     elif spec['tokenizer']['sentinel_position'] == 'final' and token.endswith(spec['tokenizer']['sentinel_pattern']):
+            #         # remove token boundary from end 
+            #         token = token[:len(spec['tokenizer']['sentinel_pattern'])]
 
             #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             # Content-level operations
@@ -103,9 +102,9 @@ class Sentence:
             # remove leading spaces of current content
             content = content.lstrip()
 
-            # drop characters specified by regex
-            if drop_pattern is not None:
-                content = re.sub(drop_pattern, '', content)
+            # drop characters specified by regex (content up to next space)
+            if drop_pattern and re.sub(drop_pattern, '', content.split()[0]) == '':
+                content = ' '.join(content.split()[1:])
 
             # if empty region, proceed to next region (keeping current token)
             if content == '':
