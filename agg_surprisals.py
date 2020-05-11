@@ -1,7 +1,10 @@
-import utils
 import argparse
-import pandas as pd
+from copy import deepcopy
 from pathlib import Path
+
+import pandas as pd
+
+import utils
 from suite import Sentence, Region
 
 def aggregate_surprisals(surprisals, tokens, unks, in_data, spec):
@@ -14,19 +17,26 @@ def aggregate_surprisals(surprisals, tokens, unks, in_data, spec):
         metrics = [metrics] if type(metrics) == str else metrics
     utils.validate_metrics(metrics)
 
-    # store tokens and surprisal values from surprisal file
-    TOKENS = surprisals['token'].values
-    SURPRISALS = surprisals['surprisal'].values
-
-    # initialize counters for token and sentence from in_data
-    t_idx, s_idx = 0, 0
+    ret = deepcopy(in_data)
+    surprisals = surprisals.reset_index().set_index("sentence_id")
+    sent_idx = 0
 
     # iterate through surprisal file, matching tokens with regions
     for i_idx, item in enumerate(in_data['items']):
         for c_idx, cond in enumerate(item['conditions']):
-            # grab tokens and unks for current sentence from Docker image output
-            sent_tokens = tokens[s_idx]
-            sent_unks = unks[s_idx]
+            # fetch sentence data
+            sent_tokens = tokens[sent_idx]
+            sent_unks = unks[sent_idx]
+            sent_surps = surprisals.loc[sent_idx + 1]
+            t_idx = 0
+
+            if len(sent_tokens) != len(sent_unks) or len(sent_unks) != len(sent_surps):
+                raise ValueError("Mismatched lengths between tokens, unks, and surprisals")
+            elif sent_tokens != list(sent_surps.token):
+                raise ValueError("Mismatched tokens between tokens and surprisals data frame")
+
+            # Checks done -- strip down data a bit
+            sent_surps = sent_surps.surprisal.values
 
             # initialize Sentence object for current sentence
             sent = Sentence(spec, sent_tokens, sent_unks, item_num=i_idx+1, **cond)
@@ -35,28 +45,28 @@ def aggregate_surprisals(surprisals, tokens, unks, in_data, spec):
             for r_idx, region in enumerate(sent.regions):
                 for token in region.tokens:
                     # append to region surprisals if exact token match
-                    if token == TOKENS[t_idx]:
-                        region.token_surprisals.append(SURPRISALS[t_idx])
+                    if token == sent_tokens[t_idx]:
+                        region.token_surprisals.append(sent_surps[t_idx])
                         t_idx += 1
                     else:
-                        raise utils.TokenMismatch(token, TOKENS[t_idx], t_idx+2)
+                        raise utils.TokenMismatch(token, sent_tokens[t_idx], t_idx+2)
 
                 # get dictionary of region-level surprisal values for each metric
                 vals = {m : region.agg_surprisal(m) for m in metrics}
 
                 # insert surprisal values into original dict
-                in_data['items'][i_idx]['conditions'][c_idx]['regions'][r_idx]['metric_value'] = vals
+                ret['items'][i_idx]['conditions'][c_idx]['regions'][r_idx]['metric_value'] = vals
 
                 # update original dict with OOV information
-                in_data['items'][i_idx]['conditions'][c_idx]['regions'][r_idx]['oovs'] = \
+                ret['items'][i_idx]['conditions'][c_idx]['regions'][r_idx]['oovs'] = \
                   sent.oovs[region.region_number]
 
             # update sentence counter
-            s_idx += 1
+            sent_idx += 1
 
     # update meta information with model name
-    in_data['meta']['model'] = spec['name']
-    return in_data
+    ret['meta']['model'] = spec['name']
+    return ret
 
 def main(args):
     # read input test suite and token-level surprisals

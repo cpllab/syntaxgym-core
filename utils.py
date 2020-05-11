@@ -21,13 +21,6 @@ tokens \"%s\" and \"%s\" do not match (line %d in surprisal file)
         ''' % (token1, token2, t_idx)
         Exception.__init__(self, msg)
 
-def flatten(l):
-    """
-    Flattens a list. Credit to https://stackoverflow.com/a/952952
-    """
-    flat_list = [item for sublist in l for item in sublist]
-    return flat_list
-
 def save_args(values):
     """
     Automatically saves constructor arguments to object.
@@ -108,7 +101,7 @@ def tokenize_file(sentence_path, image):
         sentences = run(cmd)
     tokens = [s.strip().split(' ') for s in sentences]
     return tokens
-    
+
 def unkify_file(sentence_path, image):
     """
     Unkifies file at sentence_path according to image.
