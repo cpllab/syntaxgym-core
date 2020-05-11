@@ -81,21 +81,6 @@ class Sentence:
                 continue
 
             #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            # Sub-word operations
-            #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-            # # remove token boundaries
-            # if spec['tokenizer']['type'] == 'subword':
-            #     if spec['tokenizer']['sentinel_position'] == 'initial' or spec['tokenizer']['sentinel_position'] == 'medial' \
-            #         and token.startswith(spec['tokenizer']['sentinel_pattern']):
-            #         # remove token boundary from beginning
-            #         token = token[len(spec['tokenizer']['sentinel_pattern']):]
-            #         # TODO: need to keep track of the fact that our word is not done
-            #     elif spec['tokenizer']['sentinel_position'] == 'final' and token.endswith(spec['tokenizer']['sentinel_pattern']):
-            #         # remove token boundary from end 
-            #         token = token[:len(spec['tokenizer']['sentinel_pattern'])]
-
-            #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             # Content-level operations
             #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -115,15 +100,37 @@ class Sentence:
             if not spec['tokenizer']['cased']:
                 content = content.lower()
 
-            # if token has exact match with beginning of content, or unk
-            if content.startswith(token) or token in spec['vocabulary']['unk_types']:
+            # Check for a token match at the left edge of the region.
+            step_count = None
+            token_match = content.startswith(token)
+            if token_match:
+                # Exact match. We'll walk forward this number of characters
+                step_count = len(token)
+            # Subword tokenizers may have initial / final content that blocks
+            # the match. Check again.
+            if not token_match and spec["tokenizer"]["type"] == "subword":
+                if spec["tokenizer"]["sentinel_position"] in ["initial", "medial"]:
+                    stripped_token = token.lstrip(spec["tokenizer"]["sentinel_pattern"])
+                elif spec["tokenizer"]["sentinel_position"] == "final":
+                    stripped_token = token.rstrip(spec["tokenizer"]["sentinel_pattern"])
 
-                if content.startswith(token):
+                token_match = content.startswith(stripped_token)
+                # Soft subword match. Step forward the number of characters in
+                # the matched subword, correcting for sentinel
+                if token_match:
+                    step_count = len(stripped_token)
+
+            # If we found a left-edge match, or this is an unk
+            if token_match or token in spec['vocabulary']['unk_types']:
+
+                # First: consume the (soft) matched token.
+
+                if token_match:
                     # add token to list of tokens for current region
                     region2tokens[r.region_number].append(token)
 
                     # remove token from content
-                    content = content[len(token):]
+                    content = content[step_count:]
                     t_idx += 1
                 else:
                     # extract maximal string of OOVs by looking for match with
@@ -186,9 +193,9 @@ class Sentence:
                             if oov_str:
                                 break
 
-
                     if content.strip() == '' and r_idx == len(self.regions) - 1:
                         return region2tokens
+
 
                 # if end of content (removing spaces), and before last region
                 if content.strip() == '' and r_idx < len(self.regions) - 1:

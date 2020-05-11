@@ -231,6 +231,14 @@ DYNAMIC_CASES = [
      {1: ["This", "Ġis", "Ġa", "Ġtest", "Ġsen", "tence", "Ġ."]},
      {1: []}),
 
+    ("Support GPT2-style tokenization across regions",
+     "lmzoo-gpt-tokenization",
+     ["This is a test sentence", "."],
+     None,
+     {1: ["This", "Ġis", "Ġa", "Ġtest", "Ġsen", "tence"],
+      2: ["Ġ."]},
+     {1: [], 2: []}),
+
 ]
 
 @pytest.mark.parametrize(argnames=("description", "image", "regions", "tokens",
