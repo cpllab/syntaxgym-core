@@ -15,8 +15,7 @@ L = logging.getLogger(__name__)
 
 from suite import Sentence
 
-sys.path.append(str(Path(__file__).parent))
-from harness import LM_ZOO_IMAGES, image_spec, image_tokenize
+from conftest import LM_ZOO_IMAGES, image_tokenize, image_spec
 
 
 SPEC_SCHEMA_URL = "https://cpllab.github.io/lm-zoo/schemas/language_model_spec.json"
@@ -34,22 +33,22 @@ def spec_schema():
 
 
 @pytest.mark.parametrize("ref", LM_ZOO_IMAGES)
-def test_specs(ref, spec_schema):
+def test_specs(client, ref, spec_schema):
     """
     Validate specs against the lm-zoo standard.
     """
     image, tag = ref
-    jsonschema.validate(instance=image_spec(image, tag=tag), schema=spec_schema)
+    jsonschema.validate(instance=image_spec(client, image, tag=tag), schema=spec_schema)
 
 
-def test_eos_sos():
+def test_eos_sos(client):
     regions = [
         {"region_number": 1, "content": "This"},
         {"region_number": 2, "content": "is"},
         {"region_number": 3, "content": "a"},
         {"region_number": 4, "content": "test."}
     ]
-    spec = image_spec("lmzoo-basic-eos-sos")
+    spec = image_spec(client, "lmzoo-basic-eos-sos")
     tokens = "<s> This is a test . </s>".split()
     unks = [0, 0, 0, 0, 0, 0, 0]
     sentence = Sentence(spec, tokens, unks, regions=regions)
@@ -61,14 +60,14 @@ def test_eos_sos():
     }
 
 
-def test_unk():
+def test_unk(client):
     regions = [
         {"region_number": 1, "content": "This"},
         {"region_number": 2, "content": "is WEIRDADVERB"},
         {"region_number": 3, "content": "a"},
         {"region_number": 4, "content": "WEIRDNOUN."}
     ]
-    spec = image_spec("lmzoo-basic")
+    spec = image_spec(client, "lmzoo-basic")
     tokens = "This is <unk> a <unk> .".split()
     unks = [0, 0, 1, 0, 1, 0]
     sentence = Sentence(spec, tokens, unks, regions=regions)
@@ -88,7 +87,7 @@ def test_unk():
     }
 
 
-def test_consecutive_unk():
+def test_consecutive_unk(client):
     """
     Consecutive UNKs are mapped to regions by lookahead -- we look ahead in the
     token string for the next non-unk token, and associate all unks up to that
@@ -100,7 +99,7 @@ def test_consecutive_unk():
         {"region_number": 3, "content": "a"},
         {"region_number": 4, "content": "WEIRDADVERB test WEIRDADJECTIVE WEIRDNOUN."}
     ]
-    spec = image_spec("lmzoo-basic")
+    spec = image_spec(client, "lmzoo-basic")
     tokens = "This is a <unk> test <unk> <unk> .".split()
     unks = [0, 0, 0, 1, 0, 1, 1, 1]
     sentence = Sentence(spec, tokens, unks, regions=regions)
@@ -120,7 +119,7 @@ def test_consecutive_unk():
     }
 
 
-def test_consecutive_unk2():
+def test_consecutive_unk2(client):
     """
     consecutive unks in the middle of a region, with non-unks following in the
     same region
@@ -132,7 +131,7 @@ def test_consecutive_unk2():
         {"region_number": 4, "content": "WEIRDADVERB test WEIRDADJECTIVE WEIRDNOUN and some more"},
         {"region_number": 5, "content": "content."}
     ]
-    spec = image_spec("lmzoo-basic")
+    spec = image_spec(client, "lmzoo-basic")
     tokens = "This is a <unk> test <unk> <unk> and some more content .".split()
     unks = [0, 0, 0, 1, 0, 1, 1, 1]
     sentence = Sentence(spec, tokens, unks, regions=regions)
@@ -154,7 +153,7 @@ def test_consecutive_unk2():
     }
 
 
-def test_consecutive_unk3():
+def test_consecutive_unk3(client):
     """
     consecutive unks at the end of a region, with more regions after
     """
@@ -165,7 +164,7 @@ def test_consecutive_unk3():
         {"region_number": 4, "content": "WEIRDADVERB test WEIRDADJECTIVE WEIRDNOUN"},
         {"region_number": 5, "content": "and some more content."}
     ]
-    spec = image_spec("lmzoo-basic")
+    spec = image_spec(client, "lmzoo-basic")
     tokens = "This is a <unk> test <unk> <unk> and some more content .".split()
     unks = [0, 0, 0, 1, 0, 1, 1, 1]
     sentence = Sentence(spec, tokens, unks, regions=regions)
@@ -245,7 +244,7 @@ DYNAMIC_CASES = [
                                    "expected_region2tokens", "expected_oovs"),
                          argvalues=DYNAMIC_CASES,
                          ids=[x[0] for x in DYNAMIC_CASES])
-def test_dynamic_case(description, image, regions, tokens, expected_region2tokens, expected_oovs):
+def test_dynamic_case(client, description, image, regions, tokens, expected_region2tokens, expected_oovs):
     if isinstance(image, str):
         image = image
         tag = "latest"
@@ -259,9 +258,9 @@ def test_dynamic_case(description, image, regions, tokens, expected_region2token
 
     if tokens is None:
         # Tokenize using image.
-        tokens = image_tokenize(image, " ".join(r["content"] for r in regions), tag=tag)
+        tokens = image_tokenize(client, image, " ".join(r["content"] for r in regions), tag=tag)
 
-    spec = image_spec(image, tag=tag)
+    spec = image_spec(client, image, tag=tag)
 
     print("Spec:")
     spec_to_print = deepcopy(spec)
@@ -287,7 +286,4 @@ def test_dynamic_case(description, image, regions, tokens, expected_region2token
 
 # def test_special_types():
 #     # TODO: if at region boundary, which region do we associate them with?
-#     pass
-
-# def test_bpe():
 #     pass

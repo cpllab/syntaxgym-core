@@ -12,6 +12,8 @@ import socket
 import sys
 import tempfile
 
+import pytest
+
 import docker
 import docker.tls
 
@@ -39,7 +41,8 @@ LM_ZOO_IMAGES.extend((image, "latest") for image in LM_ZOO_IMAGES_TO_BUILD.value
 BUILT_IMAGES = []
 
 
-def _get_client():
+@pytest.fixture(scope="module")
+def client():
     environment = os.environ
 
     host = environment.get('DOCKER_HOST')
@@ -81,10 +84,10 @@ def _get_client():
 
 
 @lru_cache(maxsize=None)
-def image_spec(image, tag=None):
-    return json.loads(run_image_command_get_stdout(image, "spec", tag=tag))
+def image_spec(client, image, tag=None):
+    return json.loads(run_image_command_get_stdout(client, image, "spec", tag=tag))
 
-def image_tokenize(image, content, tag=None):
+def image_tokenize(client, image, content, tag=None):
     fd, fpath = tempfile.mkstemp()
     fpath = Path(fpath)
 
@@ -101,7 +104,7 @@ def image_tokenize(image, content, tag=None):
     if str(host_dir).startswith("/var"):
         host_dir = host_dir.resolve()
     guest_path = Path("/tmp/host") / fpath.name
-    ret = run_image_command_get_stdout(image, f"tokenize {guest_path}", tag=tag,
+    ret = run_image_command_get_stdout(client, image, f"tokenize {guest_path}", tag=tag,
                                        mounts=[(host_dir, "/tmp/host", "ro")])
 
     os.remove(str(fpath))
@@ -109,7 +112,7 @@ def image_tokenize(image, content, tag=None):
     return ret.strip().split(" ")
 
 
-def build_image(image, tag="latest"):
+def build_image(client, image, tag="latest"):
     try:
         image_dir = LM_ZOO_IMAGE_TO_DIRECTORY[image]
     except KeyError:
@@ -118,7 +121,6 @@ def build_image(image, tag="latest"):
 
     image_dir = Path(__file__).parent / "dummy_images" / image_dir
 
-    client = _get_client()
     out = client.build(path=str(image_dir), rm=True, tag=f"{image}:{tag}")
 
     BUILT_IMAGES.append(f"{image}:{tag}")
@@ -127,7 +129,7 @@ def build_image(image, tag="latest"):
     return ret
 
 
-def run_image_command(image, command_str, tag=None, pull=False,
+def run_image_command(client, image, command_str, tag=None, pull=False,
                       stdin=None, stdout=sys.stdout, stderr=sys.stderr,
                       mounts=None):
     """
@@ -138,9 +140,7 @@ def run_image_command(image, command_str, tag=None, pull=False,
         tag = "latest"
 
     if f"{image}:{tag}" not in BUILT_IMAGES:
-        build_image(image, tag)
-
-    client = _get_client()
+        build_image(client, image, tag)
 
     if pull:
         # First pull the image.
