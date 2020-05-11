@@ -1,7 +1,15 @@
+from functools import lru_cache
+from io import StringIO
 import json
 import numpy as np
 from inspect import getargspec
 import subprocess
+import sys
+
+import logging
+L = logging.getLogger("syntaxgym")
+
+import docker
 
 METRICS = {
     'sum': sum,
@@ -76,16 +84,75 @@ def run(cmd_str):
     from stdout.
     """
     res = subprocess.run(cmd_str.split(), stdout=subprocess.PIPE)
-    return res.stdout.decode('utf-8').split('\n')
+    return res.stdout.decode('utf-8').strip("\n").split('\n')
+
+
+@lru_cache()
+def _get_docker_client():
+    return docker.from_env()
+
+def _run_container(image, command_str, tag=None, pull=False,
+                   stdin=None, stdout=sys.stdout, stderr=sys.stderr,
+                   progress_stream=sys.stderr):
+    """
+    Run the given command inside a Docker container.
+    """
+    client = _get_docker_client().api
+
+    if tag is None:
+        if ":" in image:
+            image, tag = image.rsplit(":", 1)
+        else:
+            tag = "latest"
+
+    if pull:
+        # First pull the image.
+        registry = "docker.io"
+        L.info("Pulling latest Docker image for %s:%s." % (image, tag), err=True)
+        try:
+            progress_bars = {}
+            for line in client.pull(f"{registry}/{image}", tag=tag, stream=True, decode=True):
+                if progress_stream is not None:
+                    # Write pull progress on the given stream.
+                    _update_progress(line, progress_bars)
+                else:
+                    pass
+        except docker.errors.NotFound:
+            raise RuntimeError("Image not found.")
+
+    container = client.create_container(f"{image}:{tag}", stdin_open=True,
+                                        command=command_str)
+    client.start(container)
+
+    if stdin is not None:
+        # Send file contents to stdin of container.
+        in_stream = client.attach_socket(container, params={"stdin": 1, "stream": 1})
+        os.write(in_stream._sock.fileno(), stdin.read())
+        os.close(in_stream._sock.fileno())
+
+    # Stop container and collect results.
+    # TODO parameterize timeout
+    client.stop(container, timeout=60)
+
+    # Collect output.
+    container_stdout = client.logs(container, stdout=True, stderr=False)
+    container_stderr = client.logs(container, stdout=False, stderr=True)
+
+    client.remove_container(container)
+    stdout.write(container_stdout.decode("utf-8"))
+    stderr.write(container_stderr.decode("utf-8"))
+
+def _run_container_get_stdout(*args, **kwargs):
+    out = StringIO()
+    kwargs["stdout"] = out
+    _run_container(*args, **kwargs)
+    return out.getvalue()
 
 def get_spec(image):
     """
     Gets model spec from specified Docker image.
     """
-    cmd = 'docker run --rm -i %s spec' % image
-    spec_str = run(cmd)[0]
-    spec_dict = json.loads(spec_str)
-    return spec_dict
+    return json.loads(_run_container_get_stdout(image, "spec"))
 
 def tokenize_file(sentence_path, image):
     """

@@ -188,4 +188,3 @@ def test_mismatch():
 
     with pytest.raises(TokenMismatch):
         aggregate_surprisals(surp, tokens, unks, suite, spec)
-

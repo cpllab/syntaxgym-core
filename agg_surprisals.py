@@ -68,6 +68,7 @@ def aggregate_surprisals(surprisals, tokens, unks, in_data, spec):
     ret['meta']['model'] = spec['name']
     return ret
 
+
 def main(args):
     # read input test suite and token-level surprisals
     in_data = utils.load_json(args.input)
@@ -83,6 +84,7 @@ def main(args):
     # aggregate token-level --> region-level surprisals
     out_data = aggregate_surprisals(surprisals, tokens, unks, in_data, spec)
     utils.write_json(out_data, args.output)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='aggregate surprisal')
