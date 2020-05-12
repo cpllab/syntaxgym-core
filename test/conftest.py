@@ -22,6 +22,8 @@ logging.getLogger("docker").setLevel(logging.ERROR)
 import urllib3
 logging.getLogger("urllib3").setLevel(logging.ERROR)
 
+import utils
+
 
 LM_ZOO_IMAGES_TO_BUILD = {
     "basic": "lmzoo-basic",
@@ -43,74 +45,12 @@ BUILT_IMAGES = []
 
 @pytest.fixture(scope="module")
 def client():
-    environment = os.environ
-
-    host = environment.get('DOCKER_HOST')
-
-    # empty string for cert path is the same as unset.
-    cert_path = environment.get('DOCKER_CERT_PATH') or None
-
-    # empty string for tls verify counts as "false".
-    # Any value or 'unset' counts as true.
-    tls_verify = environment.get('DOCKER_TLS_VERIFY')
-    if tls_verify == '':
-        tls_verify = False
-    else:
-        tls_verify = tls_verify is not None
-    enable_tls = cert_path or tls_verify
-
-    params = {}
-
-    if host:
-        params['base_url'] = host
-
-    if enable_tls:
-        if not cert_path:
-            cert_path = os.path.join(os.path.expanduser('~'), '.docker')
-
-        if not tls_verify and assert_hostname is None:
-            # assert_hostname is a subset of TLS verification,
-            # so if it's not set already then set it to false.
-            assert_hostname = False
-
-        params['tls'] = docker.tls.TLSConfig(
-            client_cert=(os.path.join(cert_path, 'cert.pem'),
-                        os.path.join(cert_path, 'key.pem')),
-            ca_cert=os.path.join(cert_path, 'ca.pem'),
-            verify=tls_verify,
-        )
-
-    return docker.APIClient(**params)
+    return utils._get_docker_client().api
 
 
 @lru_cache(maxsize=None)
 def image_spec(client, image, tag=None):
     return json.loads(run_image_command_get_stdout(client, image, "spec", tag=tag))
-
-def image_tokenize(client, image, content, tag=None):
-    fd, fpath = tempfile.mkstemp()
-    fpath = Path(fpath)
-
-    if not content.endswith("\n"):
-        # Images read line-by-line; make sure the last line doesn't get
-        # dropped.
-        content += "\n"
-
-    os.write(fd, content.encode("utf-8"))
-    os.close(fd)
-
-    host_dir = fpath.parent
-    # OS X fix: `/var` can't be mounted; mount `/private/var` instead
-    if str(host_dir).startswith("/var"):
-        host_dir = host_dir.resolve()
-    guest_path = Path("/tmp/host") / fpath.name
-    ret = run_image_command_get_stdout(client, image, f"tokenize {guest_path}", tag=tag,
-                                       mounts=[(host_dir, "/tmp/host", "ro")])
-
-    os.remove(str(fpath))
-
-    return ret.strip().split(" ")
-
 
 def build_image(client, image, tag="latest"):
     try:

@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 from pprint import pprint
 import sys
+from tempfile import NamedTemporaryFile
 
 import jsonschema
 import pytest
@@ -15,7 +16,8 @@ L = logging.getLogger(__name__)
 
 from suite import Sentence
 
-from conftest import LM_ZOO_IMAGES, image_tokenize, image_spec
+from conftest import LM_ZOO_IMAGES
+from utils import tokenize_file, get_spec
 
 
 SPEC_SCHEMA_URL = "https://cpllab.github.io/lm-zoo/schemas/language_model_spec.json"
@@ -258,9 +260,13 @@ def test_dynamic_case(client, description, image, regions, tokens, expected_regi
 
     if tokens is None:
         # Tokenize using image.
-        tokens = image_tokenize(client, image, " ".join(r["content"] for r in regions), tag=tag)
+        with NamedTemporaryFile("w") as sentence_f:
+            sentence_f.write(" ".join(r["content"] for r in regions) + "\n")
+            sentence_f.flush()
 
-    spec = image_spec(client, image, tag=tag)
+            tokens = tokenize_file(sentence_f.name, ":".join((image, tag)))[0]
+
+    spec = get_spec(":".join((image, tag)))
 
     print("Spec:")
     spec_to_print = deepcopy(spec)
