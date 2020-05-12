@@ -1,0 +1,10 @@
+[packages]
+click = "*"
+docker = "*"
+tqdm = "*"
+pandas = ">=1.0.0"
+
+[dev-packages]
+pytest = "*"
+pipenv-setup = "*"
+twine = "*"

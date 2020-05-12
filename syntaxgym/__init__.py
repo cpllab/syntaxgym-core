@@ -1,0 +1,2 @@
+from syntaxgym.agg_surprisals import aggregate_surprisals
+from syntaxgym.get_sentences import get_sentences
