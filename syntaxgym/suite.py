@@ -1,8 +1,9 @@
-import utils
 from pprint import pformat
 import warnings
 from collections import defaultdict
 import re
+
+from syntaxgym import utils
 
 class Sentence:
     def __init__(self, spec, tokens, unks, item_num=None, condition_name='', regions=None):

@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pandas as pd
 
-import utils
-from suite import Sentence, Region
+from syntaxgym import utils
+from syntaxgym.suite import Sentence, Region
 
 def aggregate_surprisals(surprisals, tokens, unks, in_data, spec):
     # check that specified metrics are implemented in utils.METRICS

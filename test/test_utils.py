@@ -3,7 +3,7 @@ import tempfile
 
 import pytest
 
-import utils
+from syntaxgym import utils
 
 
 @pytest.fixture(scope="function")

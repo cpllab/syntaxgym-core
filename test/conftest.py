@@ -22,7 +22,7 @@ logging.getLogger("docker").setLevel(logging.ERROR)
 import urllib3
 logging.getLogger("urllib3").setLevel(logging.ERROR)
 
-import utils
+from syntaxgym import utils
 
 
 LM_ZOO_IMAGES_TO_BUILD = {

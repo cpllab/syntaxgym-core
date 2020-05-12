@@ -3,6 +3,7 @@ from io import StringIO
 import json
 import numpy as np
 from inspect import getargspec
+from pathlib import Path
 import subprocess
 import sys
 
@@ -218,7 +219,8 @@ def tokenize_file(sentence_path, image):
             sentences = f.readlines()
     else:
         # need to call external script to avoid hanging PIPE
-        cmd = './tokenize_file %s %s' % (image, sentence_path)
+        tokenize_path = Path(__file__).absolute().parent.parent / "bin" / "tokenize_file"
+        cmd = '%s %s %s' % (tokenize_path, image, sentence_path)
         sentences = run(cmd)
     tokens = [s.strip().split(' ') for s in sentences]
     return tokens
@@ -233,6 +235,7 @@ def unkify_file(sentence_path, image):
         mask = [[0 for t in sent_tokens] for sent_tokens in tokens]
     else:
         # need to call external script to avoid hanging PIPE
+        unkify_path = Path(__file__).absolute().parent.parent / "bin" / "unkify_file"
         cmd = './unkify_file %s %s' % (image, sentence_path)
         mask = run(cmd)
         # split on newlines to get sentences

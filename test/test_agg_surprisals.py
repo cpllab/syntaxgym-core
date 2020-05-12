@@ -8,8 +8,8 @@ import pytest
 import numpy as np
 import pandas as pd
 
-from agg_surprisals import aggregate_surprisals
-from utils import TokenMismatch
+from syntaxgym import aggregate_surprisals
+from syntaxgym.utils import TokenMismatch
 
 
 surprisals_f = StringIO("""sentence_id\ttoken_id\ttoken\tsurprisal

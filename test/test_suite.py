@@ -14,10 +14,10 @@ import logging
 logging.getLogger("matplotlib").setLevel(logging.ERROR)
 L = logging.getLogger(__name__)
 
-from suite import Sentence
+from syntaxgym.suite import Sentence
+from syntaxgym.utils import tokenize_file, get_spec
 
 from conftest import LM_ZOO_IMAGES, with_images
-from utils import tokenize_file, get_spec
 
 
 SPEC_SCHEMA_URL = "https://cpllab.github.io/lm-zoo/schemas/language_model_spec.json"
