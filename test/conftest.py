@@ -50,14 +50,15 @@ def client():
 
 @pytest.fixture(scope="module")
 def built_image(client, request):
-    ref_fields = request.param.rsplit(":", 1)
+    ref_fields = request.param.rsplit(":", 1) if isinstance(request.param, str) else request.param
+    print(ref_fields)
     if len(ref_fields) == 1:
         image, tag = ref_fields[0], "latest"
     else:
         image, tag = ref_fields
 
     build_image(client, image, tag)
-    return request.param
+    return ":".join((image, tag))
 
 
 def build_image(client, image, tag="latest"):
@@ -79,7 +80,11 @@ def build_image(client, image, tag="latest"):
 
 def with_images(*images):
     def decorator_with_images(fn):
-        @pytest.mark.parametrize("built_image", images, indirect=["built_image"])
+        ids = [":".join(image_ref) if not isinstance(image_ref, str) else image_ref
+               for image_ref in images]
+
+        @pytest.mark.parametrize("built_image", images, ids=ids,
+                                 indirect=["built_image"])
         @wraps(fn)
         def my_testfn(*args, **kwargs):
             return fn(*args, **kwargs)

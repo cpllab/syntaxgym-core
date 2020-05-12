@@ -34,13 +34,12 @@ def spec_schema():
     return requests.get(SPEC_SCHEMA_URL).json()
 
 
-@pytest.mark.parametrize("ref", LM_ZOO_IMAGES)
-def test_specs(client, ref, spec_schema):
+@with_images(*LM_ZOO_IMAGES)
+def test_specs(client, built_image, spec_schema):
     """
     Validate specs against the lm-zoo standard.
     """
-    image, tag = ref
-    jsonschema.validate(instance=get_spec(":".join((image, tag))), schema=spec_schema)
+    jsonschema.validate(instance=get_spec(built_image), schema=spec_schema)
 
 
 @with_images("lmzoo-basic-eos-sos")
