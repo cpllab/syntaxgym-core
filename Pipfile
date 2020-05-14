@@ -3,6 +3,7 @@ click = "*"
 docker = "*"
 tqdm = "*"
 pandas = ">=1.0.0"
+lm-zoo = "==1.1b0"
 
 [dev-packages]
 pytest = "*"
