@@ -5,8 +5,20 @@ from lm_zoo import spec, tokenize, unkify, get_surprisals
 from syntaxgym import utils
 from syntaxgym.agg_surprisals import aggregate_surprisals
 from syntaxgym.get_sentences import get_sentences
+from syntaxgym.suite import Suite
 
 __version__ = "0.1"
+
+
+def _load_suite(suite_ref):
+    if not isinstance(suite_ref, dict):
+        if not hasattr(suite_ref, "read"):
+            suite_ref = open(suite, "r")
+        suite = json.load(suite_ref)
+    else:
+        suite = suite_ref
+
+    return Suite.from_dict(suite)
 
 
 def compute_surprisals(model_name, suite):
@@ -23,11 +35,7 @@ def compute_surprisals(model_name, suite):
         An evaluated test suite dict --- a copy of the data from
         ``suite_file``, now including per-region surprisal data
     """
-    if not isinstance(suite, dict):
-        if not hasattr(suite, "read"):
-            suite = open(suite, "r")
-        suite = json.load(suite)
-
+    suite = _load_suite(suite)
     image_spec = spec(model_name)
 
     # Convert to sentences
@@ -44,3 +52,11 @@ def compute_surprisals(model_name, suite):
     result = aggregate_surprisals(surprisals_df, tokens, unks, suite, image_spec)
 
     return result
+
+
+def evaluate(suite):
+    """
+    Evaluate prediction results on the given suite. The suite must contain
+    surprisal estimates for all regions.
+    """
+    suite = _load_suite(suite)

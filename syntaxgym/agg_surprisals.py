@@ -7,9 +7,9 @@ import pandas as pd
 from syntaxgym import utils
 from syntaxgym.suite import Sentence, Region
 
-def aggregate_surprisals(surprisals, tokens, unks, in_data, spec):
+def aggregate_surprisals(surprisals, tokens, unks, suite, spec):
     # check that specified metrics are implemented in utils.METRICS
-    metrics = in_data['meta']['metric']
+    metrics = suite.meta["metric"]
     if metrics == 'all':
         metrics = utils.METRICS.keys()
     else:
@@ -17,12 +17,12 @@ def aggregate_surprisals(surprisals, tokens, unks, in_data, spec):
         metrics = [metrics] if type(metrics) == str else metrics
     utils.validate_metrics(metrics)
 
-    ret = deepcopy(in_data)
+    ret = deepcopy(suite)
     surprisals = surprisals.reset_index().set_index("sentence_id")
     sent_idx = 0
 
     # iterate through surprisal file, matching tokens with regions
-    for i_idx, item in enumerate(in_data['items']):
+    for i_idx, item in enumerate(suite.items):
         for c_idx, cond in enumerate(item['conditions']):
             # fetch sentence data
             sent_tokens = tokens[sent_idx]
@@ -55,17 +55,17 @@ def aggregate_surprisals(surprisals, tokens, unks, in_data, spec):
                 vals = {m : region.agg_surprisal(m) for m in metrics}
 
                 # insert surprisal values into original dict
-                ret['items'][i_idx]['conditions'][c_idx]['regions'][r_idx]['metric_value'] = vals
+                ret.items[i_idx]['conditions'][c_idx]['regions'][r_idx]['metric_value'] = vals
 
                 # update original dict with OOV information
-                ret['items'][i_idx]['conditions'][c_idx]['regions'][r_idx]['oovs'] = \
+                ret.items[i_idx]['conditions'][c_idx]['regions'][r_idx]['oovs'] = \
                   sent.oovs[region.region_number]
 
             # update sentence counter
             sent_idx += 1
 
     # update meta information with model name
-    ret['meta']['model'] = spec['name']
+    ret.meta['model'] = spec['name']
     return ret
 
 

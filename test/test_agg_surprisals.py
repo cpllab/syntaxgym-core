@@ -8,7 +8,7 @@ import pytest
 import numpy as np
 import pandas as pd
 
-from syntaxgym import aggregate_surprisals
+from syntaxgym import aggregate_surprisals, Suite
 from syntaxgym.utils import TokenMismatch
 
 
@@ -101,6 +101,7 @@ suite = {
         },
     ],
 }
+suite = Suite.from_dict(suite)
 
 tokens = ["After the man who a friend had helped shot the bird that he had been tracking secretly . <eos>".split()]
 unks = [[0 for _ in tokens_i] for tokens_i in tokens]
@@ -146,7 +147,7 @@ def test_no_inplace():
 def test_basic():
     result = aggregate_surprisals(surprisals, tokens, unks, suite, spec)
 
-    np.testing.assert_almost_equal(result["items"][0]["conditions"][0]["regions"][0]["metric_value"]["sum"],
+    np.testing.assert_almost_equal(result.items[0]["conditions"][0]["regions"][0]["metric_value"]["sum"],
                                    surprisals.iloc[:3].surprisal.sum())
 
 

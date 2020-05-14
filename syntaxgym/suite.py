@@ -1,9 +1,156 @@
+from __future__ import annotations
+
+from ast import literal_eval
+import json
 from pprint import pformat
 import warnings
 from collections import defaultdict
 import re
+from typing import Dict
 
 from syntaxgym import utils
+
+
+class Suite(object):
+
+    def __init__(self, condition_names, region_names, items, predictions, meta):
+        self.condition_names = condition_names
+        self.region_names = region_names
+        self.items = items
+        self.predictions = predictions
+        self.meta = meta
+
+    @classmethod
+    def from_dict(cls, suite_dict):
+        condition_names = [c["condition_name"] for c in suite_dict["items"][0]["conditions"]]
+        region_names = [name for number, name
+                        in sorted([(int(number), name)
+                                   for number, name in suite_dict["region_meta"].items()])]
+        items = suite_dict["items"]
+        predictions = [Prediction.from_dict(pred_i) for pred_i in suite_dict["predictions"]]
+
+        return cls(condition_names=condition_names,
+                   region_names=region_names,
+                   items=items,
+                   predictions=predictions,
+                   meta=suite_dict["meta"])
+
+    def as_dict(self):
+        ret = dict(
+            meta=self.meta,
+            region_meta={i + 1: r for i, r in enumerate(self.region_names)},
+            predictions=[p.as_dict() for p in self.predictions],
+            items=self.items,
+        )
+
+        return ret
+
+    def evaluate_predictions(self) -> Dict[int, Dict[Prediction, bool]]:
+        """
+        Compute prediction results for each item.
+
+        Returns:
+            results: a nested dict mapping ``(item_number => prediction =>
+                prediction_result)``
+        """
+
+        result = {}
+        for item in self.items:
+            result[item["item_number"]] = {}
+            for prediction in self.predictions:
+                result[item["item_number"]][prediction] = prediction.evaluate(item)
+
+        return result
+
+    def __eq__(self, other):
+        return isinstance(other, Suite) and json.dumps(self.as_dict()) == json.dumps(other.as_dict())
+
+
+class Prediction(object):
+    #####
+    # Define patterns for matching prediction formulae and relevant parts of
+    # prediction formulae.
+    _float_operator_re_string = r"[-+]"
+    _float_comparator_re_string = r"[<>]"
+    _bool_operator_re_string = r"[&|]"
+
+    _group_re_string = r"\((\d+|\*);%([-\w\s_.:]+)%\)"
+    _group_re = re.compile(_group_re_string)
+
+    # A float expression is 0 or more float operators relating groups
+    _expr_re_string = r"%s(?:\s*%s\s*%s)*" % (_group_re_string,
+                                              _float_operator_re_string,
+                                              _group_re_string)
+
+    # A relation is a binary comparison between float expressions
+    _relation_re_string = r"\s*%s\s*%s\s*%s\s*" % (_expr_re_string,
+                                                   _float_comparator_re_string,
+                                                   _expr_re_string)
+
+    _single_expression_formula_re_string = \
+        r"^\s*(%s|\[%s\])\s*$" % (_relation_re_string,
+                                  _relation_re_string)
+
+    _multiple_expression_formula_re_string = \
+        r"^\s*\[%s\](\s*%s\s*\[%s\])+\s*$" % (_relation_re_string,
+                                              _bool_operator_re_string,
+                                              _relation_re_string)
+
+    formula_re = re.compile(r"%s|%s" % (_single_expression_formula_re_string,
+                                        _multiple_expression_formula_re_string))
+
+    #####
+
+    def __init__(self, formula):
+        if not self.formula_re.match(formula):
+            print(self.formula_re.pattern)
+            raise ValueError("Invalid formula expression %r" % (formula,))
+        self.formula = formula
+
+    @classmethod
+    def from_dict(cls, pred_dict):
+        if not pred_dict["type"] == "formula":
+            raise ValueError("Unknown prediction type %s" % (pred_dict["type"],))
+
+        return cls(formula=pred_dict["formula"])
+
+    def as_dict(self):
+        return dict(type="formula", formula=self.formula)
+
+    def evaluate(self, item):
+        """
+        Evaluate the prediction on the given item.
+        """
+        # Substitute relevant region/condition values into the formula. This
+        # function will be called by re.sub with a Match object
+        def substitute_value(match):
+            condition = match.group(2)
+            region_number = match.group(1)
+            if region_number == "*":
+                # Calculate total sentence surprisal for the condition.
+                value = sum(perfs[item_number, i, condition].value
+                            for i in region_numbers)
+            else:
+                value = perfs[item_number, int(region_number), condition].value
+
+            return str(value)
+
+        try:
+            formula_str = self._group_re.sub(substitute_value, prediction.formula)
+        except KeyError:
+            # TODO process further?
+            raise
+
+        # Now convert to Python-friendly syntax.
+        formula_str = formula_str.replace("[", "(").replace("]", ")").replace("=", "==")
+
+        # Compute boolean result on this item and prediction.
+        result = literal_eval(formula_str) == True
+        return result
+
+    def __hash__(self):
+        return hash(self.formula)
+
 
 class Sentence(object):
     def __init__(self, spec, tokens, unks, item_num=None, condition_name='', regions=None):

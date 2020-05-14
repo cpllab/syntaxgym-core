@@ -16,7 +16,7 @@ def syntaxgym(): pass
 @click.argument("suite_file", type=click.File("r"))
 def compute_surprisals(model, suite_file):
     result = S.compute_surprisals(model, suite_file)
-    json.dump(result, sys.stdout, indent=2)
+    json.dump(result.as_dict(), sys.stdout, indent=2)
 
 
 if __name__ == "__main__":

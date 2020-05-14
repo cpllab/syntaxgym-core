@@ -4,7 +4,7 @@ from pathlib import Path
 
 def get_sentences(in_data):
     sentences = []
-    for item in in_data['items']:
+    for item in in_data.items:
         for cond in item['conditions']:
             regions = [region['content'].lstrip() for region in cond['regions'] if region['content'].strip() != '']
             sentence = ' '.join(regions)
