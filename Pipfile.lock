@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "54c84f6cd5468f0007816d66efb3a67604a759a5c620b8919275ba7b162159f0"
+            "sha256": "f505216d164840d88e9ba7d5a21178480379b8da6a77ecf63b34eb0b24c11b55"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -370,6 +370,14 @@
             "markers": "sys_platform == 'linux'",
             "version": "==0.4.3"
         },
+        "jsonschema": {
+            "hashes": [
+                "sha256:4e5b3cf8216f577bee9ce139cbe72eca3ea4f292ec60928ff24758ce626cd163",
+                "sha256:c8a85b28d377cc7737e46e2d9f2b4f44ee3c0e1deac6bf46ddefc7187d30797a"
+            ],
+            "index": "pypi",
+            "version": "==3.2.0"
+        },
         "keyring": {
             "hashes": [
                 "sha256:3401234209015144a5d75701e71cb47239e552b0882313e9f51e8976f9e27843",
@@ -484,6 +492,12 @@
                 "sha256:ef9d7589ef3c200abe66653d3f1ab1033c3c419ae9b9bdb1240a85b024efc88b"
             ],
             "version": "==2.4.7"
+        },
+        "pyrsistent": {
+            "hashes": [
+                "sha256:28669905fe725965daa16184933676547c5bb40a5153055a8dee2a4bd7933ad3"
+            ],
+            "version": "==0.16.0"
         },
         "pytest": {
             "hashes": [
