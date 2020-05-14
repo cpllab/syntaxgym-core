@@ -5,38 +5,18 @@ import sys
 
 import click
 
-from lm_zoo import spec, tokenize, unkify, get_surprisals
-from syntaxgym import aggregate_surprisals, get_sentences, utils
+import syntaxgym as S
 
 
 @click.group()
 def syntaxgym(): pass
 
-@syntaxgym.command(help="Evaluate a language model on the given test suite")
-@click.argument("image")
+@syntaxgym.command(help="Compute per-region surprisals for a language model on the given test suite")
+@click.argument("model")
 @click.argument("suite_file", type=click.File("r"))
-def run(image, suite_file):
-    image_spec = spec(image)
-    suite = json.load(suite_file)
-    suite["items"] = suite["items"][:2]
-
-    # Convert to sentences
-    suite_sentences = get_sentences(suite)
-
-    # First compute surprisals
-    surprisals_df = get_surprisals(image, suite_sentences)
-
-    # Track tokens+unks
-    tokens = tokenize(image, suite_sentences)
-    unks = unkify(image, suite_sentences)
-
-    # Now aggregate over regions and get result df
-    result = aggregate_surprisals(surprisals_df, tokens, unks, suite, image_spec)
-
-    # Compute prediction accuracies
-    # TODO
-
-    json.dump(result, sys.stdout)
+def compute_surprisals(model, suite_file):
+    result = S.compute_surprisals(model, suite_file)
+    json.dump(result, sys.stdout, indent=2)
 
 
 if __name__ == "__main__":
