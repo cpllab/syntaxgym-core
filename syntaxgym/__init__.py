@@ -9,12 +9,26 @@ from syntaxgym.get_sentences import get_sentences
 __version__ = "0.1"
 
 
-def compute_surprisals(model_name, suite_file):
-    if not hasattr(suite_file, "read"):
-        suite_file = open(suite_file, "r")
+def compute_surprisals(model_name, suite):
+    """
+    Compute per-region surprisals for a language model on the given suite.
+
+    Args:
+        model_name: Reference to an LM Zoo model (either a model in the
+            registry or a Docker image reference)
+        suite_file: A path or open file stream to a suite JSON file, or an
+            already loaded suite dict
+
+    Returns:
+        An evaluated test suite dict --- a copy of the data from
+        ``suite_file``, now including per-region surprisal data
+    """
+    if not isinstance(suite, dict):
+        if not hasattr(suite, "read"):
+            suite = open(suite, "r")
+        suite = json.load(suite)
 
     image_spec = spec(model_name)
-    suite = json.load(suite_file)
 
     # Convert to sentences
     suite_sentences = get_sentences(suite)
