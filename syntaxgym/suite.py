@@ -217,7 +217,14 @@ class Sentence:
         return region2tokens
 
 class Region:
+    boundary_space_re = re.compile(r"^\s|\s$")
+
     def __init__(self, region_number=None, content='', metric_value=None):
+        if self.boundary_space_re.search(content):
+            raise ValueError("Region content has leading and/or trailing space."
+                             " This is not allowed. Region content:  %r"
+                             % (content,))
+
         utils.save_args(vars())
         self.token_surprisals = []
 

@@ -14,7 +14,7 @@ import logging
 logging.getLogger("matplotlib").setLevel(logging.ERROR)
 L = logging.getLogger(__name__)
 
-from syntaxgym.suite import Sentence
+from syntaxgym.suite import Sentence, Region
 from syntaxgym.utils import tokenize_file, get_spec
 
 from conftest import LM_ZOO_IMAGES, with_images
@@ -40,6 +40,15 @@ def test_specs(client, built_image, spec_schema):
     Validate specs against the lm-zoo standard.
     """
     jsonschema.validate(instance=get_spec(built_image), schema=spec_schema)
+
+
+@pytest.mark.parametrize("region_str", ["test ", " test", " "])
+def test_region_spaces(region_str):
+    """
+    Regions with leading/trailing spaces should be rejected
+    """
+    with pytest.raises(ValueError):
+        Region(content=region_str)
 
 
 @with_images("lmzoo-basic-eos-sos")
