@@ -5,7 +5,7 @@ import re
 
 from syntaxgym import utils
 
-class Sentence:
+class Sentence(object):
     def __init__(self, spec, tokens, unks, item_num=None, condition_name='', regions=None):
         self.tokens = tokens
         self.unks = unks
@@ -216,7 +216,7 @@ class Sentence:
 
         return region2tokens
 
-class Region:
+class Region(object):
     boundary_space_re = re.compile(r"^\s|\s$")
 
     def __init__(self, region_number=None, content='', metric_value=None):
