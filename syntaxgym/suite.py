@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from ast import literal_eval
 import json
 from pprint import pformat
 import warnings
@@ -27,7 +26,7 @@ class Suite(object):
                         in sorted([(int(number), name)
                                    for number, name in suite_dict["region_meta"].items()])]
         items = suite_dict["items"]
-        predictions = [Prediction.from_dict(pred_i) for pred_i in suite_dict["predictions"]]
+        predictions = [Prediction.from_dict(pred_i, i) for i, pred_i in enumerate(suite_dict["predictions"])]
 
         return cls(condition_names=condition_names,
                    region_names=region_names,
@@ -101,18 +100,19 @@ class Prediction(object):
 
     #####
 
-    def __init__(self, formula):
+    def __init__(self, idx, formula):
         if not self.formula_re.match(formula):
             print(self.formula_re.pattern)
             raise ValueError("Invalid formula expression %r" % (formula,))
+        self.idx = idx
         self.formula = formula
 
     @classmethod
-    def from_dict(cls, pred_dict):
+    def from_dict(cls, pred_dict, idx):
         if not pred_dict["type"] == "formula":
             raise ValueError("Unknown prediction type %s" % (pred_dict["type"],))
 
-        return cls(formula=pred_dict["formula"])
+        return cls(formula=pred_dict["formula"], idx=idx)
 
     def as_dict(self):
         return dict(type="formula", formula=self.formula)
@@ -121,6 +121,13 @@ class Prediction(object):
         """
         Evaluate the prediction on the given item.
         """
+        # Extract relevant surprisal data for easy retrieval
+        surps = {(c["condition_name"], r["region_number"]): r["metric_value"]["sum"]
+                 for c in item["conditions"]
+                 for r in c["regions"]}
+
+        region_numbers = set(region_number for _, region_number in surps.keys())
+
         # Substitute relevant region/condition values into the formula. This
         # function will be called by re.sub with a Match object
         def substitute_value(match):
@@ -128,15 +135,15 @@ class Prediction(object):
             region_number = match.group(1)
             if region_number == "*":
                 # Calculate total sentence surprisal for the condition.
-                value = sum(perfs[item_number, i, condition].value
+                value = sum(surps[condition, i]
                             for i in region_numbers)
             else:
-                value = perfs[item_number, int(region_number), condition].value
+                value = surps[condition, int(region_number)]
 
             return str(value)
 
         try:
-            formula_str = self._group_re.sub(substitute_value, prediction.formula)
+            formula_str = self._group_re.sub(substitute_value, self.formula)
         except KeyError:
             # TODO process further?
             raise
@@ -145,11 +152,14 @@ class Prediction(object):
         formula_str = formula_str.replace("[", "(").replace("]", ")").replace("=", "==")
 
         # Compute boolean result on this item and prediction.
-        result = literal_eval(formula_str) == True
+        result = eval(formula_str) == True
         return result
 
     def __hash__(self):
         return hash(self.formula)
+
+    def __eq__(self, other):
+        return isinstance(other, Prediction) and hash(self) == hash(other)
 
 
 class Sentence(object):

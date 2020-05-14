@@ -19,5 +19,21 @@ def compute_surprisals(model, suite_file):
     json.dump(result.as_dict(), sys.stdout, indent=2)
 
 
+@syntaxgym.command(help="Evaluate prediction results on the given test suite")
+@click.argument("suite_file", type=click.File("r"))
+def evaluate(suite_file):
+    result = S.evaluate(suite_file)
+    result.to_csv(sys.stdout, sep="\t")
+
+
+@syntaxgym.command(help="Run the model and test suite through the full pipeline")
+@click.argument("model")
+@click.argument("suite_file", type=click.File("r"))
+def run(model, suite_file):
+    suite = S.compute_surprisals(model, suite_file)
+    result = S.evaluate(suite)
+    result.to_csv(sys.stdout, sep="\t")
+
+
 if __name__ == "__main__":
     syntaxgym()

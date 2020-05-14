@@ -1,6 +1,7 @@
 import json
 
 from lm_zoo import spec, tokenize, unkify, get_surprisals
+import pandas as pd
 
 from syntaxgym import utils
 from syntaxgym.agg_surprisals import aggregate_surprisals
@@ -11,13 +12,16 @@ __version__ = "0.1"
 
 
 def _load_suite(suite_ref):
+    if isinstance(suite_ref, Suite):
+        return suite_ref
+
+    # Load from dict / JSON file / JSON path
     if not isinstance(suite_ref, dict):
         if not hasattr(suite_ref, "read"):
-            suite_ref = open(suite, "r")
+            suite_ref = open(suite_ref, "r")
         suite = json.load(suite_ref)
     else:
         suite = suite_ref
-
     return Suite.from_dict(suite)
 
 
@@ -54,9 +58,19 @@ def compute_surprisals(model_name, suite):
     return result
 
 
-def evaluate(suite):
+def evaluate(suite, return_df=True):
     """
     Evaluate prediction results on the given suite. The suite must contain
     surprisal estimates for all regions.
     """
     suite = _load_suite(suite)
+    results = suite.evaluate_predictions()
+    if not return_df:
+        return suite, results
+
+    # Make a nice dataframe
+    results_data = [(suite.meta["name"], pred.idx, item_number, result)
+                    for item_number, preds in results.items()
+                    for pred, result in preds.items()]
+    return pd.DataFrame(results_data, columns=["suite", "prediction_id", "item_number", "result"]) \
+            .set_index(["suite", "prediction_id", "item_number"])
