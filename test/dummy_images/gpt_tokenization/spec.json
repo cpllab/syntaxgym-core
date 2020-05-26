@@ -9,7 +9,15 @@
         "gpu": {
             "required": false,
             "supported": false
+        },
+        "supported_features": {
+            "tokenize": true,
+            "get_surprisals": true,
+            "unkify": true,
+            "get_predictions": false,
+            "mount_checkpoint": false
         }
+
     },
 
     "vocabulary": {
