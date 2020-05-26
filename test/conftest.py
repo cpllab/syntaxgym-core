@@ -91,3 +91,196 @@ def with_images(*images):
 
         return my_testfn
     return decorator_with_images
+
+
+_dummy_suite_json = {
+    "meta": {
+        "name": "subordination_orc-orc",
+        "metric": "sum",
+        "comment": "",
+        "reference": "",
+        "author": "",
+    },
+    "region_meta": {
+        "1": "Subordinate clause 1",
+        "2": "subj_modifier",
+        "3": "Subordinate clause 2",
+        "4": "obj_modifier",
+        "5": "Main clause"
+    },
+    "predictions": [
+        {"type": "formula",
+            "formula": "((5;%sub_no-matrix%) > (5;%no-sub_no-matrix%) ) & ((5;%sub_matrix%) < (5;%no-sub_matrix%) )"}
+    ],
+    "items": [
+        {
+            "item_number": 1,
+            "conditions": [
+                {
+                    "condition_name": "sub_no-matrix",
+                    "regions": [
+                        {
+                            "region_number": 1,
+                            "content": "After the man",
+                            "metric_value": {
+                                "sum": 18.504567167144707
+                            }
+                        },
+                        {
+                            "region_number": 2,
+                            "content": "who a friend had helped",
+                            "metric_value": {
+                                "sum": 13.939815152698332
+                            }
+                        },
+                        {
+                            "region_number": 3,
+                            "content": "shot the bird",
+                            "metric_value": {
+                                "sum": 11.948716490393831
+                            }
+                        },
+                        {
+                            "region_number": 4,
+                            "content": "that he had been tracking secretly",
+                            "metric_value": {
+                                "sum": 11.217957010846014
+                            }
+                        },
+                        {
+                            "region_number": 5,
+                            "content": ".",
+                            "metric_value": {
+                                "sum": 12.49306574242164
+                            }
+                        }
+                    ]
+                },
+                {
+                    "condition_name": "no-sub_no-matrix",
+                    "regions": [
+                        {
+                            "region_number": 1,
+                            "content": "The man",
+                            "metric_value": {
+                                "sum": 2.268286909168587
+                            }
+                        },
+                        {
+                            "region_number": 2,
+                            "content": "who a friend had helped",
+                            "metric_value": {
+                                "sum": 1.4433385639057028
+                            }
+                        },
+                        {
+                            "region_number": 3,
+                            "content": "shot the bird",
+                            "metric_value": {
+                                "sum": 9.693795300311402
+                            }
+                        },
+                        {
+                            "region_number": 4,
+                            "content": "that he had been tracking secretly",
+                            "metric_value": {
+                                "sum": 7.773922435893982
+                            }
+                        },
+                        {
+                            "region_number": 5,
+                            "content": ".",
+                            "metric_value": {
+                                "sum": 18.37796694276843
+                            }
+                        }
+                    ]
+                },
+                {
+                    "condition_name": "sub_matrix",
+                    "regions": [
+                        {
+                            "region_number": 1,
+                            "content": "After the man",
+                            "metric_value": {
+                                "sum": 10.356803538573178
+                            }
+                        },
+                        {
+                            "region_number": 2,
+                            "content": "who a friend had helped",
+                            "metric_value": {
+                                "sum": 1.4248155193516632
+                            }
+                        },
+                        {
+                            "region_number": 3,
+                            "content": "shot the bird",
+                            "metric_value": {
+                                "sum": 3.409407627322641
+                            }
+                        },
+                        {
+                            "region_number": 4,
+                            "content": "that he had been tracking secretly",
+                            "metric_value": {
+                                "sum": 9.729441419245582
+                            }
+                        },
+                        {
+                            "region_number": 5,
+                            "content": ", he loaded his gun .",
+                            "metric_value": {
+                                "sum": 11.725874091041778
+                            }
+                        }
+                    ]
+                },
+                {
+                    "condition_name": "no-sub_matrix",
+                    "regions": [
+                        {
+                            "region_number": 1,
+                            "content": "The man",
+                            "metric_value": {
+                                "sum": 16.30488999162344
+                            }
+                        },
+                        {
+                            "region_number": 2,
+                            "content": "who a friend had helped",
+                            "metric_value": {
+                                "sum": 4.9608373385007845
+                            }
+                        },
+                        {
+                            "region_number": 3,
+                            "content": "shot the bird",
+                            "metric_value": {
+                                "sum": 5.193990201733378
+                            }
+                        },
+                        {
+                            "region_number": 4,
+                            "content": "that he had been tracking secretly",
+                            "metric_value": {
+                                "sum": 5.375807689210841
+                            }
+                        },
+                        {
+                            "region_number": 5,
+                            "content": ", he loaded his gun .",
+                            "metric_value": {
+                                "sum": 19.63184731373726
+                            }
+                        }
+                    ]
+                }
+            ],
+        },
+    ],
+}
+
+@pytest.fixture(scope="session")
+def dummy_suite_json():
+    return _dummy_suite_json

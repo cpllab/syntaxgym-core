@@ -302,7 +302,6 @@ def test_dynamic_case(client, description, image, regions, tokens, expected_regi
         assert sentence.oovs == expected_oovs
 
 
-
 # def test_special_types():
 #     # TODO: if at region boundary, which region do we associate them with?
 #     pass

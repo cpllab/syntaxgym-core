@@ -8,6 +8,7 @@ import re
 from typing import Dict
 
 from syntaxgym import utils
+from syntaxgym.prediction import Prediction
 
 
 class Suite(object):
@@ -57,109 +58,12 @@ class Suite(object):
         for item in self.items:
             result[item["item_number"]] = {}
             for prediction in self.predictions:
-                result[item["item_number"]][prediction] = prediction.evaluate(item)
+                result[item["item_number"]][prediction] = prediction(item)
 
         return result
 
     def __eq__(self, other):
         return isinstance(other, Suite) and json.dumps(self.as_dict()) == json.dumps(other.as_dict())
-
-
-class Prediction(object):
-    #####
-    # Define patterns for matching prediction formulae and relevant parts of
-    # prediction formulae.
-    _float_operator_re_string = r"[-+]"
-    _float_comparator_re_string = r"[<>]"
-    _bool_operator_re_string = r"[&|]"
-
-    _group_re_string = r"\((\d+|\*);%([-\w\s_.:]+)%\)"
-    _group_re = re.compile(_group_re_string)
-
-    # A float expression is 0 or more float operators relating groups
-    _expr_re_string = r"%s(?:\s*%s\s*%s)*" % (_group_re_string,
-                                              _float_operator_re_string,
-                                              _group_re_string)
-
-    # A relation is a binary comparison between float expressions
-    _relation_re_string = r"\s*%s\s*%s\s*%s\s*" % (_expr_re_string,
-                                                   _float_comparator_re_string,
-                                                   _expr_re_string)
-
-    _single_expression_formula_re_string = \
-        r"^\s*(%s|\[%s\])\s*$" % (_relation_re_string,
-                                  _relation_re_string)
-
-    _multiple_expression_formula_re_string = \
-        r"^\s*\[%s\](\s*%s\s*\[%s\])+\s*$" % (_relation_re_string,
-                                              _bool_operator_re_string,
-                                              _relation_re_string)
-
-    formula_re = re.compile(r"%s|%s" % (_single_expression_formula_re_string,
-                                        _multiple_expression_formula_re_string))
-
-    #####
-
-    def __init__(self, idx, formula):
-        if not self.formula_re.match(formula):
-            print(self.formula_re.pattern)
-            raise ValueError("Invalid formula expression %r" % (formula,))
-        self.idx = idx
-        self.formula = formula
-
-    @classmethod
-    def from_dict(cls, pred_dict, idx):
-        if not pred_dict["type"] == "formula":
-            raise ValueError("Unknown prediction type %s" % (pred_dict["type"],))
-
-        return cls(formula=pred_dict["formula"], idx=idx)
-
-    def as_dict(self):
-        return dict(type="formula", formula=self.formula)
-
-    def evaluate(self, item):
-        """
-        Evaluate the prediction on the given item.
-        """
-        # Extract relevant surprisal data for easy retrieval
-        surps = {(c["condition_name"], r["region_number"]): r["metric_value"]["sum"]
-                 for c in item["conditions"]
-                 for r in c["regions"]}
-
-        region_numbers = set(region_number for _, region_number in surps.keys())
-
-        # Substitute relevant region/condition values into the formula. This
-        # function will be called by re.sub with a Match object
-        def substitute_value(match):
-            condition = match.group(2)
-            region_number = match.group(1)
-            if region_number == "*":
-                # Calculate total sentence surprisal for the condition.
-                value = sum(surps[condition, i]
-                            for i in region_numbers)
-            else:
-                value = surps[condition, int(region_number)]
-
-            return str(value)
-
-        try:
-            formula_str = self._group_re.sub(substitute_value, self.formula)
-        except KeyError:
-            # TODO process further?
-            raise
-
-        # Now convert to Python-friendly syntax.
-        formula_str = formula_str.replace("[", "(").replace("]", ")").replace("=", "==")
-
-        # Compute boolean result on this item and prediction.
-        result = eval(formula_str) == True
-        return result
-
-    def __hash__(self):
-        return hash(self.formula)
-
-    def __eq__(self, other):
-        return isinstance(other, Prediction) and hash(self) == hash(other)
 
 
 class Sentence(object):

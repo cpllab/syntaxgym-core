@@ -51,7 +51,7 @@ suite = {
     },
     "predictions": [
         {"type": "formula",
-            "formula": "[(5;%sub_no-matrix%) > (5;%no-sub_no-matrix%) ] & [(5;%sub_matrix%) < (5;%no-sub_matrix%) ]"}
+            "formula": "((5;%sub_no-matrix%) > (5;%no-sub_no-matrix%) ) & ((5;%sub_matrix%) < (5;%no-sub_matrix%))"}
     ],
     "items": [
         {
