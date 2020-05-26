@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 # Source version from package source
@@ -33,7 +33,7 @@ setup(
         "websocket-client==0.57.0",
     ],
     name="syntaxgym",
-    packages=["syntaxgym"],
+    packages=find_packages(exclude=["test"]),
     scripts=["bin/syntaxgym"],
     version=version_string,
     python_requires=">=3.6",
