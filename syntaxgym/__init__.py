@@ -1,6 +1,7 @@
 import json
 
 from lm_zoo import get_registry, spec, tokenize, unkify, get_surprisals
+from lm_zoo.models import Model
 import pandas as pd
 
 from syntaxgym import utils
@@ -24,17 +25,14 @@ def _load_suite(suite_ref):
         suite = suite_ref
     return Suite.from_dict(suite)
 
-def _load_model(model_ref):
-    return get_registry()[model_ref]
 
 
-def compute_surprisals(model_ref, suite):
+def compute_surprisals(model: Model, suite):
     """
     Compute per-region surprisals for a language model on the given suite.
 
     Args:
-        model_ref: Reference to an LM Zoo model (either a model in the
-            registry or a Docker image reference)
+        model: An LM Zoo ``Model``.
         suite_file: A path or open file stream to a suite JSON file, or an
             already loaded suite dict
 
@@ -43,7 +41,6 @@ def compute_surprisals(model_ref, suite):
         ``suite_file``, now including per-region surprisal data
     """
     suite = _load_suite(suite)
-    model = _load_model(model_ref)
     image_spec = spec(model)
 
     # Convert to sentences

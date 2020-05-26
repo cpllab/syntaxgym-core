@@ -1,11 +1,15 @@
 import argparse
 from copy import deepcopy
+import logging
 from pathlib import Path
 
 import pandas as pd
 
 from syntaxgym import utils
 from syntaxgym.suite import Sentence, Region
+
+L = logging.getLogger(__name__)
+
 
 def aggregate_surprisals(surprisals, tokens, unks, suite, spec):
     # check that specified metrics are implemented in utils.METRICS
@@ -31,6 +35,9 @@ def aggregate_surprisals(surprisals, tokens, unks, suite, spec):
             t_idx = 0
 
             if len(sent_tokens) != len(sent_unks) or len(sent_unks) != len(sent_surps):
+                L.debug("%s", sent_tokens)
+                L.debug("%s", sent_unks)
+                L.debug("%s", sent_surps)
                 raise ValueError("Mismatched lengths between tokens, unks, and surprisals")
             elif sent_tokens != list(sent_surps.token):
                 raise ValueError("Mismatched tokens between tokens and surprisals data frame")
