@@ -1,4 +1,11 @@
 from pyparsing import *
+import numpy as np
+
+
+
+# Relative and absolute tolerance thresholds for surprisal equality
+EQUALITY_RTOL = 1e-5
+EQUALITY_ATOL = 1e-3
 
 
 class Prediction(object):
@@ -10,6 +17,7 @@ class Prediction(object):
     lpar = Suppress("(")
     rpar = Suppress(")")
     region = lpar + Word(nums) + Suppress(";%") + Word(alphanums + "_-") + Suppress("%") + rpar
+    literal_float = pyparsing_common.number
 
     class Region(object):
         def __init__(self, tokens):
@@ -28,6 +36,19 @@ class Prediction(object):
                            if condition == self.condition_name)
 
             return surprisal_dict[self.condition_name, int(self.region_number)]
+
+    class LiteralFloat(object):
+        def __init__(self, tokens):
+            self.value = float(tokens[0])
+
+        def __str__(self):
+            return "%f" % (self.value,)
+
+        def __repr__(self):
+            return "LiteralFloat(%f)" % (self.value,)
+
+        def __call__(self, surprisal_dict):
+            return self.value
 
     class BinaryOp(object):
         operators = None
@@ -68,22 +89,29 @@ class Prediction(object):
                 return op_vals[0] + op_vals[1]
 
     class ComparatorOp(BinaryOp):
-        operators = ["<", ">"]
+        operators = ["<", ">", "="]
         def _evaluate(self, op_vals, surprisal_dict):
             if self.operator == "<":
                 return op_vals[0] < op_vals[1]
             elif self.operator == ">":
                 return op_vals[0] > op_vals[1]
+            elif self.operator == "=":
+                return np.isclose(op_vals[0], op_vals[1],
+                                  rtol=EQUALITY_RTOL,
+                                  atol=EQUALITY_ATOL)
+
+    atom = region.setParseAction(Region) | literal_float.setParseAction(LiteralFloat)
 
     stack = []
-    relation_expr = infixNotation(
-        region.setParseAction(Region),
+    prediction_expr = infixNotation(
+        atom,
         [
             ("+", 2, opAssoc.LEFT, FloatOp),
             ("-", 2, opAssoc.LEFT, FloatOp),
             ("<", 2, opAssoc.LEFT, ComparatorOp),
             (">", 2, opAssoc.LEFT, ComparatorOp),
-            ("&", 2, opAssoc.LEFT, BoolOp),#,Prediction.expr_stack.append(("&", xs))),
+            ("=", 2, opAssoc.LEFT, ComparatorOp),
+            ("&", 2, opAssoc.LEFT, BoolOp),
         ],
         lpar=lpar, rpar=rpar
     )
@@ -92,7 +120,7 @@ class Prediction(object):
     def __init__(self, idx, formula):
         if isinstance(formula, str):
             try:
-                formula = self.relation_expr.parseString(formula, parseAll=True)[0]
+                formula = self.prediction_expr.parseString(formula, parseAll=True)[0]
             except ParseException as e:
                 raise ValueError("Invalid formula expression %r" % (formula,)) from e
 
