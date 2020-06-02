@@ -2,6 +2,8 @@ from pyparsing import *
 import numpy as np
 
 
+# Enable parser packrat (caching)
+ParserElement.enablePackrat()
 
 # Relative and absolute tolerance thresholds for surprisal equality
 EQUALITY_RTOL = 1e-5
@@ -100,18 +102,36 @@ class Prediction(object):
                                   rtol=EQUALITY_RTOL,
                                   atol=EQUALITY_ATOL)
 
+    def Chain(op_cls, left_assoc=True):
+        def chainer(tokens):
+            """
+            Create a binary tree of BinaryOps from the given repeated application
+            of the op.
+            """
+            operators = tokens[0][1::2]
+            args = tokens[0][0::2]
+            if not left_assoc:
+                raise NotImplementedError
+
+            arg1 = args.pop(0)
+            while len(args) > 0:
+                operator = operators.pop(0)
+                arg2 = args.pop(0)
+                arg1 = op_cls([[arg1, operator, arg2]])
+
+            return arg1
+
+        return chainer
+
     atom = region.setParseAction(Region) | literal_float.setParseAction(LiteralFloat)
 
     stack = []
     prediction_expr = infixNotation(
         atom,
         [
-            ("+", 2, opAssoc.LEFT, FloatOp),
-            ("-", 2, opAssoc.LEFT, FloatOp),
-            ("<", 2, opAssoc.LEFT, ComparatorOp),
-            (">", 2, opAssoc.LEFT, ComparatorOp),
-            ("=", 2, opAssoc.LEFT, ComparatorOp),
-            ("&", 2, opAssoc.LEFT, BoolOp),
+            (oneOf("- +"), 2, opAssoc.LEFT, Chain(FloatOp)),
+            (oneOf("< > ="), 2, opAssoc.LEFT, ComparatorOp),
+            (oneOf("& |"), 2, opAssoc.LEFT, Chain(BoolOp)),
         ],
         lpar=lpar, rpar=rpar
     )
