@@ -9,7 +9,7 @@ from syntaxgym.agg_surprisals import aggregate_surprisals
 from syntaxgym.get_sentences import get_sentences
 from syntaxgym.suite import Suite
 
-__version__ = "0.4"
+__version__ = "0.5"
 
 
 def _load_suite(suite_ref):
