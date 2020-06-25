@@ -28,7 +28,8 @@ def test_prediction_parser(dummy_suite_json):
 
 def test_parse_multiple_conjunction():
     p0 = Prediction(0, "((5;%reduced_ambig%) > (5;%unreduced_ambig%)) & ((5;%reduced_ambig%) > (5;%reduced_unambig%)) & (((5;%reduced_ambig%) - (5;%unreduced_ambig%)) > ((5;%reduced_unambig%) - (5;%unreduced_unambig%)))")
-    assert str(p0) == "Prediction((5;%reduced_ambig%) > (5;%unreduced_ambig%) & (5;%reduced_ambig%) > (5;%reduced_unambig%) & (5;%reduced_ambig%) - (5;%unreduced_ambig%) > (5;%reduced_unambig%) - (5;%unreduced_unambig%))"
+    assert str(p0) == "Prediction(((((5;%reduced_ambig%) > (5;%unreduced_ambig%)) & ((5;%reduced_ambig%) > (5;%reduced_unambig%))) & (((5;%reduced_ambig%) - (5;%unreduced_ambig%)) > ((5;%reduced_unambig%) - (5;%unreduced_unambig%)))))"
+    # assert str(p0) == "Prediction((5;%reduced_ambig%) > (5;%unreduced_ambig%) & (5;%reduced_ambig%) > (5;%reduced_unambig%) & (5;%reduced_ambig%) - (5;%unreduced_ambig%) > (5;%reduced_unambig%) - (5;%unreduced_unambig%))"
 
 def test_parse_multiple_subtraction(null_item):
     p0 = Prediction(0, "5 - 4 - 3 < 0")
@@ -37,6 +38,21 @@ def test_parse_multiple_subtraction(null_item):
 
     p1 = Prediction(0, "5+4=9-1+1")
     assert p1(null_item)
+
+    p2 = Prediction(0, "5-(3+2)=0")
+    assert p2(null_item)
+
+    p3 = Prediction(0, "(5-3)+2=4")
+    assert p3(null_item)
+
+
+def test_parens_maintained_by_serialization(null_item):
+    """Converting a Prediction instance to a string and then re-parsing should yield the same result."""
+    p4 = Prediction(0, "(5-3)+((2+1)-(2+2))=1")
+    assert p4(null_item)
+
+    p4_2 = Prediction(0, str(p4.formula))
+    assert p4_2(null_item)
 
 
 def test_prediction_parse_cleft():

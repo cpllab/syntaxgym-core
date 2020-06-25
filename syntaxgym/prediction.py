@@ -62,7 +62,7 @@ class Prediction(object):
             self.operands = [tokens[0][0], tokens[0][2]]
 
         def __str__(self):
-            return "%s %s %s" % (self.operands[0], self.operator, self.operands[1])
+            return "(%s %s %s)" % (self.operands[0], self.operator, self.operands[1])
 
         def __repr__(self):
             return "%s(%s)(%s)" % (self.__class__.__name__, self.operator, ",".join(map(repr, self.operands)))
