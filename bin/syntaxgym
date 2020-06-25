@@ -56,8 +56,9 @@ def evaluate(state, suite_file):
 @syntaxgym.command(help="Run the model and test suite through the full pipeline")
 @click.argument("model")
 @click.argument("suite_file", type=click.File("r"))
+@click.option("--checkpoint")
 @pass_state
-def run(state, model, suite_file):
+def run(state, model, suite_file, checkpoint):
     model = _prepare_model(model, checkpoint)
     suite = S.compute_surprisals(model, suite_file)
     result = S.evaluate(suite)
