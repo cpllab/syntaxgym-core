@@ -58,3 +58,11 @@ def test_parens_maintained_by_serialization(null_item):
 def test_prediction_parse_cleft():
     p0 = Prediction(0, "((7;%np_mismatch%)-(7;%np_match%))+(((6;%vp_mismatch%)+(7;%vp_mismatch%))-((6;%vp_match%)+(7;%vp_match%)))>0")
     p1 = Prediction(1, "((9;%what_nogap%) =  (9;%that_nogap%))& ((6;%what_subjgap%) =  (6;%that_subjgap%)) ")
+
+
+def test_prediction_referenced_regions():
+    p0 = Prediction(0, "((5;%reduced_ambig%) > (5;%unreduced_ambig%)) & ((5;%reduced_ambig%) > (5;%reduced_unambig%)) & (((5;%reduced_ambig%) - (5;%unreduced_ambig%)) > ((5;%reduced_unambig%) - (5;%unreduced_unambig%)))")
+    referenced = p0.referenced_regions
+
+    assert set(referenced) == {("reduced_ambig", 5), ("unreduced_ambig", 5), ("reduced_unambig", 5), ("unreduced_unambig", 5)}
+    assert sorted(set(referenced)) == sorted(referenced), "No duplicates"

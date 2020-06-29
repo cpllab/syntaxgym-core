@@ -168,19 +168,19 @@ class Prediction(object):
     @property
     def referenced_regions(self):
         """
-        Get a list of the regions referenced by this formula.
-        Each list item is a tuple of the form `(condition_name, region_number)`.
+        Get a set of the regions referenced by this formula.
+        Each item is a tuple of the form `(condition_name, region_number)`.
         """
         def traverse(x, acc):
             if isinstance(x, BinaryOp):
                 for val in x.operands:
                     traverse(val, acc)
             elif isinstance(x, Region):
-                acc.append((x.condition_name, int(x.region_number)))
+                acc.add((x.condition_name, int(x.region_number)))
 
             return acc
 
-        return traverse(self.formula, [])
+        return traverse(self.formula, set())
 
     def as_dict(self):
         return dict(type="formula", formula=str(self.formula))
