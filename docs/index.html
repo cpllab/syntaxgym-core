@@ -1,0 +1,276 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>syntaxgym &mdash; SyntaxGym Core 0.1alpha documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Quickstart" href="quickstart.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="#" class="icon icon-home" alt="Documentation Home"> SyntaxGym Core
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">The SyntaxGym architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="commands.html"><code class="docutils literal notranslate"><span class="pre">syntaxgym</span></code> commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python_api.html">Python API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thanks.html">Acknowledgments</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">SyntaxGym Core</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
+        
+      <li><code class="docutils literal notranslate"><span class="pre">syntaxgym</span></code></li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="syntaxgym">
+<h1><code class="docutils literal notranslate"><span class="pre">syntaxgym</span></code><a class="headerlink" href="#syntaxgym" title="Permalink to this headline">¶</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">syntaxgym</span></code> is a Python package which provides easy, standardized, reproducible access to targeted syntactic evaluations of language models. It replicates the core behavior of the <a class="reference external" href="http://syntaxgym.org">SyntaxGym website</a>.</p>
+<div class="section" id="quick-example">
+<h2>Quick example<a class="headerlink" href="#quick-example" title="Permalink to this headline">¶</a></h2>
+<p>You can define targeted syntactic evaluations using our standard JSON format.
+Here’s a simple one-item evaluation which tests language models’ knowledge of
+subject–verb number agreement:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;meta&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Sample subject--verb suite&quot;</span><span class="p">,</span> <span class="s2">&quot;metric&quot;</span><span class="p">:</span> <span class="s2">&quot;sum&quot;</span><span class="p">},</span>
+  <span class="s2">&quot;predictions&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;formula&quot;</span><span class="p">,</span> <span class="s2">&quot;formula&quot;</span><span class="p">:</span> <span class="s2">&quot;(2;%mismatch%) &gt; (2;%match%)&quot;</span><span class="p">}],</span>
+  <span class="s2">&quot;region_meta&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;1&quot;</span><span class="p">:</span> <span class="s2">&quot;Subject NP&quot;</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span><span class="p">:</span> <span class="s2">&quot;Verb&quot;</span><span class="p">,</span> <span class="s2">&quot;3&quot;</span><span class="p">:</span> <span class="s2">&quot;Continuation&quot;</span><span class="p">},</span>
+  <span class="s2">&quot;items&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;item_number&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="s2">&quot;conditions&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;condition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;match&quot;</span><span class="p">,</span>
+         <span class="s2">&quot;regions&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;region_number&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;The woman&quot;</span><span class="p">},</span>
+                     <span class="p">{</span><span class="s2">&quot;region_number&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;plays&quot;</span><span class="p">},</span>
+                     <span class="p">{</span><span class="s2">&quot;region_number&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;the guitar&quot;</span><span class="p">}]},</span>
+        <span class="p">{</span><span class="s2">&quot;condition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;mismatch&quot;</span><span class="p">,</span>
+         <span class="s2">&quot;regions&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;region_number&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;The woman&quot;</span><span class="p">},</span>
+                     <span class="p">{</span><span class="s2">&quot;region_number&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;play&quot;</span><span class="p">},</span>
+                     <span class="p">{</span><span class="s2">&quot;region_number&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;the guitar&quot;</span><span class="p">}]}</span>
+      <span class="p">]</span>
+    <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>You can then use <code class="docutils literal notranslate"><span class="pre">syntaxgym</span></code> to evaluate a language model’s performance on
+this test. Below, we evaluate GPT-2’s performance on the test suite:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ syntaxgym run gpt2 my_suite.json
+...
+suite                           prediction_id   item_number     result
+Sample subject--verb suite      0               1               True
+</pre></div>
+</div>
+<p>We can do the same thing using a Python API:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">lm_zoo</span> <span class="kn">import</span> <span class="n">get_registry</span>
+<span class="kn">from</span> <span class="nn">syntaxgym</span> <span class="kn">import</span> <span class="n">compute_surprisals</span><span class="p">,</span> <span class="n">evaluate</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">get_registry</span><span class="p">()[</span><span class="s2">&quot;gpt2&quot;</span><span class="p">]</span>
+<span class="n">suite</span> <span class="o">=</span> <span class="n">compute_surprisals</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;my_suite.json&quot;</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">suite</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="next-steps">
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this headline">¶</a></h2>
+<p>For more information on getting started, please see our <a class="reference internal" href="quickstart.html#quickstart"><span class="std std-ref">Quickstart</span></a> guide.</p>
+<div class="toctree-wrapper compound">
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>LM Zoo is maintained by the
+<a class="reference external" href="http://cpl.mit.edu/">MIT Computational Psycholinguistics Laboratory</a>.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="quickstart.html" class="btn btn-neutral float-right" title="Quickstart" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, MIT Computational Psycholinguistics Laboratory
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

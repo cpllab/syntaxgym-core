@@ -1,3 +1,6 @@
+from typing import *
+
+
 from pyparsing import *
 import numpy as np
 
@@ -135,10 +138,21 @@ prediction_expr = infixNotation(
 
 
 class Prediction(object):
+    """
+    Predictions state expected relations between language model surprisal
+    measures in different regions and conditions of a test suite. For more
+    information, see :ref:`architecture`.
+    """
 
-
-
-    def __init__(self, idx, formula):
+    def __init__(self, idx: int, formula: Union[str, BinaryOp]):
+        """
+        Args:
+            idx: A unique prediction ID. This is only relevant for
+                serialization.
+            formula: A string representation of the prediction formula, or an
+                already parsed formula. For more information, see
+                :ref:`architecture`.
+        """
         if isinstance(formula, str):
             try:
                 formula = prediction_expr.parseString(formula, parseAll=True)[0]
@@ -150,7 +164,8 @@ class Prediction(object):
 
     def __call__(self, item):
         """
-        Evaluate the prediction on the given item.
+        Evaluate the prediction on the given item dict representation. For more
+        information on item representations, see :ref:`suite_json`.
         """
         # Prepare relevant surprisal dict
         surps = {(c["condition_name"], r["region_number"]): r["metric_value"]["sum"]
@@ -159,7 +174,11 @@ class Prediction(object):
         return self.formula(surps)
 
     @classmethod
-    def from_dict(cls, pred_dict, idx):
+    def from_dict(cls, pred_dict, idx: int):
+        """
+        Parse from a prediction dictionary representation (see
+        :ref:`suite_json`).
+        """
         if not pred_dict["type"] == "formula":
             raise ValueError("Unknown prediction type %s" % (pred_dict["type"],))
 
@@ -169,7 +188,7 @@ class Prediction(object):
     def referenced_regions(self):
         """
         Get a set of the regions referenced by this formula.
-        Each item is a tuple of the form `(condition_name, region_number)`.
+        Each item is a tuple of the form ``(condition_name, region_number)``.
         """
         def traverse(x, acc):
             if isinstance(x, BinaryOp):
@@ -183,6 +202,10 @@ class Prediction(object):
         return traverse(self.formula, set())
 
     def as_dict(self):
+        """
+        Serialize as a prediction dictionary representation (see
+        :ref:`suite_json`).
+        """
         return dict(type="formula", formula=str(self.formula))
 
     def __str__(self):

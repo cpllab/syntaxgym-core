@@ -1,0 +1,20 @@
+  {
+    "meta": {"name": "Sample subject--verb suite", "metric": "sum"},
+    "predictions": [{"type": "formula", "formula": "(2;%mismatch%) > (2;%match%)"}],
+    "region_meta": {"1": "Subject NP", "2": "Verb", "3": "Continuation"},
+    "items": [
+      {
+        "item_number": 1,
+        "conditions": [
+          {"condition_name": "match",
+           "regions": [{"region_number": 1, "content": "The woman"},
+                       {"region_number": 2, "content": "plays"},
+                       {"region_number": 3, "content": "the guitar"}]},
+          {"condition_name": "mismatch",
+           "regions": [{"region_number": 1, "content": "The woman"},
+                       {"region_number": 2, "content": "play"},
+                       {"region_number": 3, "content": "the guitar"}]}
+        ]
+      }
+    ]
+  }

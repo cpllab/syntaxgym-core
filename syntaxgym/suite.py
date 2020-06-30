@@ -12,6 +12,19 @@ from syntaxgym.prediction import Prediction
 
 
 class Suite(object):
+    """
+    A test suite represents a targeted syntactic evaluation experiment.
+
+    For more information, see :ref:`architecture`.
+
+    :ivar condition_names: A list of condition name strings
+    :ivar region_names: An ordered list of region name strings
+    :ivar items: An array of item ``dicts``, represented just as in a suite
+        JSON representation. See :ref:`suite_json` for more information.
+    :ivar predictions: A list of :class:`~syntaxgym.prediction.Prediction` objects.
+    :ivar meta: A dict of metadata about this suite, represented just as in a
+        suite JSON representation. See :ref:`suite_json` for more information.
+    """
 
     def __init__(self, condition_names, region_names, items, predictions, meta):
         self.condition_names = condition_names
