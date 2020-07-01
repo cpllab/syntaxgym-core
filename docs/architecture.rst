@@ -33,7 +33,7 @@ The structure of test suites
 The following figure visualizes a simple test suite for subject--verb number
 agreement as a table:
 
-TODO figure
+.. figure:: architecture.png
 
 We'll reference this figure as we describe the components of a test suite from
 the bottom-up.
