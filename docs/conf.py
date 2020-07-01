@@ -17,9 +17,11 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+sys.path.insert(0, os.path.abspath('.'))
+
+import syntaxgym
 
 
 # -- General configuration ------------------------------------------------
@@ -56,7 +58,7 @@ author = 'MIT Computational Psycholinguistics Laboratory'
 # built documents.
 #
 # The short X.Y version.
-version = '0.1'
+version = syntaxgym.__version__
 # The full version, including alpha/beta/rc tags.
 release = '0.1alpha'
 
@@ -93,10 +95,10 @@ html_theme = 'sphinx_rtd_theme'
 # documentation.
 #
 html_theme_options = {
-  "external_links": [
-    ("View on GitHub", "https://github.com/cpllab/syntaxgym-core"),
-      ("MIT CPL", "http://cpl.mit.edu")
-  ]
+  # "external_links": [
+  #   ("View on GitHub", "https://github.com/cpllab/syntaxgym-core"),
+  #     ("MIT CPL", "http://cpl.mit.edu")
+  # ]
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -175,10 +177,3 @@ texinfo_documents = [
      author, 'SyntaxGym', 'One line description of project.',
      'Miscellaneous'),
 ]
-
-
-# get sphinx-click working with syntaxgym
-
-import os
-import sys
-sys.path.insert(0, os.path.abspath(".."))
