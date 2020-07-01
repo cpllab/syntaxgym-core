@@ -1,0 +1,134 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "http://example.com/example.json",
+    "type": "object",
+    "title": "SyntaxGym test suite schema",
+    "description": "This schema describes the standard representation of a SyntaxGym test suite.",
+    "required": [
+        "meta",
+        "predictions",
+        "region_meta",
+        "items"
+    ],
+    "properties": {
+        "meta": {
+            "$id": "#/properties/meta",
+            "type": "object",
+            "title": "Suite metadata",
+            "required": [
+                "name",
+                "metric"
+            ],
+            "properties": {
+                "name": {
+                    "$id": "#/properties/meta/properties/name",
+                    "type": "string",
+                    "description": "A unique identifying name for this test suite"
+                },
+                "metric": {
+                    "$id": "#/properties/meta/properties/metric",
+                    "type": "string",
+                    "description": "The surprisal statistic referenced by the suite's predictions. TODO"
+                }
+            }
+        },
+        "predictions": {
+            "$id": "#/properties/predictions",
+            "type": "array",
+            "description": "A list of expected relations between surprisal statistics computed on different regions and conditions of this test suite.",
+            "default": [],
+            "items": {
+                "$id": "#/properties/predictions/items",
+                "type": "object",
+                "required": [
+                    "type",
+                    "formula"
+                ],
+                "properties": {
+                    "type": {
+                        "$id": "#/properties/predictions/items/properties/type",
+                        "type": "string",
+                        "description": "TODO"
+                    },
+                    "formula": {
+                        "$id": "#/properties/predictions/items/properties/formula",
+                        "type": "string",
+                        "description": "A string representation of the prediction formula.",
+                        "examples": [
+                            "(2;%mismatch%) > (2;%match%)"
+                        ]
+                    }
+                }
+            }
+        },
+        "region_meta": {
+            "$id": "#/properties/region_meta",
+            "type": "object",
+            "description": "A map from region numbers to region names. Region numbers should form a contiguous integer range beginning at 1.",
+            "additionalProperties": true
+        },
+        "items": {
+            "$id": "#/properties/items",
+            "type": "array",
+            "items": {
+                "$id": "#/properties/items/items",
+                "type": "object",
+                "required": [
+                    "item_number",
+                    "conditions"
+                ],
+                "properties": {
+                    "item_number": {
+                        "$id": "#/properties/items/items/anyOf/0/properties/item_number",
+                        "type": "integer",
+                        "description": "A unique identifying number for this item."
+                    },
+                    "conditions": {
+                        "$id": "#/properties/items/items/anyOf/0/properties/conditions",
+                        "type": "array",
+                        "items": {
+                            "$id": "#/properties/items/items/anyOf/0/properties/conditions/items/anyOf/0",
+                            "type": "object",
+                            "required": [
+                                "condition_name",
+                                "regions"
+                            ],
+                            "properties": {
+                                "condition_name": {
+                                    "$id": "#/properties/items/items/anyOf/0/properties/conditions/items/anyOf/0/properties/condition_name",
+                                    "type": "string"
+                                },
+                                "regions": {
+                                    "$id": "#/properties/items/items/anyOf/0/properties/conditions/items/anyOf/0/properties/regions",
+                                    "type": "array",
+                                    "title": "The regions schema",
+                                    "description": "An explanation about the purpose of this instance.",
+                                    "items": {
+                                        "$id": "#/properties/items/items/anyOf/0/properties/conditions/items/anyOf/0/properties/regions/items/anyOf/0",
+                                        "type": "object",
+                                        "required": [
+                                            "region_number",
+                                            "content"
+                                        ],
+                                        "properties": {
+                                            "region_number": {
+                                                "$id": "#/properties/items/items/anyOf/0/properties/conditions/items/anyOf/0/properties/regions/items/anyOf/0/properties/region_number",
+                                                "type": "integer",
+                                                "description": "Should correspond to a key of `region_meta`."
+                                            },
+                                            "content": {
+                                                "$id": "#/properties/items/items/anyOf/0/properties/conditions/items/anyOf/0/properties/regions/items/anyOf/0/properties/content",
+                                                "type": "string",
+                                                "description": "The string text content of this region. May be empty. Should not contain leading or trailing spaces."
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

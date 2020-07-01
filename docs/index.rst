@@ -66,6 +66,7 @@ For more information on getting started, please see our :ref:`quickstart` guide.
 .. toctree::
    quickstart
    architecture
+   suite_json
    commands
    python_api
    support
