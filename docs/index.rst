@@ -20,7 +20,11 @@ subject--verb number agreement:
   :language: JSON
 
 You can then use ``syntaxgym`` to evaluate a language model's performance on
-this test. Below, we evaluate GPT-2's performance on the test suite::
+this test. Our tool is integrated with the `LM Zoo
+<https://cpllab.github.io/lm-zoo>`_, so you can instantly use any of the
+`models available in the Zoo <https://cpllab.github.io/lm-zoo/models.html>`_.
+
+Below, we evaluate GPT-2's performance on the test suite::
 
   $ syntaxgym run gpt2 my_suite.json
   ...
