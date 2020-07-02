@@ -93,7 +93,10 @@
 <li class="toctree-l2"><a class="reference internal" href="#meta-test-suite-metadata"><code class="docutils literal notranslate"><span class="pre">meta</span></code>: Test suite metadata</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#region-meta-region-declarations"><code class="docutils literal notranslate"><span class="pre">region_meta</span></code>: Region declarations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#predictions-prediction-declarations"><code class="docutils literal notranslate"><span class="pre">predictions</span></code>: Prediction declarations</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#prediction-string-format">Prediction string format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#prediction-string-format">Prediction string format</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#formal-definition">Formal definition</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#items"><code class="docutils literal notranslate"><span class="pre">items</span></code></a><ul>
@@ -257,14 +260,20 @@ name using the following format:</p>
 region 2 of the <code class="docutils literal notranslate"><span class="pre">mismatch</span></code> condition using the string <code class="docutils literal notranslate"><span class="pre">(2;%mismatch%)</span></code>. The
 surrounding parentheses are necessary for these expressions to be correctly
 parsed.</p>
-<p>The user can then use these region-condition variables in symbolic
-arithmetic relationships to compare the associated surprisal values.
-Our example offers the following prediction string:</p>
+<p>The user can then use these region references in symbolic arithmetic
+relationships to compare their associated surprisal values. Our example offers
+the following prediction string:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="mi">2</span><span class="p">;</span><span class="o">%</span><span class="n">mismatch</span><span class="o">%</span><span class="p">)</span> <span class="o">&gt;</span> <span class="p">(</span><span class="mi">2</span><span class="p">;</span><span class="o">%</span><span class="n">match</span><span class="o">%</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>stating that the total surprisal in region 2 of the <code class="docutils literal notranslate"><span class="pre">mismatch</span></code> condition
 should be greater than the total surprisal in region 2, condition <code class="docutils literal notranslate"><span class="pre">match</span></code>.</p>
+<div class="section" id="formal-definition">
+<h4>Formal definition<a class="headerlink" href="#formal-definition" title="Permalink to this headline">¶</a></h4>
+<p>Region numbers must be integers corresponding to regions previously defined in
+<code class="docutils literal notranslate"><span class="pre">region_meta</span></code>, or a single asterisk <code class="docutils literal notranslate"><span class="pre">*</span></code>. An asterisk indicates that the
+total surprisal of all regions of the sentence in the given condition should be
+computed.</p>
 <p>The following operators are available:</p>
 <ul>
 <li><p>Comparison operators: <code class="docutils literal notranslate"><span class="pre">&lt;</span></code> and <code class="docutils literal notranslate"><span class="pre">&gt;</span></code> specify hard inequality constraints.
@@ -283,6 +292,7 @@ equalities, for example:</p>
 </div>
 </li>
 </ul>
+</div>
 </div>
 </div>
 <div class="section" id="items">
