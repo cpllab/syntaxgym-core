@@ -72,14 +72,22 @@ region 2 of the ``mismatch`` condition using the string ``(2;%mismatch%)``. The
 surrounding parentheses are necessary for these expressions to be correctly
 parsed.
 
-The user can then use these region-condition variables in symbolic
-arithmetic relationships to compare the associated surprisal values.
-Our example offers the following prediction string::
+The user can then use these region references in symbolic arithmetic
+relationships to compare their associated surprisal values. Our example offers
+the following prediction string::
 
   (2;%mismatch%) > (2;%match%)
 
 stating that the total surprisal in region 2 of the ``mismatch`` condition
 should be greater than the total surprisal in region 2, condition ``match``.
+
+Formal definition
+"""""""""""""""""
+
+Region numbers must be integers corresponding to regions previously defined in
+``region_meta``, or a single asterisk ``*``. An asterisk indicates that the
+total surprisal of all regions of the sentence in the given condition should be
+computed.
 
 The following operators are available:
 
