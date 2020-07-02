@@ -14,28 +14,10 @@ Quick example
 
 You can define targeted syntactic evaluations using our standard JSON format.
 Here's a simple one-item evaluation which tests language models' knowledge of
-subject--verb number agreement::
+subject--verb number agreement:
 
-  {
-    "meta": {"name": "Sample subject--verb suite", "metric": "sum"},
-    "predictions": [{"type": "formula", "formula": "(2;%mismatch%) > (2;%match%)"}],
-    "region_meta": {"1": "Subject NP", "2": "Verb", "3": "Continuation"},
-    "items": [
-      {
-        "item_number": 1,
-        "conditions": [
-          {"condition_name": "match",
-           "regions": [{"region_number": 1, "content": "The woman"},
-                       {"region_number": 2, "content": "plays"},
-                       {"region_number": 3, "content": "the guitar"}]},
-          {"condition_name": "mismatch",
-           "regions": [{"region_number": 1, "content": "The woman"},
-                       {"region_number": 2, "content": "play"},
-                       {"region_number": 3, "content": "the guitar"}]}
-        ]
-      }
-    ]
-  }
+.. literalinclude:: sample_suite.json
+  :language: JSON
 
 You can then use ``syntaxgym`` to evaluate a language model's performance on
 this test. Below, we evaluate GPT-2's performance on the test suite::
@@ -69,6 +51,7 @@ For more information on getting started, please see our :ref:`quickstart` guide.
    suite_json
    commands
    python_api
+   troubleshooting
    support
    thanks
    :hidden:

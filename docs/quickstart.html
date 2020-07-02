@@ -90,12 +90,20 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#requirements">Requirements</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#define-your-first-test-suite">Define your first test suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run-evaluations">Run evaluations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pick-a-language-model">Pick a language model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#command-line-usage">Command line usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#python-api-usage">Python API usage</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="architecture.html">The SyntaxGym architecture</a></li>
 <li class="toctree-l1"><a class="reference internal" href="suite_json.html">Test suite JSON representation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="commands.html"><code class="docutils literal notranslate"><span class="pre">syntaxgym</span></code> commands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="python_api.html">Python API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
 <li class="toctree-l1"><a class="reference internal" href="thanks.html">Acknowledgments</a></li>
 </ul>
@@ -177,7 +185,85 @@ around the <a class="reference external" href="https://cpllab.github.io/lm-zoo">
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">U</span> <span class="n">syntaxgym</span>
 </pre></div>
 </div>
-<p>TODO more</p>
+</div>
+<div class="section" id="define-your-first-test-suite">
+<h2>Define your first test suite<a class="headerlink" href="#define-your-first-test-suite" title="Permalink to this headline">¶</a></h2>
+<p>Next, we’ll define a simple <strong>test suite</strong>: an experiment which tests a
+language model’s knowledge of some grammatical phenomenon. The below test suite
+tests knowledge of English subject–verb number agreement.</p>
+<p>For more information on the structure of SyntaxGym test suites, see
+<a class="reference internal" href="architecture.html#architecture"><span class="std std-ref">The SyntaxGym architecture</span></a>. The JSON standard for test suites is documented in
+<a class="reference internal" href="suite_json.html#suite-json"><span class="std std-ref">Test suite JSON representation</span></a>.</p>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span>  <span class="p">{</span>
+    <span class="nt">&quot;meta&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Sample subject--verb suite&quot;</span><span class="p">,</span> <span class="nt">&quot;metric&quot;</span><span class="p">:</span> <span class="s2">&quot;sum&quot;</span><span class="p">},</span>
+    <span class="nt">&quot;predictions&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;formula&quot;</span><span class="p">,</span> <span class="nt">&quot;formula&quot;</span><span class="p">:</span> <span class="s2">&quot;(2;%mismatch%) &gt; (2;%match%)&quot;</span><span class="p">}],</span>
+    <span class="nt">&quot;region_meta&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nt">&quot;1&quot;</span><span class="p">:</span> <span class="s2">&quot;Subject NP&quot;</span><span class="p">,</span> <span class="nt">&quot;2&quot;</span><span class="p">:</span> <span class="s2">&quot;Verb&quot;</span><span class="p">,</span> <span class="nt">&quot;3&quot;</span><span class="p">:</span> <span class="s2">&quot;Continuation&quot;</span><span class="p">},</span>
+    <span class="nt">&quot;items&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;item_number&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="nt">&quot;conditions&quot;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="p">{</span><span class="nt">&quot;condition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;match&quot;</span><span class="p">,</span>
+           <span class="nt">&quot;regions&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="nt">&quot;region_number&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="nt">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;The woman&quot;</span><span class="p">},</span>
+                       <span class="p">{</span><span class="nt">&quot;region_number&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="nt">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;plays&quot;</span><span class="p">},</span>
+                       <span class="p">{</span><span class="nt">&quot;region_number&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="nt">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;the guitar&quot;</span><span class="p">}]},</span>
+          <span class="p">{</span><span class="nt">&quot;condition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;mismatch&quot;</span><span class="p">,</span>
+           <span class="nt">&quot;regions&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="nt">&quot;region_number&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="nt">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;The woman&quot;</span><span class="p">},</span>
+                       <span class="p">{</span><span class="nt">&quot;region_number&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="nt">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;play&quot;</span><span class="p">},</span>
+                       <span class="p">{</span><span class="nt">&quot;region_number&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="nt">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;the guitar&quot;</span><span class="p">}]}</span>
+        <span class="p">]</span>
+      <span class="p">}</span>
+    <span class="p">]</span>
+  <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="run-evaluations">
+<h2>Run evaluations<a class="headerlink" href="#run-evaluations" title="Permalink to this headline">¶</a></h2>
+<p>Now we’ll evaluate the performance of a language model on our new test suite.</p>
+<div class="section" id="pick-a-language-model">
+<h3>Pick a language model<a class="headerlink" href="#pick-a-language-model" title="Permalink to this headline">¶</a></h3>
+<p>SyntaxGym interfaces with <a class="reference external" href="https://cpllab.github.io/lm-zoo">LM Zoo</a> language
+models. We can pick any language model, then, from the <a class="reference external" href="https://cpllab.github.io/lm-zoo/models.html">LM Zoo registry</a>. If you’re interested in
+evaluating your own language model in SyntaxGym, you’ll first need to prepare a
+model image under the LM Zoo standard. For more information, see the <a class="reference external" href="https://cpllab.github.io/lm-zoo/contributing.html">LM Zoo
+documentation</a>.</p>
+<p>We’ll use the model <code class="docutils literal notranslate"><span class="pre">gpt2</span></code> as an example here.</p>
+</div>
+<div class="section" id="command-line-usage">
+<h3>Command line usage<a class="headerlink" href="#command-line-usage" title="Permalink to this headline">¶</a></h3>
+<p>You can run evaluations using the <code class="docutils literal notranslate"><span class="pre">syntaxgym</span></code> command-line tool. The
+evaluation will return per-item prediction results given a particular language
+model.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ syntaxgym run gpt2 my_suite.json
+...
+suite                           prediction_id   item_number     result
+Sample subject--verb suite      <span class="m">0</span>               <span class="m">1</span>               True
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">run</span></code> command outputs a tab-separated list of per-item results on the
+test suite.</p>
+</div>
+<div class="section" id="python-api-usage">
+<h3>Python API usage<a class="headerlink" href="#python-api-usage" title="Permalink to this headline">¶</a></h3>
+<p>We can also trigger evaluations from Python scripts. For example, to replicate
+the above evaluation:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">lm_zoo</span> <span class="kn">import</span> <span class="n">get_registry</span>
+<span class="kn">from</span> <span class="nn">syntaxgym</span> <span class="kn">import</span> <span class="n">compute_surprisals</span><span class="p">,</span> <span class="n">evaluate</span>
+
+<span class="c1"># Retrieve an LM Zoo ``Model`` instance for GPT2</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">get_registry</span><span class="p">()[</span><span class="s2">&quot;gpt2&quot;</span><span class="p">]</span>
+
+<span class="c1"># Compute region-level surprisal data for our suite.</span>
+<span class="n">suite</span> <span class="o">=</span> <span class="n">compute_surprisals</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;my_suite.json&quot;</span><span class="p">)</span>
+
+<span class="c1"># Check predictions given the suite containing surprisals. This returns a</span>
+<span class="c1"># Pandas data frame by default.</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">suite</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
 </div>
 </div>
 

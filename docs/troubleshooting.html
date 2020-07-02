@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Support &mdash; SyntaxGym Core 0.1alpha documentation</title>
+  <title>Troubleshooting &mdash; SyntaxGym Core 0.1alpha documentation</title>
   
 
   
@@ -36,8 +36,8 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Acknowledgments" href="thanks.html" />
-    <link rel="prev" title="Troubleshooting" href="troubleshooting.html" /> 
+    <link rel="next" title="Support" href="support.html" />
+    <link rel="prev" title="Python API reference" href="python_api.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -92,8 +92,11 @@
 <li class="toctree-l1"><a class="reference internal" href="suite_json.html">Test suite JSON representation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="commands.html"><code class="docutils literal notranslate"><span class="pre">syntaxgym</span></code> commands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="python_api.html">Python API reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Support</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Troubleshooting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#commands-return-dockererror">Commands return <code class="docutils literal notranslate"><span class="pre">DockerError</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
 <li class="toctree-l1"><a class="reference internal" href="thanks.html">Acknowledgments</a></li>
 </ul>
 
@@ -141,13 +144,13 @@
     
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
-      <li>Support</li>
+      <li>Troubleshooting</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/support.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/troubleshooting.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -160,11 +163,23 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="support">
-<span id="id1"></span><h1>Support<a class="headerlink" href="#support" title="Permalink to this headline">¶</a></h1>
-<p>Please file bugs and feature requests as <a class="reference external" href="https://github.com/cpllab/syntaxgym-core/issues">GitHub issues</a>.</p>
-<p>You can request extra help in installation, usage, etc. from the developers and
-community via our <a class="reference external" href="https://gitter.im/lm-zoo/community">Gitter chat</a>.</p>
+  <div class="section" id="troubleshooting">
+<span id="id1"></span><h1>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h1>
+<p>This page lists some common issues encountered by SyntaxGym users. For in-depth
+support, please see <a class="reference internal" href="support.html#support"><span class="std std-ref">Support</span></a>.</p>
+<div class="section" id="commands-return-dockererror">
+<h2>Commands return <code class="docutils literal notranslate"><span class="pre">DockerError</span></code><a class="headerlink" href="#commands-return-dockererror" title="Permalink to this headline">¶</a></h2>
+<p>When attempting to run SyntaxGym evaluations or retrieve surprisals, you may
+encounter the following error:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lm_zoo</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">BackendConnectionError</span><span class="p">:</span> <span class="n">Backend</span> <span class="n">DockerBackend</span> <span class="n">encountered</span> <span class="n">error</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Connection aborted.&#39;</span><span class="p">,</span> <span class="ne">ConnectionRefusedError</span><span class="p">(</span><span class="mi">111</span><span class="p">,</span> <span class="s1">&#39;Connection refused&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p><strong>Solution:</strong> SyntaxGym requires Docker to run properly. Verify that you have
+<a class="reference external" href="https://docs.docker.com/get-docker/">installed Docker</a> and that the Docker
+service is running.</p>
+<p>If you are using OS X or Windows and are not a terminal expert, we recommend
+installing <a class="reference external" href="https://www.docker.com/products/docker-desktop">Docker Desktop</a>.</p>
+</div>
 </div>
 
 
@@ -175,10 +190,10 @@ community via our <a class="reference external" href="https://gitter.im/lm-zoo/c
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="thanks.html" class="btn btn-neutral float-right" title="Acknowledgments" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="support.html" class="btn btn-neutral float-right" title="Support" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="troubleshooting.html" class="btn btn-neutral float-left" title="Troubleshooting" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="python_api.html" class="btn btn-neutral float-left" title="Python API reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

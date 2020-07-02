@@ -91,6 +91,7 @@
 <li class="toctree-l1"><a class="reference internal" href="suite_json.html">Test suite JSON representation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="commands.html"><code class="docutils literal notranslate"><span class="pre">syntaxgym</span></code> commands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="python_api.html">Python API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
 <li class="toctree-l1"><a class="reference internal" href="thanks.html">Acknowledgments</a></li>
 </ul>
@@ -166,26 +167,26 @@
 <p>You can define targeted syntactic evaluations using our standard JSON format.
 Here’s a simple one-item evaluation which tests language models’ knowledge of
 subject–verb number agreement:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-  <span class="s2">&quot;meta&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Sample subject--verb suite&quot;</span><span class="p">,</span> <span class="s2">&quot;metric&quot;</span><span class="p">:</span> <span class="s2">&quot;sum&quot;</span><span class="p">},</span>
-  <span class="s2">&quot;predictions&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;formula&quot;</span><span class="p">,</span> <span class="s2">&quot;formula&quot;</span><span class="p">:</span> <span class="s2">&quot;(2;%mismatch%) &gt; (2;%match%)&quot;</span><span class="p">}],</span>
-  <span class="s2">&quot;region_meta&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;1&quot;</span><span class="p">:</span> <span class="s2">&quot;Subject NP&quot;</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span><span class="p">:</span> <span class="s2">&quot;Verb&quot;</span><span class="p">,</span> <span class="s2">&quot;3&quot;</span><span class="p">:</span> <span class="s2">&quot;Continuation&quot;</span><span class="p">},</span>
-  <span class="s2">&quot;items&quot;</span><span class="p">:</span> <span class="p">[</span>
-    <span class="p">{</span>
-      <span class="s2">&quot;item_number&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-      <span class="s2">&quot;conditions&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="p">{</span><span class="s2">&quot;condition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;match&quot;</span><span class="p">,</span>
-         <span class="s2">&quot;regions&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;region_number&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;The woman&quot;</span><span class="p">},</span>
-                     <span class="p">{</span><span class="s2">&quot;region_number&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;plays&quot;</span><span class="p">},</span>
-                     <span class="p">{</span><span class="s2">&quot;region_number&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;the guitar&quot;</span><span class="p">}]},</span>
-        <span class="p">{</span><span class="s2">&quot;condition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;mismatch&quot;</span><span class="p">,</span>
-         <span class="s2">&quot;regions&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;region_number&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;The woman&quot;</span><span class="p">},</span>
-                     <span class="p">{</span><span class="s2">&quot;region_number&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;play&quot;</span><span class="p">},</span>
-                     <span class="p">{</span><span class="s2">&quot;region_number&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;the guitar&quot;</span><span class="p">}]}</span>
-      <span class="p">]</span>
-    <span class="p">}</span>
-  <span class="p">]</span>
-<span class="p">}</span>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span>  <span class="p">{</span>
+    <span class="nt">&quot;meta&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Sample subject--verb suite&quot;</span><span class="p">,</span> <span class="nt">&quot;metric&quot;</span><span class="p">:</span> <span class="s2">&quot;sum&quot;</span><span class="p">},</span>
+    <span class="nt">&quot;predictions&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;formula&quot;</span><span class="p">,</span> <span class="nt">&quot;formula&quot;</span><span class="p">:</span> <span class="s2">&quot;(2;%mismatch%) &gt; (2;%match%)&quot;</span><span class="p">}],</span>
+    <span class="nt">&quot;region_meta&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nt">&quot;1&quot;</span><span class="p">:</span> <span class="s2">&quot;Subject NP&quot;</span><span class="p">,</span> <span class="nt">&quot;2&quot;</span><span class="p">:</span> <span class="s2">&quot;Verb&quot;</span><span class="p">,</span> <span class="nt">&quot;3&quot;</span><span class="p">:</span> <span class="s2">&quot;Continuation&quot;</span><span class="p">},</span>
+    <span class="nt">&quot;items&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;item_number&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="nt">&quot;conditions&quot;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="p">{</span><span class="nt">&quot;condition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;match&quot;</span><span class="p">,</span>
+           <span class="nt">&quot;regions&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="nt">&quot;region_number&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="nt">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;The woman&quot;</span><span class="p">},</span>
+                       <span class="p">{</span><span class="nt">&quot;region_number&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="nt">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;plays&quot;</span><span class="p">},</span>
+                       <span class="p">{</span><span class="nt">&quot;region_number&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="nt">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;the guitar&quot;</span><span class="p">}]},</span>
+          <span class="p">{</span><span class="nt">&quot;condition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;mismatch&quot;</span><span class="p">,</span>
+           <span class="nt">&quot;regions&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="nt">&quot;region_number&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="nt">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;The woman&quot;</span><span class="p">},</span>
+                       <span class="p">{</span><span class="nt">&quot;region_number&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="nt">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;play&quot;</span><span class="p">},</span>
+                       <span class="p">{</span><span class="nt">&quot;region_number&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="nt">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;the guitar&quot;</span><span class="p">}]}</span>
+        <span class="p">]</span>
+      <span class="p">}</span>
+    <span class="p">]</span>
+  <span class="p">}</span>
 </pre></div>
 </div>
 <p>You can then use <code class="docutils literal notranslate"><span class="pre">syntaxgym</span></code> to evaluate a language model’s performance on
