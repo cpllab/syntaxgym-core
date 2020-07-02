@@ -58,8 +58,14 @@ For more information on getting started, please see our :ref:`quickstart` guide.
 
 |
 
+
+Acknowledgements
+----------------
+
 LM Zoo is maintained by the
 `MIT Computational Psycholinguistics Laboratory <http://cpl.mit.edu/>`_.
+
+.. include:: includes/citations.rst
 
 
 .. Indices and tables
