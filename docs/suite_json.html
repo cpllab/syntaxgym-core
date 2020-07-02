@@ -35,7 +35,9 @@
 
     
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="syntaxgym commands" href="commands.html" />
+    <link rel="prev" title="The SyntaxGym architecture" href="architecture.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -59,7 +61,7 @@
             
             
               <div class="version">
-                0.1
+                0.5.3
               </div>
             
           
@@ -84,9 +86,27 @@
               
             
             
-              <ul>
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="architecture.html">The SyntaxGym architecture</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Test suite JSON representation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#meta-test-suite-metadata"><code class="docutils literal notranslate"><span class="pre">meta</span></code>: Test suite metadata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#region-meta-region-declarations"><code class="docutils literal notranslate"><span class="pre">region_meta</span></code>: Region declarations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#predictions-prediction-declarations"><code class="docutils literal notranslate"><span class="pre">predictions</span></code>: Prediction declarations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#prediction-string-format">Prediction string format</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#items"><code class="docutils literal notranslate"><span class="pre">items</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#conditions">Conditions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#regions">Regions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#syntaxgym-test-suite-schema">SyntaxGym test suite schema</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="commands.html"><code class="docutils literal notranslate"><span class="pre">syntaxgym</span></code> commands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="python_api.html">Python API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
@@ -158,7 +178,356 @@
             
   <div class="section" id="test-suite-json-representation">
 <span id="suite-json"></span><h1>Test suite JSON representation<a class="headerlink" href="#test-suite-json-representation" title="Permalink to this headline">¶</a></h1>
-<p>TODO</p>
+<p>This page describes SyntaxGym’s standard format for representing test suites.
+For more information on test suites and their basic structure, see
+<a class="reference internal" href="architecture.html#architecture"><span class="std std-ref">The SyntaxGym architecture</span></a>.</p>
+<p>Here’s an example of a simple one-item test suite which conforms to our
+standard, and which measures subject–verb number agreement knowledge:</p>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span>  <span class="p">{</span>
+    <span class="nt">&quot;meta&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Sample subject--verb suite&quot;</span><span class="p">,</span> <span class="nt">&quot;metric&quot;</span><span class="p">:</span> <span class="s2">&quot;sum&quot;</span><span class="p">},</span>
+    <span class="nt">&quot;predictions&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;formula&quot;</span><span class="p">,</span> <span class="nt">&quot;formula&quot;</span><span class="p">:</span> <span class="s2">&quot;(2;%mismatch%) &gt; (2;%match%)&quot;</span><span class="p">}],</span>
+    <span class="nt">&quot;region_meta&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nt">&quot;1&quot;</span><span class="p">:</span> <span class="s2">&quot;Subject NP&quot;</span><span class="p">,</span> <span class="nt">&quot;2&quot;</span><span class="p">:</span> <span class="s2">&quot;Verb&quot;</span><span class="p">,</span> <span class="nt">&quot;3&quot;</span><span class="p">:</span> <span class="s2">&quot;Continuation&quot;</span><span class="p">},</span>
+    <span class="nt">&quot;items&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;item_number&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="nt">&quot;conditions&quot;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="p">{</span><span class="nt">&quot;condition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;match&quot;</span><span class="p">,</span>
+           <span class="nt">&quot;regions&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="nt">&quot;region_number&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="nt">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;The woman&quot;</span><span class="p">},</span>
+                       <span class="p">{</span><span class="nt">&quot;region_number&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="nt">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;plays&quot;</span><span class="p">},</span>
+                       <span class="p">{</span><span class="nt">&quot;region_number&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="nt">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;the guitar&quot;</span><span class="p">}]},</span>
+          <span class="p">{</span><span class="nt">&quot;condition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;mismatch&quot;</span><span class="p">,</span>
+           <span class="nt">&quot;regions&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="nt">&quot;region_number&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="nt">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;The woman&quot;</span><span class="p">},</span>
+                       <span class="p">{</span><span class="nt">&quot;region_number&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="nt">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;play&quot;</span><span class="p">},</span>
+                       <span class="p">{</span><span class="nt">&quot;region_number&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="nt">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;the guitar&quot;</span><span class="p">}]}</span>
+        <span class="p">]</span>
+      <span class="p">}</span>
+    <span class="p">]</span>
+  <span class="p">}</span>
+</pre></div>
+</div>
+<p>In the following sections we’ll describe the items of this JSON standard
+one-by-one. The end of this document also contains a formal JSON schema
+summary.</p>
+<div class="section" id="meta-test-suite-metadata">
+<h2><code class="docutils literal notranslate"><span class="pre">meta</span></code>: Test suite metadata<a class="headerlink" href="#meta-test-suite-metadata" title="Permalink to this headline">¶</a></h2>
+<p>This section contains basic archival facts such as test suite name,
+description, and paper reference (if relevant).</p>
+<p>Required fields:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">name</span></code></dt><dd><p>A unique identifying string name for the test suite.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">metric</span></code></dt><dd><p>Surprisal statistic over which this test suite specifies predictions.
+Currently the only supported metric is <code class="docutils literal notranslate"><span class="pre">&quot;sum&quot;</span></code> – this means that, when
+multiple tokens are in the same region, a model’s surprisals for each
+individual token will be summed together to form the region-level surprisal
+statistic.</p>
+</dd>
+</dl>
+<p>Optional fields:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">reference</span></code></dt><dd><p>A paper reference for the content of the suite.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">comment</span></code></dt><dd><p>Any other comments.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="region-meta-region-declarations">
+<h2><code class="docutils literal notranslate"><span class="pre">region_meta</span></code>: Region declarations<a class="headerlink" href="#region-meta-region-declarations" title="Permalink to this headline">¶</a></h2>
+<p>This object declares the mapping from region numbers to region names. Region
+numbers should form a contiguous integer range beginning at 1. These names are
+only for visualization purposes; they will not be used for reference within the
+test suite. We will reference regions in other parts of the test suite
+specification using the region numbers.</p>
+</div>
+<div class="section" id="predictions-prediction-declarations">
+<h2><code class="docutils literal notranslate"><span class="pre">predictions</span></code>: Prediction declarations<a class="headerlink" href="#predictions-prediction-declarations" title="Permalink to this headline">¶</a></h2>
+<p>Predictions state expected relations about surprisal statistics between regions
+and conditions within each item. We represent predictions as arithmetic formula
+strings.</p>
+<div class="section" id="prediction-string-format">
+<h3>Prediction string format<a class="headerlink" href="#prediction-string-format" title="Permalink to this headline">¶</a></h3>
+<p>The atomic units of the prediction string are <strong>region references</strong>,
+identifying a particular region instance by its region number and condition
+name using the following format:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="o">&lt;</span><span class="n">region_number</span><span class="o">&gt;</span><span class="p">;</span><span class="o">%&lt;</span><span class="n">condition_name</span><span class="o">&gt;%</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For example, the prediction in this document’s example test suite references
+region 2 of the <code class="docutils literal notranslate"><span class="pre">mismatch</span></code> condition using the string <code class="docutils literal notranslate"><span class="pre">(2;%mismatch%)</span></code>. The
+surrounding parentheses are necessary for these expressions to be correctly
+parsed.</p>
+<p>The user can then use these region-condition variables in symbolic
+arithmetic relationships to compare the associated surprisal values.
+Our example offers the following prediction string:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="mi">2</span><span class="p">;</span><span class="o">%</span><span class="n">mismatch</span><span class="o">%</span><span class="p">)</span> <span class="o">&gt;</span> <span class="p">(</span><span class="mi">2</span><span class="p">;</span><span class="o">%</span><span class="n">match</span><span class="o">%</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>stating that the total surprisal in region 2 of the <code class="docutils literal notranslate"><span class="pre">mismatch</span></code> condition
+should be greater than the total surprisal in region 2, condition <code class="docutils literal notranslate"><span class="pre">match</span></code>.</p>
+<p>The following operators are available:</p>
+<ul>
+<li><p>Comparison operators: <code class="docutils literal notranslate"><span class="pre">&lt;</span></code> and <code class="docutils literal notranslate"><span class="pre">&gt;</span></code> specify hard inequality constraints.
+<code class="docutils literal notranslate"><span class="pre">=</span></code> specifies an approximate equality constraint.</p></li>
+<li><p>Arithmetic operators: <code class="docutils literal notranslate"><span class="pre">+</span></code> and <code class="docutils literal notranslate"><span class="pre">-</span></code> specify float addition and subtraction,
+respectively. For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="mi">2</span><span class="p">;</span><span class="o">%</span><span class="n">mismatch</span><span class="o">%</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="mi">2</span><span class="p">;</span><span class="o">%</span><span class="n">match</span><span class="o">%</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+</pre></div>
+</div>
+</li>
+<li><p>Logical operators: <code class="docutils literal notranslate"><span class="pre">&amp;</span></code> and <code class="docutils literal notranslate"><span class="pre">|</span></code> specify logical conjunction and
+disjunction, respectively. This can be used to coordinate multiple
+equalities, for example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="mi">2</span><span class="p">;</span><span class="o">%</span><span class="n">mismatch</span><span class="o">%</span><span class="p">)</span> <span class="o">&gt;</span> <span class="p">(</span><span class="mi">2</span><span class="p">;</span><span class="o">%</span><span class="n">match</span><span class="o">%</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="mi">2</span><span class="p">;</span><span class="o">%</span><span class="n">match</span><span class="o">%</span><span class="p">)</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">2</span><span class="p">;</span><span class="o">%</span><span class="n">mismatch</span><span class="o">%</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="items">
+<h2><code class="docutils literal notranslate"><span class="pre">items</span></code><a class="headerlink" href="#items" title="Permalink to this headline">¶</a></h2>
+<p>The bulk of the test suite specification consists of the actual experimental
+items. These are represented as lists of region instances, nested within lists
+of conditions, nested within a list of items.</p>
+<p>Concretely, each item in the <code class="docutils literal notranslate"><span class="pre">items</span></code> array contains two properties:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">item_number</span></code></dt><dd><p>A unique identifying integer item number.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">conditions</span></code></dt><dd><p>A list of condition objects, specified below.</p>
+</dd>
+</dl>
+<div class="section" id="conditions">
+<h3>Conditions<a class="headerlink" href="#conditions" title="Permalink to this headline">¶</a></h3>
+<p>Each condition in the <code class="docutils literal notranslate"><span class="pre">conditions</span></code> array contains two properties:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">condition_name</span></code></dt><dd><p>A reference to one of the test suite’s conditions. Each item object should
+have the same set of condition names.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">regions</span></code></dt><dd><p>A list of region contents for this particular item and condition.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="regions">
+<h3>Regions<a class="headerlink" href="#regions" title="Permalink to this headline">¶</a></h3>
+<p>Each region in the <code class="docutils literal notranslate"><span class="pre">regions</span></code> array consists of two properties:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">region_number</span></code></dt><dd><p>An integer referencing one of the test suite’s regions.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">content</span></code></dt><dd><p>A string containing the region-level text content. This should be formatted
+as natural language (not pre-tokenized). Some regions may have no content.
+There should not be leading or trailing spaces in a region’s content.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>The format of test suites is perhaps best learned by example.
+You can find plenty of example test suites in the codebase for a recent ACL
+paper using SyntaxGym: <a class="reference external" href="https://github.com/cpllab/syntactic-generalization/tree/master/test_suites/json">see on GitHub</a>.</p>
+<div class="section" id="syntaxgym-test-suite-schema">
+<h3>SyntaxGym test suite schema<a class="headerlink" href="#syntaxgym-test-suite-schema" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="9"><p>This schema describes the standard representation of a SyntaxGym test suite.</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="8"><p><em>object</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="9"><p>properties</p></td>
+</tr>
+<tr class="row-even"><td rowspan="7"><ul class="simple">
+<li><p><strong>meta</strong></p></li>
+</ul>
+</td>
+<td colspan="8"><p><em>Suite metadata</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="7"><p><em>object</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="8"><p>properties</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="simple">
+<li><p><strong>name</strong></p></li>
+</ul>
+</td>
+<td colspan="7"><p>A unique identifying name for this test suite</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="6"><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="simple">
+<li><p><strong>metric</strong></p></li>
+</ul>
+</td>
+<td colspan="7"><p>The surprisal statistic referenced by the suite’s predictions. TODO</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="6"><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="11"><ul class="simple">
+<li><p><strong>predictions</strong></p></li>
+</ul>
+</td>
+<td colspan="8"><p>A list of expected relations between surprisal statistics computed on different regions and conditions of this test suite.</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="7"><p><em>array</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td colspan="7"><p>[]</p></td>
+</tr>
+<tr class="row-even"><td colspan="8"><p>items</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="7"><ul class="simple">
+<li></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td colspan="6"><p><em>object</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="7"><p>properties</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="simple">
+<li><p><strong>type</strong></p></li>
+</ul>
+</td>
+<td colspan="6"><p>TODO</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="5"><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p><strong>formula</strong></p></li>
+</ul>
+</td>
+<td colspan="6"><p>A string representation of the prediction formula.</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="5"><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>examples</p></td>
+<td colspan="5"><p>(2;%mismatch%) &gt; (2;%match%)</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p><strong>region_meta</strong></p></li>
+</ul>
+</td>
+<td colspan="8"><p>A map from region numbers to region names. Region numbers should form a contiguous integer range beginning at 1.</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="7"><p><em>object</em></p></td>
+</tr>
+<tr class="row-even"><td><p>additionalProperties</p></td>
+<td colspan="7"><p>True</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="21"><ul class="simple">
+<li><p><strong>items</strong></p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td colspan="7"><p><em>array</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="8"><p>items</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="19"><ul class="simple">
+<li></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td colspan="6"><p><em>object</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="7"><p>properties</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="simple">
+<li><p><strong>item_number</strong></p></li>
+</ul>
+</td>
+<td colspan="6"><p>A unique identifying number for this item.</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="5"><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="15"><ul class="simple">
+<li><p><strong>conditions</strong></p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td colspan="5"><p><em>array</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="6"><p>items</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="13"><ul class="simple">
+<li></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td colspan="4"><p><em>object</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="5"><p>properties</p></td>
+</tr>
+<tr class="row-odd"><td><ul class="simple">
+<li><p><strong>condition_name</strong></p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td colspan="3"><p><em>string</em></p></td>
+</tr>
+<tr class="row-even"><td rowspan="10"><ul class="simple">
+<li><p><strong>regions</strong></p></li>
+</ul>
+</td>
+<td colspan="4"><p><em>The regions schema</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="4"><p>An explanation about the purpose of this instance.</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="3"><p><em>array</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="4"><p>items</p></td>
+</tr>
+<tr class="row-even"><td rowspan="6"><ul class="simple">
+<li></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td colspan="2"><p><em>object</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="3"><p>properties</p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><ul class="simple">
+<li><p><strong>region_number</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p>Should correspond to a key of <cite>region_meta</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><ul class="simple">
+<li><p><strong>content</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p>The string text content of this region. May be empty. Should not contain leading or trailing spaces.</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 
 
@@ -166,6 +535,15 @@
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="commands.html" class="btn btn-neutral float-right" title="syntaxgym commands" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="architecture.html" class="btn btn-neutral float-left" title="The SyntaxGym architecture" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>

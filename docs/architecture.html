@@ -35,7 +35,9 @@
 
     
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Test suite JSON representation" href="suite_json.html" />
+    <link rel="prev" title="Quickstart" href="quickstart.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -59,7 +61,7 @@
             
             
               <div class="version">
-                0.1
+                0.5.3
               </div>
             
           
@@ -84,8 +86,20 @@
               
             
             
-              <ul>
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">The SyntaxGym architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#the-structure-of-test-suites">The structure of test suites</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#regions">Regions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#conditions">Conditions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#items">Items</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#predictions">Predictions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#making-your-own">Making your own</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="suite_json.html">Test suite JSON representation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="commands.html"><code class="docutils literal notranslate"><span class="pre">syntaxgym</span></code> commands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="python_api.html">Python API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
@@ -157,7 +171,75 @@
             
   <div class="section" id="the-syntaxgym-architecture">
 <span id="architecture"></span><h1>The SyntaxGym architecture<a class="headerlink" href="#the-syntaxgym-architecture" title="Permalink to this headline">¶</a></h1>
-<p>TODO</p>
+<p>This page describes the standardized architecture of SyntaxGym used to
+represent and evaluate targeted syntactic evaluations. This page should be a
+useful reference for those looking to interpret SyntaxGym results, or to
+develop their own evaluation experiments.</p>
+<p>SyntaxGym represents targeted syntactic evaluation experiments as <strong>test
+suites</strong>. Test suites evaluate language models’ knowledge of some particular
+grammatical phenomenon. Their structure should be familiar to those experienced
+in psycholinguistic experimental design.</p>
+<p>In this document, we’ll use subject–verb agreement as a running example of a
+grammatical phenomenon of interest. Concretely, we want to test models’
+knowledge of a few critical grammaticality contrasts (here “*” indicates an
+ungrammatical sentence):</p>
+<ol class="arabic simple">
+<li><p>The farmer near the clerks <em>knows</em> many people.</p></li>
+<li><p>* The farmer near the clerks <em>know</em> many people.</p></li>
+<li><p>The farmers near the clerk <em>know</em> many people.</p></li>
+<li><p>* The farmers near the clerk <em>knows</em> many people.</p></li>
+</ol>
+<p>A language model that has learned the proper subject–verb number agreement
+rules for English should assign a higher probability to the grammatical verbs
+in (1) and (3) than to the ungrammatical verbs in (2) and (4).</p>
+<div class="section" id="the-structure-of-test-suites">
+<h2>The structure of test suites<a class="headerlink" href="#the-structure-of-test-suites" title="Permalink to this headline">¶</a></h2>
+<p>The following figure visualizes a simple test suite for subject–verb number
+agreement as a table:</p>
+<div class="figure align-default">
+<img alt="_images/architecture.png" src="_images/architecture.png" />
+</div>
+<p>We’ll reference this figure as we describe the components of a test suite from
+the bottom-up.</p>
+<div class="section" id="regions">
+<h3>Regions<a class="headerlink" href="#regions" title="Permalink to this headline">¶</a></h3>
+<p>The atomic unit of a test suite is a region: a (possibly empty) string, such as
+the <code class="docutils literal notranslate"><span class="pre">matrix_verb</span></code> region in the figure above. Regions can be concatenated to
+form full sentences. Note that regions can contain multiple tokens.</p>
+</div>
+<div class="section" id="conditions">
+<h3>Conditions<a class="headerlink" href="#conditions" title="Permalink to this headline">¶</a></h3>
+<p>Regions vary systematically across experimental conditions, shown as colored
+pill shapes in the above figure. Here the <code class="docutils literal notranslate"><span class="pre">matrix_verb</span></code> and <code class="docutils literal notranslate"><span class="pre">np_subj</span></code>
+regions vary between their respective singular and plural forms, as described
+by the condition name.</p>
+</div>
+<div class="section" id="items">
+<h3>Items<a class="headerlink" href="#items" title="Permalink to this headline">¶</a></h3>
+<p>Items are groups of related sentences which vary across experimental
+conditions. An item is characterized by its lexical content and takes different
+forms across conditions. In the above figure, items are grouped together in
+vertical blocks of rows.</p>
+</div>
+<div class="section" id="predictions">
+<h3>Predictions<a class="headerlink" href="#predictions" title="Permalink to this headline">¶</a></h3>
+<p>Test suites are designed with a hypothesis in mind: if a model has correctly
+learned some relevant syntactic generalization, then it should assign higher
+probability to grammatical continuations of sentences. Test suite predictions
+operationalize these hypotheses as expected inequalities between model
+surprisal statistics in different experimental regions conditions (i.e.,
+between cells within item blocks in the above figure). The SyntaxGym standard
+allows for arbitrarily complex disjunctions and conjunctions of such
+inequalities. The above figure shows a prediction with two inequalities between
+model surprisals at <code class="docutils literal notranslate"><span class="pre">matrix_verb</span></code> across two pairs of conditions.</p>
+</div>
+</div>
+<div class="section" id="making-your-own">
+<h2>Making your own<a class="headerlink" href="#making-your-own" title="Permalink to this headline">¶</a></h2>
+<p>Now that you understand the basic structure of a test suite, see
+<a class="reference internal" href="suite_json.html#suite-json"><span class="std std-ref">Test suite JSON representation</span></a> for information on how to write your own suites in JSON
+format.</p>
+</div>
 </div>
 
 
@@ -165,6 +247,15 @@
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="suite_json.html" class="btn btn-neutral float-right" title="Test suite JSON representation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="quickstart.html" class="btn btn-neutral float-left" title="Quickstart" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>
