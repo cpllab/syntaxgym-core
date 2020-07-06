@@ -1,4 +1,4 @@
-# `syntaxgym`
+# SyntaxGym Core
 
 `syntaxgym` is a Python package for easy targeted syntactic evaluation of
 language models. It replicates the core behavior of the [SyntaxGym][1] website,
@@ -12,11 +12,6 @@ evaluation.
 Next, install and update the package using pip:
 
     $ pip install -U syntaxgym
-
-## Basic usage
-
-TODO show evaluation of an example test suite and model evaluation, both via
-command line and API
 
 ## Links
 
