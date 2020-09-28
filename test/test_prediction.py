@@ -66,3 +66,9 @@ def test_prediction_referenced_regions():
 
     assert set(referenced) == {("reduced_ambig", 5), ("unreduced_ambig", 5), ("reduced_unambig", 5), ("unreduced_unambig", 5)}
     assert sorted(set(referenced)) == sorted(referenced), "No duplicates"
+
+
+def test_asterisk(dummy_suite_json):
+    p0 = Prediction(0, "(*;%sub_no-matrix%)>(*;%no-sub_no-matrix%)")
+    item = dummy_suite_json["items"][0]
+    assert p0(item)
