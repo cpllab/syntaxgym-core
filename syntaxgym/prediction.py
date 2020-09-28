@@ -19,7 +19,7 @@ EQUALITY_ATOL = 1e-3
 # References a surprisal region
 lpar = Suppress("(")
 rpar = Suppress(")")
-region = lpar + Word(nums) + Suppress(";%") + Word(alphanums + "_-") + Suppress("%") + rpar
+region = lpar + (Word(nums) | "*") + Suppress(";%") + Word(alphanums + "_-") + Suppress("%") + rpar
 literal_float = pyparsing_common.number
 
 class Region(object):
