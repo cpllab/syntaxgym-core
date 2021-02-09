@@ -297,11 +297,16 @@ class Sentence(object):
 
 class Region(object):
     boundary_space_re = re.compile(r"^\s|\s$")
+    multiple_space_re = re.compile(r"\s{2,}")
 
     def __init__(self, region_number=None, content='', metric_value=None):
         if self.boundary_space_re.search(content):
             raise ValueError("Region content has leading and/or trailing space."
                              " This is not allowed. Region content:  %r"
+                             % (content,))
+        elif self.multiple_space_re.search(content):
+            raise ValueError("Region content has multiple consecutive spaces. "
+                             "This is not allowed. Region content:  %r"
                              % (content,))
 
         utils.save_args(vars())
