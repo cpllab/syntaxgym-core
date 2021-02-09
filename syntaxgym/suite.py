@@ -170,6 +170,7 @@ class Sentence(object):
             if content == '':
                 r_idx += 1
                 r, content = self.get_next_region(r_idx)
+                continue
 
             # remove casing if necessary
             if not spec['tokenizer']['cased']:

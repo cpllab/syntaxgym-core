@@ -210,6 +210,13 @@ DYNAMIC_CASES = [
      {1: [], 2: ["This"], 3: ["is"], 4: [], 5: ["a", "test", "."], 6: []},
      {1: [], 2: [], 3: [], 4: [], 5: [], 6: []}),
 
+    ("Test consecutive empty regions",
+     "lmzoo-basic",
+     ["This", "is", "", "", "a test."],
+     None,
+     {1: ["This"], 2: ["is"], 3: [], 4: [], 5: ["a", "test", "."]},
+     {1: [], 2: [], 3: [], 4: [], 5: []}),
+
     ("Test punctuation-only regions",
      "lmzoo-basic",
      "This is , a test .".split(" "),
