@@ -126,14 +126,6 @@ class Sentence(object):
         while t_idx < len(self.tokens):
             token = self.tokens[t_idx]
 
-            if skip_n > 0:
-                # Blindly add token to current region and continue.
-                region2tokens[r.region_number].append(token)
-
-                skip_n -= 1
-                t_idx += 1
-                continue
-
             #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             # Token-level operations
             #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -216,8 +208,16 @@ class Sentence(object):
                     for token_window_size in range(1, tokens_remaining+1):
                         # token_window_size is number of tokens to look ahead
                         if token_window_size == tokens_remaining:
-                            oov_str = content
-                            skip_n = token_window_size
+                            # No fancy work needed here -- we're consuming the
+                            # entire remainder of the string. Add to current
+                            # region and quit.
+                            region2tokens[r.region_number].extend(self.tokens[t_idx:])
+
+                            oov_str = " ".join([content] + [r.content for r in self.regions[r_idx + 1:]])
+                            self.oovs[r.region_number].extend(oov_str.split())
+
+                            t_idx += token_window_size
+
                             break
                         else:
                             if token_window_size > 1:
@@ -232,6 +232,7 @@ class Sentence(object):
                             eaten_content = []
                             for next_r_idx in range(r_idx, len(self.regions)):
                                 if oov_str:
+                                    # OOV resolution is complete. Break.
                                     break
 
                                 if next_r_idx == r_idx:
@@ -246,6 +247,8 @@ class Sentence(object):
                                         # matches the reference token. Break
                                         # just before that token.
                                         eaten_content.append(next_r_content[:i].strip())
+                                        # NB, we use `oov_str` as a sentinel
+                                        # marking that the match is complete
                                         oov_str = " ".join(eaten_content).strip()
 
                                         # track OOVs -- put them in the
@@ -267,6 +270,7 @@ class Sentence(object):
                                         break
 
                             if oov_str:
+                                # OOV resolution is complete. Break.
                                 break
 
                     if content.strip() == '' and r_idx == len(self.regions) - 1:
