@@ -201,6 +201,56 @@ def test_consecutive_unk3(client, built_image):
     }
 
 
+@with_images("lmzoo-basic")
+def test_empty_regions2(client, built_image):
+    """
+    handle consecutive empty regions
+    """
+    regions = [
+        {'content': 'Peter', 'region_number': 1},
+        {'content': 'calls', 'region_number': 2},
+        {'content': 'the candidates', 'region_number': 3},
+        {'content': 'that', 'region_number': 4},
+        {'content': 'the jury', 'region_number': 5},
+        {'content': 'will firmly', 'region_number': 6},
+        {'content': 'wait', 'region_number': 7},
+        {'content': '', 'region_number': 8},
+        {'content': '', 'region_number': 9},
+        {'content': 'after the audition.', 'region_number': 10}
+    ]
+    spec = get_spec(built_image)
+    tokens = ['Peter', 'calls', 'the', 'candidates', 'that', 'the', 'jury',
+              'will', 'firmly', 'wait', 'after', 'the', '<unk>']
+    unks = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+    sentence = Sentence(spec, tokens, unks, regions=regions)
+
+    assert sentence.region2tokens == {
+        1: ["Peter"],
+        2: ["calls"],
+        3: ["the", "candidates"],
+        4: ["that"],
+        5: ["the", "jury"],
+        6: ["will", "firmly"],
+        7: ["wait"],
+        8: [],
+        9: [],
+        10: ["after", "the", "<unk>"],
+    }
+
+    assert sentence.oovs == {
+        1: [],
+        2: [],
+        3: [],
+        4: [],
+        5: [],
+        6: [],
+        7: [],
+        8: [],
+        9: [],
+        10: ["audition."],
+    }
+
+
 DYNAMIC_CASES = [
 
     ("Test empty regions",
