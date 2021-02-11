@@ -226,6 +226,7 @@ class Sentence(object):
                                 ), RuntimeWarning)
 
                             next_token = self.tokens[t_idx + token_window_size]
+                            next_token_is_punct = re.match(r"\W+", next_token)
 
                             # Eat up content across regions until we come to a
                             # token that we can match with `next_token`.
@@ -242,6 +243,20 @@ class Sentence(object):
                                     _, next_r_content = self.get_next_region(next_r_idx)
 
                                 for i in range(len(next_r_content)):
+                                    # When searching for a word-like token
+                                    # (not punctuation), only allow matches at
+                                    # token boundaries in region content.
+                                    # This protects against the edge case where
+                                    # a substring of the unk'ed token matches
+                                    # a succeeding content in the token, e.g.
+                                    #   content: "will remand and order"
+                                    #   tokens: "will <unk> and order"
+                                    #
+                                    # See test case "remand test"
+                                    if not next_token_is_punct and \
+                                      (i > 0 and not re.match(r"\W", next_r_content[i - 1])):
+                                        continue
+
                                     if next_r_content[i:i+len(next_token)] == next_token:
                                         # We found a token which faithfully
                                         # matches the reference token. Break

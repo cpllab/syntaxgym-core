@@ -217,6 +217,20 @@ DYNAMIC_CASES = [
      {1: ["This"], 2: ["is"], 3: [], 4: [], 5: ["a", "test", "."]},
      {1: [], 2: [], 3: [], 4: [], 5: []}),
 
+    ("Test where end of unk matches start of next token (unk overlaps)",
+     "lmzoo-basic",
+     ["abc", "girlthat", "that", "xyz"],
+     ["abc", "<unk>", "that", "xyz"],
+     {1: ["abc"], 2: ["<unk>"], 3: ["that"], 4: ["xyz"]},
+     {1: [], 2: ["girlthat"], 3: [], 4: []}),
+
+    ("remand test (unk overlaps again)",
+     "lmzoo-basic",
+     ["will", "remand", "and", "order"],
+     ["will", "<unk>", "and", "order"],
+     {1: ["will"], 2: ["<unk>"], 3: ["and"], 4: ["order"]},
+     {1: [], 2: ["remand"], 3: [], 4: []}),
+
     ("Test punctuation-only regions",
      "lmzoo-basic",
      "This is , a test .".split(" "),
