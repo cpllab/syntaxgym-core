@@ -2,6 +2,7 @@ import argparse
 from copy import deepcopy
 import logging
 from pathlib import Path
+import sys
 
 import pandas as pd
 
@@ -46,7 +47,18 @@ def aggregate_surprisals(surprisals, tokens, unks, suite, spec):
             sent_surps = sent_surps.surprisal.values
 
             # initialize Sentence object for current sentence
-            sent = Sentence(spec, sent_tokens, sent_unks, item_num=i_idx+1, **cond)
+            try:
+                sent = Sentence(spec, sent_tokens, sent_unks, item_num=i_idx+1, **cond)
+            except Exception as e:
+                print("Tokens: ", sent_tokens, file=sys.stderr)
+                print("Unk mask:", sent_unks, file=sys.stderr)
+                print("Region spec: ", cond["regions"], file=sys.stderr)
+
+                raise ValueError("Error occurred while processing item %i, "
+                                 "condition %s. Relevant debug information "
+                                 "printed to stderr."
+                                 % (item["item_number"],
+                                    cond["condition_name"])) from e
 
             # iterate through regions in sentence
             for r_idx, region in enumerate(sent.regions):
