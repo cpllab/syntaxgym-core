@@ -154,15 +154,18 @@ class Sentence(object):
             # remove leading spaces of current content
             content = content.lstrip()
 
+            # drop characters specified by regex (content up to next space)
+            if (content != '' and drop_pattern
+                and re.sub(drop_pattern, '', content.split()[0]) == ''):
+                content = ' '.join(content.split()[1:])
+
             # if empty region, proceed to next region (keeping current token)
             if content == '':
                 r_idx += 1
                 r, content = self.get_next_region(r_idx)
                 continue
 
-            # drop characters specified by regex (content up to next space)
-            if drop_pattern and re.sub(drop_pattern, '', content.split()[0]) == '':
-                content = ' '.join(content.split()[1:])
+
 
             # remove casing if necessary
             if not spec['tokenizer']['cased']:
