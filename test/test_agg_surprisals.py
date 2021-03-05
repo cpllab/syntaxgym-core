@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 from syntaxgym import aggregate_surprisals, Suite
-from syntaxgym.utils import TokenMismatch
+from syntaxgym.utils import TokenMismatch, METRICS
 
 
 surprisals_f = StringIO("""sentence_id\ttoken_id\ttoken\tsurprisal
@@ -144,11 +144,16 @@ def test_no_inplace():
     assert surprisals.equals(old_surprisals)
 
 
-def test_basic():
-    result = aggregate_surprisals(surprisals, tokens, unks, suite, spec)
+@pytest.mark.parametrize("metric", ["sum", "mean"])
+def test_basic(metric):
+    suite_ = deepcopy(suite)
+    suite_.meta["metric"] = metric
 
-    np.testing.assert_almost_equal(result.items[0]["conditions"][0]["regions"][0]["metric_value"]["sum"],
-                                   surprisals.iloc[:3].surprisal.sum())
+    result = aggregate_surprisals(surprisals, tokens, unks, suite_, spec)
+
+    metric_fn = METRICS[metric]
+    np.testing.assert_almost_equal(result.items[0]["conditions"][0]["regions"][0]["metric_value"][metric],
+                                   metric_fn(surprisals.iloc[:3].surprisal))
 
 
 def test_tokenization_too_short():
