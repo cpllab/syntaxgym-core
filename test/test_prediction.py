@@ -10,8 +10,8 @@ def null_item():
 
 
 def test_prediction_parser(dummy_suite_json):
-    p0 = Prediction(0, dummy_suite_json["predictions"][0]["formula"])
-    p1 = Prediction(1, "(5;%sub_no-matrix%)>(5;%no-sub_no-matrix%)")
+    p0 = Prediction(0, dummy_suite_json["predictions"][0]["formula"], "sum")
+    p1 = Prediction(1, "(5;%sub_no-matrix%)>(5;%no-sub_no-matrix%)", "sum")
 
     item = dummy_suite_json["items"][0]
     old_item = deepcopy(item)
@@ -27,41 +27,41 @@ def test_prediction_parser(dummy_suite_json):
 
 
 def test_parse_multiple_conjunction():
-    p0 = Prediction(0, "((5;%reduced_ambig%) > (5;%unreduced_ambig%)) & ((5;%reduced_ambig%) > (5;%reduced_unambig%)) & (((5;%reduced_ambig%) - (5;%unreduced_ambig%)) > ((5;%reduced_unambig%) - (5;%unreduced_unambig%)))")
+    p0 = Prediction(0, "((5;%reduced_ambig%) > (5;%unreduced_ambig%)) & ((5;%reduced_ambig%) > (5;%reduced_unambig%)) & (((5;%reduced_ambig%) - (5;%unreduced_ambig%)) > ((5;%reduced_unambig%) - (5;%unreduced_unambig%)))", "sum")
     assert str(p0) == "Prediction(((((5;%reduced_ambig%) > (5;%unreduced_ambig%)) & ((5;%reduced_ambig%) > (5;%reduced_unambig%))) & (((5;%reduced_ambig%) - (5;%unreduced_ambig%)) > ((5;%reduced_unambig%) - (5;%unreduced_unambig%)))))"
     # assert str(p0) == "Prediction((5;%reduced_ambig%) > (5;%unreduced_ambig%) & (5;%reduced_ambig%) > (5;%reduced_unambig%) & (5;%reduced_ambig%) - (5;%unreduced_ambig%) > (5;%reduced_unambig%) - (5;%unreduced_unambig%))"
 
 def test_parse_multiple_subtraction(null_item):
-    p0 = Prediction(0, "5 - 4 - 3 < 0")
+    p0 = Prediction(0, "5 - 4 - 3 < 0", "sum")
     # NB this will evaluate to false if the third term is missed; true if it is not
     assert p0(null_item)
 
-    p1 = Prediction(0, "5+4=9-1+1")
+    p1 = Prediction(0, "5+4=9-1+1", "sum")
     assert p1(null_item)
 
-    p2 = Prediction(0, "5-(3+2)=0")
+    p2 = Prediction(0, "5-(3+2)=0", "sum")
     assert p2(null_item)
 
-    p3 = Prediction(0, "(5-3)+2=4")
+    p3 = Prediction(0, "(5-3)+2=4", "sum")
     assert p3(null_item)
 
 
 def test_parens_maintained_by_serialization(null_item):
     """Converting a Prediction instance to a string and then re-parsing should yield the same result."""
-    p4 = Prediction(0, "(5-3)+((2+1)-(2+2))=1")
+    p4 = Prediction(0, "(5-3)+((2+1)-(2+2))=1", "sum")
     assert p4(null_item)
 
-    p4_2 = Prediction(0, str(p4.formula))
+    p4_2 = Prediction(0, str(p4.formula), "sum")
     assert p4_2(null_item)
 
 
 def test_prediction_parse_cleft():
-    p0 = Prediction(0, "((7;%np_mismatch%)-(7;%np_match%))+(((6;%vp_mismatch%)+(7;%vp_mismatch%))-((6;%vp_match%)+(7;%vp_match%)))>0")
-    p1 = Prediction(1, "((9;%what_nogap%) =  (9;%that_nogap%))& ((6;%what_subjgap%) =  (6;%that_subjgap%)) ")
+    p0 = Prediction(0, "((7;%np_mismatch%)-(7;%np_match%))+(((6;%vp_mismatch%)+(7;%vp_mismatch%))-((6;%vp_match%)+(7;%vp_match%)))>0", "sum")
+    p1 = Prediction(1, "((9;%what_nogap%) =  (9;%that_nogap%))& ((6;%what_subjgap%) =  (6;%that_subjgap%)) ", "sum")
 
 
 def test_prediction_referenced_regions():
-    p0 = Prediction(0, "((5;%reduced_ambig%) > (5;%unreduced_ambig%)) & ((5;%reduced_ambig%) > (5;%reduced_unambig%)) & (((5;%reduced_ambig%) - (5;%unreduced_ambig%)) > ((5;%reduced_unambig%) - (5;%unreduced_unambig%)))")
+    p0 = Prediction(0, "((5;%reduced_ambig%) > (5;%unreduced_ambig%)) & ((5;%reduced_ambig%) > (5;%reduced_unambig%)) & (((5;%reduced_ambig%) - (5;%unreduced_ambig%)) > ((5;%reduced_unambig%) - (5;%unreduced_unambig%)))", "sum")
     referenced = p0.referenced_regions
 
     assert set(referenced) == {("reduced_ambig", 5), ("unreduced_ambig", 5), ("reduced_unambig", 5), ("unreduced_unambig", 5)}
@@ -69,6 +69,11 @@ def test_prediction_referenced_regions():
 
 
 def test_asterisk(dummy_suite_json):
-    p0 = Prediction(0, "(*;%sub_no-matrix%)>(*;%no-sub_no-matrix%)")
+    p0 = Prediction(0, "(*;%sub_no-matrix%)>(*;%no-sub_no-matrix%)", "sum")
     item = dummy_suite_json["items"][0]
     assert p0(item)
+
+
+def test_invalid_metric():
+    with pytest.raises(ValueError):
+        Prediction(0, "%1;abc%>%1;xyz%", "foo")

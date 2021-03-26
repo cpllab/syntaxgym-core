@@ -1,8 +1,10 @@
-from typing import *
+from typing import Union, Optional as TOptional, List as TList
 
 
 from pyparsing import *
 import numpy as np
+
+from syntaxgym.utils import METRICS
 
 
 # Enable parser packrat (caching)
@@ -36,7 +38,7 @@ class Region(object):
     def __call__(self, surprisal_dict):
         if self.region_number == "*":
             return sum(value for (condition, region), value in surprisal_dict.items()
-                        if condition == self.condition_name)
+                       if condition == self.condition_name)
 
         return surprisal_dict[self.condition_name, int(self.region_number)]
 
@@ -54,7 +56,8 @@ class LiteralFloat(object):
         return self.value
 
 class BinaryOp(object):
-    operators = None
+    operators: TOptional[TList[str]]
+
     def __init__(self, tokens):
         self.operator = tokens[0][1]
         if self.operators is not None and self.operator not in self.operators:
@@ -162,6 +165,10 @@ class Prediction(object):
 
         self.idx = idx
         self.formula = formula
+
+        if metric not in METRICS.keys():
+            raise ValueError("Unknown metric %s. Supported metrics: %s" %
+                             (metric, " ".join(METRICS.keys())))
         self.metric = metric
 
     def __call__(self, item):
@@ -219,4 +226,3 @@ class Prediction(object):
 
     def __eq__(self, other):
         return isinstance(other, Prediction) and hash(self) == hash(other)
-
