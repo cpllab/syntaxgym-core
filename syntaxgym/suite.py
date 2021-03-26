@@ -40,7 +40,7 @@ class Suite(object):
                         in sorted([(int(number), name)
                                    for number, name in suite_dict["region_meta"].items()])]
         items = suite_dict["items"]
-        predictions = [Prediction.from_dict(pred_i, i) for i, pred_i in enumerate(suite_dict["predictions"])]
+        predictions = [Prediction.from_dict(pred_i, i, suite_dict["meta"]["metric"]) for i, pred_i in enumerate(suite_dict["predictions"])]
 
         return cls(condition_names=condition_names,
                    region_names=region_names,

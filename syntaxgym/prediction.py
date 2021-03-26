@@ -144,7 +144,7 @@ class Prediction(object):
     information, see :ref:`architecture`.
     """
 
-    def __init__(self, idx: int, formula: Union[str, BinaryOp]):
+    def __init__(self, idx: int, formula: Union[str, BinaryOp], metric: str):
         """
         Args:
             idx: A unique prediction ID. This is only relevant for
@@ -152,6 +152,7 @@ class Prediction(object):
             formula: A string representation of the prediction formula, or an
                 already parsed formula. For more information, see
                 :ref:`architecture`.
+            metric: Metric for aggregating surprisals within regions.
         """
         if isinstance(formula, str):
             try:
@@ -161,6 +162,7 @@ class Prediction(object):
 
         self.idx = idx
         self.formula = formula
+        self.metric = metric
 
     def __call__(self, item):
         """
@@ -168,13 +170,13 @@ class Prediction(object):
         information on item representations, see :ref:`suite_json`.
         """
         # Prepare relevant surprisal dict
-        surps = {(c["condition_name"], r["region_number"]): r["metric_value"]["sum"]
+        surps = {(c["condition_name"], r["region_number"]): r["metric_value"][self.metric]
                  for c in item["conditions"]
                  for r in c["regions"]}
         return self.formula(surps)
 
     @classmethod
-    def from_dict(cls, pred_dict, idx: int):
+    def from_dict(cls, pred_dict, idx: int, metric: str):
         """
         Parse from a prediction dictionary representation (see
         :ref:`suite_json`).
@@ -182,7 +184,7 @@ class Prediction(object):
         if not pred_dict["type"] == "formula":
             raise ValueError("Unknown prediction type %s" % (pred_dict["type"],))
 
-        return cls(formula=pred_dict["formula"], idx=idx)
+        return cls(formula=pred_dict["formula"], idx=idx, metric=metric)
 
     @property
     def referenced_regions(self):
