@@ -1,6 +1,7 @@
 import json
 import logging
 import sys
+import csv
 
 import click
 
@@ -36,11 +37,21 @@ def syntaxgym(state, verbose):
 @click.argument("model")
 @click.argument("suite_file", type=click.File("r"))
 @click.option("--checkpoint")
+@click.option("--tabular_results/--json_results",default=False)
 @pass_state
-def compute_surprisals(state, model, suite_file, checkpoint):
+def compute_surprisals(state, model, suite_file, checkpoint, tabular_results):
     model = _prepare_model(model, checkpoint)
     result = S.compute_surprisals(model, suite_file)
-    json.dump(result.as_dict(), sys.stdout, indent=2)
+    if(tabular_results):
+        writer = csv.writer(sys.stdout)
+        result = result.as_dict()
+        writer.writerow(["Item","Condition","Region","Content","Surprisal","OOVs"])
+        for item in result['items']:
+            for condition in item['conditions']:
+                for region in condition['regions']:
+                    writer.writerow([item['item_number'],condition['condition_name'],str(region['region_number']),region['content'],region['metric_value'][result['meta']['metric']],region['oovs']])
+    else:
+        json.dump(result.as_dict(), sys.stdout, indent=2)
 
 
 @syntaxgym.command(help="Evaluate prediction results on the given test suite")
@@ -61,4 +72,3 @@ def run(state, model, suite_file, checkpoint):
     suite = S.compute_surprisals(model, suite_file)
     result = S.evaluate(suite)
     result.to_csv(sys.stdout, sep="\t")
-
