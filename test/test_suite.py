@@ -251,6 +251,29 @@ def test_empty_regions2(client, built_image):
     }
 
 
+@with_images("lmzoo-basic-eos-sos-same")
+def test_boundary_tokens_same(client, built_image):
+    """
+    Work with images whose boundary tokens are exactly the same at EOS and BOS.
+    """
+    regions = [
+        {"region_number": 1, "content": "This"},
+        {"region_number": 2, "content": "is"},
+        {"region_number": 3, "content": "a"},
+        {"region_number": 4, "content": "test."}
+    ]
+    spec = get_spec(built_image)
+    tokens = "<BOUNDARY> This is a test . <BOUNDARY>".split()
+    unks = [0, 0, 0, 0, 0, 0, 0]
+    sentence = Sentence(spec, tokens, unks, regions=regions)
+    assert sentence.region2tokens == {
+        1: ["<BOUNDARY>", "This"],
+        2: ["is"],
+        3: ["a"],
+        4 : ["test", ".", "<BOUNDARY>"]
+    }
+
+
 DYNAMIC_CASES = [
 
     ("Test empty regions",

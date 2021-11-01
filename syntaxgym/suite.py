@@ -131,16 +131,16 @@ class Sentence(object):
             # Token-level operations
             #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-            # exit loop upon encountering end-of-sentence token
-            if token in spec['vocabulary']['suffix_types']:
-                region2tokens[r.region_number].append(token)
-                break
-
             # append and continue upon encountering start-of-sentence token
-            elif token in spec['vocabulary']['prefix_types']:
+            if token in spec['vocabulary']['prefix_types']:
                 region2tokens[r.region_number].append(token)
                 t_idx += 1
                 continue
+
+            # exit loop upon encountering end-of-sentence token
+            elif token in spec['vocabulary']['suffix_types']:
+                region2tokens[r.region_number].append(token)
+                break
 
             # skip current token for special cases
             elif token in spec['vocabulary']['special_types']:

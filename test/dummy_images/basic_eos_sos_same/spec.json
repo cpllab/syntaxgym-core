@@ -1,0 +1,35 @@
+{
+    "name": "lmzoo-basic-eos-sos-same",
+    "ref_url": "",
+
+    "image": {
+        "maintainer": "jon@gauthiers.net",
+        "version": "NA",
+        "datetime": "NA",
+        "gpu": {
+            "required": false,
+            "supported": false
+        },
+        "supported_features": {
+            "tokenize": true,
+            "get_surprisals": true,
+            "unkify": true,
+            "get_predictions": false,
+            "mount_checkpoint": false
+        }
+
+    },
+
+    "vocabulary": {
+        "unk_types": ["<unk>"],
+        "prefix_types": ["<BOUNDARY>"],
+        "suffix_types": ["<BOUNDARY>"],
+        "special_types": [],
+        "items": ["This", "is", "a", "test", "sentence", "and", "some", "more", "content"]
+    },
+
+    "tokenizer": {
+        "type": "word",
+        "cased": true
+    }
+}

@@ -28,6 +28,7 @@ from syntaxgym import utils
 LM_ZOO_IMAGES_TO_BUILD = {
     "basic": "lmzoo-basic",
     "basic_eos_sos": "lmzoo-basic-eos-sos",
+    "basic_eos_sos_same": "lmzoo-basic-eos-sos-same",
     "basic_uncased": "lmzoo-basic-uncased",
     "basic_nopunct": "lmzoo-basic-nopunct",
     "bert_tokenization": "lmzoo-bert-tokenization",
