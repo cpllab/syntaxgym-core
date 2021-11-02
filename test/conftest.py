@@ -124,35 +124,40 @@ _dummy_suite_json = {
                             "content": "After the man",
                             "metric_value": {
                                 "sum": 18.504567167144707
-                            }
+                            },
+                            "oovs": ["After", "man"]
                         },
                         {
                             "region_number": 2,
                             "content": "who a friend had helped",
                             "metric_value": {
                                 "sum": 13.939815152698332
-                            }
+                            },
+                            "oovs": []
                         },
                         {
                             "region_number": 3,
                             "content": "shot the bird",
                             "metric_value": {
                                 "sum": 11.948716490393831
-                            }
+                            },
+                            "oovs": []
                         },
                         {
                             "region_number": 4,
                             "content": "that he had been tracking secretly",
                             "metric_value": {
                                 "sum": 11.217957010846014
-                            }
+                            },
+                            "oovs": []
                         },
                         {
                             "region_number": 5,
                             "content": ".",
                             "metric_value": {
                                 "sum": 12.49306574242164
-                            }
+                            },
+                            "oovs": []
                         }
                     ]
                 },
@@ -164,35 +169,40 @@ _dummy_suite_json = {
                             "content": "The man",
                             "metric_value": {
                                 "sum": 2.268286909168587
-                            }
+                            },
+                            "oovs": []
                         },
                         {
                             "region_number": 2,
                             "content": "who a friend had helped",
                             "metric_value": {
                                 "sum": 1.4433385639057028
-                            }
+                            },
+                            "oovs": []
                         },
                         {
                             "region_number": 3,
                             "content": "shot the bird",
                             "metric_value": {
                                 "sum": 9.693795300311402
-                            }
+                            },
+                            "oovs": []
                         },
                         {
                             "region_number": 4,
                             "content": "that he had been tracking secretly",
                             "metric_value": {
                                 "sum": 7.773922435893982
-                            }
+                            },
+                            "oovs": []
                         },
                         {
                             "region_number": 5,
                             "content": ".",
                             "metric_value": {
                                 "sum": 18.37796694276843
-                            }
+                            },
+                            "oovs": []
                         }
                     ]
                 },
@@ -204,35 +214,40 @@ _dummy_suite_json = {
                             "content": "After the man",
                             "metric_value": {
                                 "sum": 10.356803538573178
-                            }
+                            },
+                            "oovs": []
                         },
                         {
                             "region_number": 2,
                             "content": "who a friend had helped",
                             "metric_value": {
                                 "sum": 1.4248155193516632
-                            }
+                            },
+                            "oovs": []
                         },
                         {
                             "region_number": 3,
                             "content": "shot the bird",
                             "metric_value": {
                                 "sum": 3.409407627322641
-                            }
+                            },
+                            "oovs": []
                         },
                         {
                             "region_number": 4,
                             "content": "that he had been tracking secretly",
                             "metric_value": {
                                 "sum": 9.729441419245582
-                            }
+                            },
+                            "oovs": []
                         },
                         {
                             "region_number": 5,
                             "content": ", he loaded his gun .",
                             "metric_value": {
                                 "sum": 11.725874091041778
-                            }
+                            },
+                            "oovs": []
                         }
                     ]
                 },
@@ -244,35 +259,40 @@ _dummy_suite_json = {
                             "content": "The man",
                             "metric_value": {
                                 "sum": 16.30488999162344
-                            }
+                            },
+                            "oovs": []
                         },
                         {
                             "region_number": 2,
                             "content": "who a friend had helped",
                             "metric_value": {
                                 "sum": 4.9608373385007845
-                            }
+                            },
+                            "oovs": []
                         },
                         {
                             "region_number": 3,
                             "content": "shot the bird",
                             "metric_value": {
                                 "sum": 5.193990201733378
-                            }
+                            },
+                            "oovs": []
                         },
                         {
                             "region_number": 4,
                             "content": "that he had been tracking secretly",
                             "metric_value": {
                                 "sum": 5.375807689210841
-                            }
+                            },
+                            "oovs": []
                         },
                         {
                             "region_number": 5,
                             "content": ", he loaded his gun .",
                             "metric_value": {
                                 "sum": 19.63184731373726
-                            }
+                            },
+                            "oovs": []
                         }
                     ]
                 }
@@ -284,3 +304,30 @@ _dummy_suite_json = {
 @pytest.fixture(scope="session")
 def dummy_suite_json():
     return _dummy_suite_json
+
+
+_dummy_suite_csv = """item_number,condition_name,region_number,content,metric_value,oovs
+1,sub_no-matrix,1,After the man,18.504567167144707,"After,man"
+1,sub_no-matrix,2,who a friend had helped,13.939815152698332,
+1,sub_no-matrix,3,shot the bird,11.948716490393831,
+1,sub_no-matrix,4,that he had been tracking secretly,11.217957010846014,
+1,sub_no-matrix,5,.,12.49306574242164,
+1,no-sub_no-matrix,1,The man,2.268286909168587,
+1,no-sub_no-matrix,2,who a friend had helped,1.4433385639057028,
+1,no-sub_no-matrix,3,shot the bird,9.693795300311402,
+1,no-sub_no-matrix,4,that he had been tracking secretly,7.773922435893982,
+1,no-sub_no-matrix,5,.,18.37796694276843,
+1,sub_matrix,1,After the man,10.356803538573178,
+1,sub_matrix,2,who a friend had helped,1.4248155193516632,
+1,sub_matrix,3,shot the bird,3.409407627322641,
+1,sub_matrix,4,that he had been tracking secretly,9.729441419245582,
+1,sub_matrix,5,", he loaded his gun .",11.725874091041778,
+1,no-sub_matrix,1,The man,16.30488999162344,
+1,no-sub_matrix,2,who a friend had helped,4.9608373385007845,
+1,no-sub_matrix,3,shot the bird,5.193990201733378,
+1,no-sub_matrix,4,that he had been tracking secretly,5.375807689210841,
+1,no-sub_matrix,5,", he loaded his gun .",19.63184731373726,"""
+
+@pytest.fixture(scope="session")
+def dummy_suite_csv():
+    return _dummy_suite_csv

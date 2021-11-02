@@ -1,5 +1,6 @@
 from copy import deepcopy
 from functools import lru_cache
+from io import StringIO
 import json
 from pathlib import Path
 from pprint import pprint
@@ -7,6 +8,7 @@ import sys
 from tempfile import NamedTemporaryFile
 
 import jsonschema
+import pandas as pd
 import pytest
 import requests
 
@@ -14,7 +16,7 @@ import logging
 logging.getLogger("matplotlib").setLevel(logging.ERROR)
 L = logging.getLogger(__name__)
 
-from syntaxgym.suite import Sentence, Region
+from syntaxgym.suite import Suite, Sentence, Region
 from syntaxgym.utils import tokenize_file, get_spec
 
 from conftest import LM_ZOO_IMAGES, with_images
@@ -376,3 +378,13 @@ def test_dynamic_case(client, description, image, regions, tokens, expected_regi
 # def test_special_types():
 #     # TODO: if at region boundary, which region do we associate them with?
 #     pass
+
+
+def test_suite_as_dataframe(dummy_suite_json, dummy_suite_csv):
+    suite = Suite.from_dict(dummy_suite_json)
+    df = suite.as_dataframe()
+
+    expected_df = pd.read_csv(StringIO(dummy_suite_csv), keep_default_na=False) \
+        .set_index(df.index.names)
+
+    pd.testing.assert_frame_equal(df, expected_df)

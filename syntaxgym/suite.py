@@ -7,6 +7,8 @@ from collections import defaultdict
 import re
 from typing import Dict
 
+import pandas as pd
+
 from syntaxgym import utils
 from syntaxgym.prediction import Prediction
 
@@ -57,6 +59,43 @@ class Suite(object):
             items=self.items,
         )
 
+        return ret
+
+    def as_dataframe(self, metric: str = None) -> pd.DataFrame:
+        """
+        Convert self to a data frame describing per-region surprisals.
+        Only usable / sensible for Suite instances which have been evaluated
+        with surprisals.
+
+        Returns:
+            A long Pandas DataFrame, one row per region, with columns:
+                - item_number
+                - condition_name
+                - region_number
+                - content
+                - metric_value: per-region metric, specified in Suite meta or
+                    overridden with `metric` argument
+                - oovs: comma-separated list of OOV items
+        """
+        columns = ("item_number", "condition_name", "region_number", "content",
+                   "metric_value", "oovs")
+        index_columns = ["item_number", "condition_name", "region_number"]
+        ret = []
+        metric = metric or self.meta["metric"]
+
+        for item in self.items:
+            for condition in item["conditions"]:
+                for region in condition["regions"]:
+                    ret.append((
+                        item["item_number"],
+                        condition["condition_name"],
+                        region["region_number"],
+                        region["content"],
+                        region["metric_value"][self.meta["metric"]],
+                        ",".join(region["oovs"])
+                    ))
+
+        ret = pd.DataFrame(ret, columns=columns).set_index(index_columns)
         return ret
 
     def evaluate_predictions(self) -> Dict[int, Dict[Prediction, bool]]:
