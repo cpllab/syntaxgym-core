@@ -3,7 +3,6 @@
 import json
 import logging
 import sys
-import csv
 
 import click
 
@@ -39,7 +38,10 @@ def syntaxgym(state, verbose):
 @click.argument("model")
 @click.argument("suite_file", type=click.File("r"))
 @click.option("--checkpoint")
-@click.option("--tabular_results/--json_results", default=False)
+@click.option("--tabular_results/--json_results",
+              help=("If `--tabular_results`, outputs a TSV structured like the "
+                    "output of :func:`syntaxgym.suite.Suite.as_dataframe`."),
+              default=False)
 @pass_state
 def compute_surprisals(state, model, suite_file, checkpoint, tabular_results):
     model = _prepare_model(model, checkpoint)
