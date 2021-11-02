@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>syntaxgym commands &mdash; SyntaxGym Core 0.1alpha documentation</title>
   
@@ -16,7 +16,10 @@
 
   
   
+
   
+  
+
   
 
   
@@ -29,7 +32,6 @@
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -51,7 +53,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> SyntaxGym Core
+            <a href="index.html" class="icon icon-home"> SyntaxGym Core
           
 
           
@@ -61,7 +63,7 @@
             
             
               <div class="version">
-                0.5.3
+                0.6.0
               </div>
             
           
@@ -143,6 +145,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -154,7 +158,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             <a href="_sources/commands.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -196,16 +200,22 @@ any valid <a class="reference external" href="https://cpllab.github.io/lm-zoo">L
 <code class="sig-name descname">--checkpoint</code><code class="sig-prename descclassname"> &lt;checkpoint&gt;</code><a class="headerlink" href="#cmdoption-syntaxgym-compute-surprisals-checkpoint" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="std option">
+<dt id="cmdoption-syntaxgym-compute-surprisals-tabular_results">
+<span id="cmdoption-syntaxgym-compute-surprisals-tabular-results"></span><span id="cmdoption-syntaxgym-compute-surprisals-json_results"></span><span id="cmdoption-syntaxgym-compute-surprisals-json-results"></span><code class="sig-name descname">--tabular_results</code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname">, </code><code class="sig-name descname">--json_results</code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-syntaxgym-compute-surprisals-tabular_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>If <cite>–tabular_results</cite>, outputs a TSV structured like the output of <a class="reference internal" href="python_api.html#syntaxgym.suite.Suite.as_dataframe" title="syntaxgym.suite.Suite.as_dataframe"><code class="xref py py-func docutils literal notranslate"><span class="pre">syntaxgym.suite.Suite.as_dataframe()</span></code></a>.</p>
+</dd></dl>
+
 <p class="rubric">Arguments</p>
 <dl class="std option">
 <dt id="cmdoption-syntaxgym-compute-surprisals-arg-MODEL">
-<code class="sig-name descname">MODEL</code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-syntaxgym-compute-surprisals-arg-MODEL" title="Permalink to this definition">¶</a></dt>
+<span id="cmdoption-syntaxgym-compute-surprisals-arg-model"></span><code class="sig-name descname">MODEL</code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-syntaxgym-compute-surprisals-arg-MODEL" title="Permalink to this definition">¶</a></dt>
 <dd><p>Required argument</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-syntaxgym-compute-surprisals-arg-SUITE_FILE">
-<code class="sig-name descname">SUITE_FILE</code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-syntaxgym-compute-surprisals-arg-SUITE_FILE" title="Permalink to this definition">¶</a></dt>
+<span id="cmdoption-syntaxgym-compute-surprisals-arg-suite-file"></span><code class="sig-name descname">SUITE_FILE</code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-syntaxgym-compute-surprisals-arg-SUITE_FILE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Required argument</p>
 </dd></dl>
 
@@ -219,7 +229,7 @@ any valid <a class="reference external" href="https://cpllab.github.io/lm-zoo">L
 <p class="rubric">Arguments</p>
 <dl class="std option">
 <dt id="cmdoption-syntaxgym-evaluate-arg-SUITE_FILE">
-<code class="sig-name descname">SUITE_FILE</code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-syntaxgym-evaluate-arg-SUITE_FILE" title="Permalink to this definition">¶</a></dt>
+<span id="cmdoption-syntaxgym-evaluate-arg-suite-file"></span><code class="sig-name descname">SUITE_FILE</code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-syntaxgym-evaluate-arg-SUITE_FILE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Required argument</p>
 </dd></dl>
 
@@ -239,13 +249,13 @@ any valid <a class="reference external" href="https://cpllab.github.io/lm-zoo">L
 <p class="rubric">Arguments</p>
 <dl class="std option">
 <dt id="cmdoption-syntaxgym-run-arg-MODEL">
-<code class="sig-name descname">MODEL</code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-syntaxgym-run-arg-MODEL" title="Permalink to this definition">¶</a></dt>
+<span id="cmdoption-syntaxgym-run-arg-model"></span><code class="sig-name descname">MODEL</code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-syntaxgym-run-arg-MODEL" title="Permalink to this definition">¶</a></dt>
 <dd><p>Required argument</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-syntaxgym-run-arg-SUITE_FILE">
-<code class="sig-name descname">SUITE_FILE</code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-syntaxgym-run-arg-SUITE_FILE" title="Permalink to this definition">¶</a></dt>
+<span id="cmdoption-syntaxgym-run-arg-suite-file"></span><code class="sig-name descname">SUITE_FILE</code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-syntaxgym-run-arg-SUITE_FILE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Required argument</p>
 </dd></dl>
 
@@ -258,37 +268,29 @@ any valid <a class="reference external" href="https://cpllab.github.io/lm-zoo">L
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="python_api.html" class="btn btn-neutral float-right" title="Python API reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="suite_json.html" class="btn btn-neutral float-left" title="Test suite JSON representation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+        <a href="python_api.html" class="btn btn-neutral float-right" title="Python API reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="suite_json.html" class="btn btn-neutral float-left" title="Test suite JSON representation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2020, MIT Computational Psycholinguistics Laboratory
+        &#169; Copyright 2020, MIT Computational Psycholinguistics Laboratory.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 

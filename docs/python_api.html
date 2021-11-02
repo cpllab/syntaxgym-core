@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>Python API reference &mdash; SyntaxGym Core 0.1alpha documentation</title>
   
@@ -16,7 +16,10 @@
 
   
   
+
   
+  
+
   
 
   
@@ -29,7 +32,6 @@
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -51,7 +53,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> SyntaxGym Core
+            <a href="index.html" class="icon icon-home"> SyntaxGym Core
           
 
           
@@ -61,7 +63,7 @@
             
             
               <div class="version">
-                0.5.3
+                0.6.0
               </div>
             
           
@@ -135,6 +137,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -146,7 +150,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             <a href="_sources/python_api.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -207,6 +211,34 @@ suite JSON representation. See <a class="reference internal" href="suite_json.ht
 </dd>
 </dl>
 <dl class="py method">
+<dt id="syntaxgym.suite.Suite.as_dataframe">
+<code class="sig-name descname">as_dataframe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">metric</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#syntaxgym.suite.Suite.as_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert self to a data frame describing per-region surprisals.
+Only usable / sensible for Suite instances which have been evaluated
+with surprisals.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>item_number</p></li>
+<li><p>condition_name</p></li>
+<li><p>region_number</p></li>
+<li><p>content</p></li>
+<li><dl class="simple">
+<dt>metric_value: per-region metric, specified in Suite meta or</dt><dd><p>overridden with <cite>metric</cite> argument</p>
+</dd>
+</dl>
+</li>
+<li><p>oovs: comma-separated list of OOV items</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>A long Pandas DataFrame, one row per region, with columns</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="syntaxgym.suite.Suite.evaluate_predictions">
 <code class="sig-name descname">evaluate_predictions</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Dict<span class="p">[</span>int<span class="p">, </span>Dict<span class="p">[</span><a class="reference internal" href="#syntaxgym.prediction.Prediction" title="syntaxgym.prediction.Prediction">syntaxgym.prediction.Prediction</a><span class="p">, </span>bool<span class="p">]</span><span class="p">]</span><a class="headerlink" href="#syntaxgym.suite.Suite.evaluate_predictions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute prediction results for each item.</p>
@@ -228,7 +260,7 @@ suite JSON representation. See <a class="reference internal" href="suite_json.ht
 
 <span class="target" id="module-syntaxgym.prediction"></span><dl class="py class">
 <dt id="syntaxgym.prediction.Prediction">
-<em class="property">class </em><code class="sig-prename descclassname">syntaxgym.prediction.</code><code class="sig-name descname">Prediction</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">idx</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">formula</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>str<span class="p">, </span>syntaxgym.prediction.BinaryOp<span class="p">]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#syntaxgym.prediction.Prediction" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">syntaxgym.prediction.</code><code class="sig-name descname">Prediction</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">idx</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">formula</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>str<span class="p">, </span>syntaxgym.prediction.BinaryOp<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">metric</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#syntaxgym.prediction.Prediction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Predictions state expected relations between language model surprisal
 measures in different regions and conditions of a test suite. For more
 information, see <a class="reference internal" href="architecture.html#architecture"><span class="std std-ref">The SyntaxGym architecture</span></a>.</p>
@@ -241,7 +273,7 @@ information on item representations, see <a class="reference internal" href="sui
 
 <dl class="py method">
 <dt id="syntaxgym.prediction.Prediction.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">idx</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">formula</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>str<span class="p">, </span>syntaxgym.prediction.BinaryOp<span class="p">]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#syntaxgym.prediction.Prediction.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">idx</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">formula</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>str<span class="p">, </span>syntaxgym.prediction.BinaryOp<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">metric</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#syntaxgym.prediction.Prediction.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -250,6 +282,7 @@ serialization.</p></li>
 <li><p><strong>formula</strong> – A string representation of the prediction formula, or an
 already parsed formula. For more information, see
 <a class="reference internal" href="architecture.html#architecture"><span class="std std-ref">The SyntaxGym architecture</span></a>.</p></li>
+<li><p><strong>metric</strong> – Metric for aggregating surprisals within regions.</p></li>
 </ul>
 </dd>
 </dl>
@@ -264,7 +297,7 @@ already parsed formula. For more information, see
 
 <dl class="py method">
 <dt id="syntaxgym.prediction.Prediction.from_dict">
-<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pred_dict</span></em>, <em class="sig-param"><span class="n">idx</span><span class="p">:</span> <span class="n">int</span></em><span class="sig-paren">)</span><a class="headerlink" href="#syntaxgym.prediction.Prediction.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pred_dict</span></em>, <em class="sig-param"><span class="n">idx</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">metric</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#syntaxgym.prediction.Prediction.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse from a prediction dictionary representation (see
 <a class="reference internal" href="suite_json.html#suite-json"><span class="std std-ref">Test suite JSON representation</span></a>).</p>
 </dd></dl>
@@ -285,37 +318,29 @@ Each item is a tuple of the form <code class="docutils literal notranslate"><spa
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="troubleshooting.html" class="btn btn-neutral float-right" title="Troubleshooting" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="commands.html" class="btn btn-neutral float-left" title="syntaxgym commands" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+        <a href="troubleshooting.html" class="btn btn-neutral float-right" title="Troubleshooting" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="commands.html" class="btn btn-neutral float-left" title="syntaxgym commands" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2020, MIT Computational Psycholinguistics Laboratory
+        &#169; Copyright 2020, MIT Computational Psycholinguistics Laboratory.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
