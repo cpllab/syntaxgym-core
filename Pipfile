@@ -1,10 +1,11 @@
 [packages]
 click = "*"
-docker = "*"
+docker = {extras = ["docker"],version = "*"}
 tqdm = "*"
 pandas = ">=1.0.0"
 lm-zoo = "~=1.2"
 pyparsing = "*"
+spython = {extras = ["singularity"],version = "*"}
 
 [dev-packages]
 pytest = "*"
