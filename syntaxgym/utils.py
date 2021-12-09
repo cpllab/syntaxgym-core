@@ -2,7 +2,7 @@ from functools import lru_cache
 from io import StringIO
 import json
 import numpy as np
-from inspect import getargspec
+from inspect import getfullargspec
 from pathlib import Path
 import subprocess
 import sys
@@ -37,7 +37,7 @@ def save_args(values):
     Automatically saves constructor arguments to object.
     Credit to https://stackoverflow.com/a/15484172
     """
-    for i in getargspec(values['self'].__init__).args[1:]:
+    for i in getfullargspec(values['self'].__init__).args[1:]:
         setattr(values['self'], i, values[i])
 
 def load_json(path):

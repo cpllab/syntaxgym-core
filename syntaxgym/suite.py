@@ -5,7 +5,7 @@ from pprint import pformat
 import warnings
 from collections import defaultdict
 import re
-from typing import Dict
+from typing import Dict, List, Optional
 
 import pandas as pd
 
@@ -357,7 +357,9 @@ class Region(object):
     boundary_space_re = re.compile(r"^\s|\s$")
     multiple_space_re = re.compile(r"\s{2,}")
 
-    def __init__(self, region_number=None, content='', metric_value=None):
+    def __init__(self, region_number=None, content='',
+                 metric_value: Optional[Dict[str, float]] = None,
+                 oovs: Optional[List[str]] = None):
         if self.boundary_space_re.search(content):
             raise ValueError("Region content has leading and/or trailing space."
                              " This is not allowed. Region content:  %r"
