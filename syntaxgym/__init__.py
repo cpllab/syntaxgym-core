@@ -1,4 +1,6 @@
 import json
+from pathlib import Path
+from typing import Union, Dict, TextIO
 
 from lm_zoo import get_registry, spec, tokenize, unkify, get_surprisals
 from lm_zoo.models import Model
@@ -12,7 +14,7 @@ from syntaxgym.suite import Suite
 __version__ = "0.6.0"
 
 
-def _load_suite(suite_ref):
+def _load_suite(suite_ref: Union[str, Path, TextIO, Dict, Suite]):
     if isinstance(suite_ref, Suite):
         return suite_ref
 
@@ -24,7 +26,6 @@ def _load_suite(suite_ref):
     else:
         suite = suite_ref
     return Suite.from_dict(suite)
-
 
 
 def compute_surprisals(model: Model, suite):
