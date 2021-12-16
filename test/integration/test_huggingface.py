@@ -23,26 +23,34 @@ def huggingface_model_fixture(request):
     return model
 
 
-# TODO find / mock a word-level model
+huggingface_model_word_refs = [
+    "hf-internal-testing/tiny-random-transfo-xl"
+]
+"""Word-level tokenization HF models"""
 
 
-huggingface_model_subword = pytest.fixture(
-    huggingface_model_fixture,
-    scope="module",
-    params=["hf-internal-testing/tiny-xlm-roberta"])
+huggingface_model_subword_refs = [
+    "hf-internal-testing/tiny-xlm-roberta"
+]
 """Subword-tokenization HF models"""
 
 
-def test_hf_deterministic(dummy_suite_json, huggingface_model_subword):
+huggingface_model = pytest.fixture(
+    huggingface_model_fixture,
+    scope="module",
+    params=huggingface_model_word_refs + huggingface_model_subword_refs)
+
+
+def test_hf_deterministic(dummy_suite_json, huggingface_model):
     """
     Test that suite evaluations are deterministic across multiple invocations.
     """
-    
+
     suite = Suite.from_dict(dummy_suite_json)
-    surps_df = compute_surprisals(huggingface_model_subword, suite)
+    surps_df = compute_surprisals(huggingface_model, suite)
 
     # Again!
-    surps_df2 = compute_surprisals(huggingface_model_subword, suite)
+    surps_df2 = compute_surprisals(huggingface_model, suite)
 
     for i1, i2 in zip(surps_df.items, surps_df2.items):
         for c1, c2 in zip(i1["conditions"], i2["conditions"]):
