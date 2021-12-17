@@ -17,14 +17,14 @@ else:
 setup(
     install_requires=[
         "click~=8.0.3",
-        "docker[docker]~=4.4.4",
+        "docker~=4.4.4",
         "h5py~=3.6.0",
         "lm-zoo~=1.3",
         "numpy~=1.21.4; platform_machine != 'aarch64' and platform_machine != 'arm64' and python_version < '3.10'",
         "pandas~=1.3.4",
         "pyparsing~=3.0.6",
         "requests~=2.26.0",
-        "spython[singularity]~=0.1.17",
+        "spython~=0.1.17",
         "tqdm~=4.62.3",
         "urllib3~=1.26.7",
     ],
