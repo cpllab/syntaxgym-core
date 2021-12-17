@@ -11,7 +11,7 @@ from syntaxgym.agg_surprisals import aggregate_surprisals
 from syntaxgym.get_sentences import get_sentences
 from syntaxgym.suite import Suite
 
-__version__ = "0.6.0"
+__version__ = "0.7a1"
 
 
 def _load_suite(suite_ref: Union[str, Path, TextIO, Dict, Suite]):
