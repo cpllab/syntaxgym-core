@@ -119,6 +119,14 @@ class Suite(object):
         return isinstance(other, Suite) and json.dumps(self.as_dict()) == json.dumps(other.as_dict())
 
 
+MOSES_PUNCT_SPLIT_TOKEN = re.compile(r"^@([-,.])@$")
+"""
+Moses tokenizers split intra-token hyphens and decimal separators , and .
+into separate tokens, using @ as a sentinel for detokenization. We account for
+this when detokenizing here.
+"""
+
+
 class Sentence(object):
     def __init__(self, spec, tokens, unks, item_num=None, condition_name='', regions=None):
         self.tokens = tokens
@@ -205,8 +213,6 @@ class Sentence(object):
                 r, content = self.get_next_region(r_idx)
                 continue
 
-
-
             # remove casing if necessary
             if not spec['tokenizer']['cased']:
                 content = content.lower()
@@ -230,6 +236,15 @@ class Sentence(object):
                 # the matched subword, correcting for sentinel
                 if token_match:
                     step_count = len(stripped_token)
+
+            # Account for Moses sentinel if relevant.
+            if "moses" in spec["tokenizer"].get("behaviors", []) \
+                and MOSES_PUNCT_SPLIT_TOKEN.match(token):
+                # Match. Step forward the number of characters between the Moses
+                # @ sentinel.
+                token_match = True
+                stripped_token = MOSES_PUNCT_SPLIT_TOKEN.match(token).group(1)
+                step_count = len(stripped_token)
 
             # If we found a left-edge match, or this is an unk
             if token_match or token in spec['vocabulary']['unk_types']:

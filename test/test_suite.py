@@ -349,6 +349,21 @@ DYNAMIC_CASES = [
       2: ["Ġ."]},
      {1: [], 2: []}),
 
+    ("Support transfo-xl / Moses tokenization",
+     "lmzoo-moses-tokenization",
+     ["This is a test-ing", "sentence for $5,000.00."],
+     None,
+     {1: ["This", "is", "a", "test", "@-@", "ing"],
+      2: ["sentence", "for", "$", "5,000.00", "."]},
+     {1: [], 2: []}),
+
+    ("Support transfo-xl / Moses tokenization with punct normalization",
+     "lmzoo-moses-tokenization",
+     ["This is a test–ing"],
+     None,
+     {1: ["This", "is", "a", "test", "@-@", "ing"]},
+     {1: []}),
+
 ]
 
 @pytest.mark.parametrize(argnames=("description", "image", "regions", "tokens",

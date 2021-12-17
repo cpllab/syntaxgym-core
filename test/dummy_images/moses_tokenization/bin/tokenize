@@ -1,0 +1,22 @@
+#!/usr/bin/env python
+
+# See definition of Moses pipeline for transfo-xl in Huggingface:
+# https://github.com/huggingface/transformers/blob/master/src/transformers/models/transfo_xl/tokenization_transfo_xl.py#L408
+
+import codecs
+import sys
+
+import sacremoses as sm
+
+
+punct_normalizer = sm.MosesPunctNormalizer()
+tokenizer = sm.MosesTokenizer()
+
+
+for line in codecs.open(sys.argv[1], encoding="utf-8"):
+    ret = punct_normalizer.normalize(line.strip())
+    ret = tokenizer.tokenize(ret,
+        aggressive_dash_splits=True,
+        return_str=False,
+        escape=False)
+    print(" ".join(ret))
