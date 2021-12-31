@@ -165,6 +165,7 @@ class Sentence(object):
             drop_pattern = re.compile(spec['tokenizer']['drop_token_pattern'])
         else:
             drop_pattern = None
+        metaspace = spec["tokenizer"].get("metaspace")
 
         # Sentinel: blindly add next N tokens to current region.
         skip_n = 0
@@ -236,6 +237,19 @@ class Sentence(object):
                 # the matched subword, correcting for sentinel
                 if token_match:
                     step_count = len(stripped_token)
+
+            if not token_match and metaspace is not None and token.startswith(metaspace):
+                token_match = True
+
+                # metaspace may end up as its own token or joined with
+                # surrounding content. account for both cases.
+                if len(token) > len(metaspace):
+                    step_count = len(token) - len(metaspace)
+                else:
+                    # if metaspace was on its own, we don't need to advance the
+                    # reference string -- the corresponding space was already
+                    # stripped by lstrip() call above.
+                    step_count = 0
 
             # Account for Moses sentinel if relevant.
             if "moses" in spec["tokenizer"].get("behaviors", []) \
