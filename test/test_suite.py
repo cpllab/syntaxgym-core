@@ -16,6 +16,8 @@ import logging
 logging.getLogger("matplotlib").setLevel(logging.ERROR)
 L = logging.getLogger(__name__)
 
+import lm_zoo as Z
+
 from syntaxgym.suite import Suite, Sentence, Region
 from syntaxgym.utils import tokenize_file, get_spec
 
@@ -391,6 +393,77 @@ def test_dynamic_case(client, description, image, regions, tokens, expected_regi
             tokens = tokenize_file(sentence_f.name, ":".join((image, tag)))[0]
 
     spec = get_spec(":".join((image, tag)))
+
+    print("Spec:")
+    spec_to_print = deepcopy(spec)
+    spec_to_print["vocabulary"]["items"] = ".... removed ...."
+    pprint(spec_to_print)
+
+    print("\n\nRegions:")
+    pprint(regions)
+
+    print("\n\nTokens:")
+    print(tokens)
+
+    # TODO do we need unks ?
+    sentence = Sentence(spec, tokens, unks=None, regions=regions)
+
+    if expected_region2tokens is not None:
+        assert sentence.region2tokens == expected_region2tokens
+
+    if expected_oovs is not None:
+        assert sentence.oovs == expected_oovs
+
+
+DYNAMIC_CASES_HUGGINGFACE = [
+
+    ("reformer",
+     "huggingface://hf-internal-testing/tiny-random-reformer",
+     ["This is a testing", "sentence."],
+     ['▁', 'T', 'h', 'i', 's', '▁', 'i', 's', '▁a',
+      '▁t', 'e', 's', 't', 'in', 'g', '▁',
+      's', 'e', 'n', 't', 'e', 'n', 'c', 'e', '.'],
+     {1: ['▁', 'T', 'h', 'i', 's', '▁', 'i', 's', '▁a',
+          '▁t', 'e', 's', 't', 'in', 'g'],
+      2: ['▁', 's', 'e', 'n', 't', 'e', 'n', 'c', 'e', '.']},
+     {1: [], 2: []}),
+
+    ("pegasus",
+     "huggingface://hf-internal-testing/tiny-random-pegasus",
+     ["This is a testing", "sentence."],
+     None,
+     {1: ['▁', 'T', 'h', 'i', 's', '▁', 'i', 's', '▁', 'a',
+          '▁', 't', 'e', 's', 't', 'ing'],
+      2: ['▁', 's', 'e', 'n', 't', 'e', 'n', 'c', 'e', '.', '</s>']},
+     {1: [], 2: []}),
+
+]
+
+
+@pytest.mark.parametrize(argnames=("description", "model_ref", "regions", "tokens",
+                                   "expected_region2tokens", "expected_oovs"),
+                         argvalues=DYNAMIC_CASES_HUGGINGFACE,
+                         ids=[x[0] for x in DYNAMIC_CASES_HUGGINGFACE])
+def test_dynamic_case_huggingface(registry, description, model_ref,
+                                  regions, tokens,
+                                  expected_region2tokens, expected_oovs):
+    """
+    Run a dynamic test case using model lookup through LM Zoo (when no custom
+    test image build is required.
+    """
+    # Preprocess regions list.
+    if not isinstance(regions[0], dict):
+        regions = [{"region_number": i + 1, "content": region}
+                   for i, region in enumerate(regions)]
+
+    model = registry[model_ref]
+
+    if tokens is None:
+        # Tokenize using lmz model.
+        sentence = " ".join(r["content"] for r in regions)
+        tokens = Z.tokenize(model, [sentence])[0]
+
+    spec = Z.spec(model)
 
     print("Spec:")
     spec_to_print = deepcopy(spec)

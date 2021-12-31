@@ -22,6 +22,8 @@ logging.getLogger("docker").setLevel(logging.ERROR)
 import urllib3
 logging.getLogger("urllib3").setLevel(logging.ERROR)
 
+import lm_zoo as Z
+
 from syntaxgym import utils
 
 
@@ -93,6 +95,14 @@ def with_images(*images):
 
         return my_testfn
     return decorator_with_images
+
+
+@pytest.fixture(scope="session")
+def registry():
+    """
+    Return an instance of the LM Zoo registry.
+    """
+    return Z.get_registry()
 
 
 _dummy_suite_json = {
