@@ -5,7 +5,7 @@ from pprint import pformat
 import warnings
 from collections import defaultdict
 import re
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Iterator
 
 import pandas as pd
 
@@ -97,6 +97,42 @@ class Suite(object):
 
         ret = pd.DataFrame(ret, columns=columns).set_index(index_columns)
         return ret
+
+    def iter_sentences(self) -> Iterator[str]:
+        """
+        Iterate over all sentences in the suite in fixed order.
+        """
+        for item in self.items:
+            for cond in item["conditions"]:
+                regions = [region["content"].lstrip()
+                           for region in cond["regions"]
+                           if region["content"].strip() != ""]
+                sentence = " ".join(regions)
+                yield sentence
+
+    def iter_region_edges(self) -> Iterator[List[int]]:
+        """
+        For each sentence in the suite, get list of indices of each region's
+        left edge in the sentence.
+        """
+        for item in self.items:
+            for cond in item["conditions"]:
+                regions = [region["content"].lstrip()
+                           for region in cond["regions"]]
+
+                idx = 0
+                ret = []
+                for r_idx, region in enumerate(regions):
+                    ret.append(idx)
+
+                    region_size = len(region)
+                    if region.strip() != "" and r_idx != 0:
+                        # Add joining space
+                        region_size += 1
+
+                    idx += region_size
+
+                yield ret
 
     def evaluate_predictions(self) -> Dict[int, Dict[Prediction, bool]]:
         """

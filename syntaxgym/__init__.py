@@ -8,13 +8,12 @@ import pandas as pd
 
 from syntaxgym import utils
 from syntaxgym.agg_surprisals import aggregate_surprisals
-from syntaxgym.get_sentences import get_sentences
 from syntaxgym.suite import Suite
 
 __version__ = "0.7a2"
 
 
-def _load_suite(suite_ref: Union[str, Path, TextIO, Dict, Suite]):
+def _load_suite(suite_ref: Union[str, Path, TextIO, Dict, Suite]) -> Suite:
     if isinstance(suite_ref, Suite):
         return suite_ref
 
@@ -45,7 +44,7 @@ def compute_surprisals(model: Model, suite):
     image_spec = spec(model)
 
     # Convert to sentences
-    suite_sentences = get_sentences(suite)
+    suite_sentences = list(suite.iter_sentences())
 
     # First compute surprisals
     surprisals_df = get_surprisals(model, suite_sentences)
