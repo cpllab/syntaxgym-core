@@ -10,7 +10,7 @@ from syntaxgym import utils
 from syntaxgym.agg_surprisals import aggregate_surprisals
 from syntaxgym.suite import Suite
 
-__version__ = "0.7a2"
+__version__ = "0.8a1"
 
 
 def _load_suite(suite_ref: Union[str, Path, TextIO, Dict, Suite]) -> Suite:
