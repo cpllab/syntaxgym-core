@@ -80,13 +80,11 @@ def test_huggingface_sentences(dummy_suite_json, huggingface_model):
     suite = Suite.from_dict(dummy_suite_json)
     sentences = list(suite.iter_sentences())
 
-    surprisals_df = Z.get_surprisals(huggingface_model, sentences)
     tokens = Z.tokenize(huggingface_model, sentences)
-    unks = Z.unkify(huggingface_model, sentences)
 
     default_results = prepare_sentences(
-        huggingface_model, surprisals_df, tokens, unks, suite)
+        huggingface_model, tokens, suite)
     hf_results = prepare_sentences_huggingface(
-        huggingface_model, surprisals_df, tokens, suite)
+        huggingface_model, tokens, suite)
 
     assert default_results == hf_results
