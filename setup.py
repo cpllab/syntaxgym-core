@@ -19,7 +19,7 @@ setup(
         "click~=8.0.3",
         "docker~=4.4.4",
         "h5py~=3.6.0",
-        "lm-zoo~=1.4a1",
+        "lm-zoo~=1.4a2",
         "numpy~=1.21.4; platform_machine != 'aarch64' and platform_machine != 'arm64' and python_version < '3.10'",
         "pandas~=1.3.4",
         "pyparsing~=3.0.6",
