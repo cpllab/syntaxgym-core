@@ -98,6 +98,7 @@ def prepare_sentences(model: Model, tokens: List[List[str]],
                                     cond["condition_name"])) from e
 
             ret.append(mapping)
+            sent_idx += 1
 
     return ret
 
