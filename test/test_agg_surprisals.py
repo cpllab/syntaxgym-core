@@ -172,7 +172,7 @@ def test_no_inplace(suite):
     old_suite = deepcopy(suite)
     old_surprisals = surprisals.copy()
 
-    aggregate_surprisals(model, surprisals, tokens, unks, suite)
+    aggregate_surprisals(model, surprisals, tokens, suite)
 
     assert suite == old_suite
     assert surprisals.equals(old_surprisals)
@@ -183,7 +183,7 @@ def test_basic(suite, metric):
     suite_ = deepcopy(suite)
     suite_.meta["metric"] = metric
 
-    result = aggregate_surprisals(model, surprisals, tokens, unks, suite_)
+    result = aggregate_surprisals(model, surprisals, tokens, suite_)
 
     metric_fn = METRICS[metric]
     np.testing.assert_almost_equal(result.items[0]["conditions"][0]["regions"][0]["metric_value"][metric],
@@ -196,11 +196,10 @@ def test_tokenization_too_short(suite):
     """
     # NB missing final <eos> token
     tokens = ["After the man who a friend had helped shot the bird that he had been tracking secretly .".split()]
-    unks = [[0 for _ in tokens_i] for tokens_i in tokens]
     model = DummyModel(tokens=tokens, unks=unks)
 
     with pytest.raises(ValueError):
-        aggregate_surprisals(model, surprisals, tokens, unks, suite)
+        aggregate_surprisals(model, surprisals, tokens, suite)
 
 
 def test_tokenization_too_long(suite):
@@ -208,15 +207,14 @@ def test_tokenization_too_long(suite):
     throw error when surprisals list missing tokens from token list
     """
     tokens = ["After the man who a friend had helped shot the bird that he had been tracking secretly . <eos>".split()]
-    unks = [[0 for _ in tokens_i] for tokens_i in tokens]
 
     surp = surprisals.copy()
     surp = surp[~(surp.token == "helped")]
 
-    model = DummyModel(surprisals=surp, tokens=tokens, unks=unks)
+    model = DummyModel(surprisals=surp, tokens=tokens)
 
     with pytest.raises(ValueError):
-        aggregate_surprisals(model, surp, tokens, unks, suite)
+        aggregate_surprisals(model, surp, tokens, suite)
 
 
 def test_mismatch(suite):
@@ -224,10 +222,9 @@ def test_mismatch(suite):
     throw error when regions and tokens can't be matched
     """
     tokens = ["After the man who a friend had hAAAlped shot the bird that he had been tracking secretly . <eos>".split()]
-    unks = [[0 for _ in tokens_i] for tokens_i in tokens]
 
     surp = surprisals.copy()
     surp.loc[surp.token == "helped", "token"] = "hAAAlped"
 
     with pytest.raises(TokenMismatch):
-        aggregate_surprisals(model, surp, tokens, unks, suite)
+        aggregate_surprisals(model, surp, tokens, suite)
