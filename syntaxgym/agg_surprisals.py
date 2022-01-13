@@ -4,12 +4,8 @@ raw token-level surprisal outputs from models into suites with computed
 region-level surprisals.
 """
 
-# TODO remove main method cruft from here
-import argparse
-from collections import defaultdict
 from copy import deepcopy
 import logging
-from pathlib import Path
 import re
 import sys
 from typing import List, Tuple, NamedTuple, Mapping
@@ -492,36 +488,3 @@ def aggregate_surprisals(model: Model, surprisals: pd.DataFrame,
     # update meta information with model name
     ret.meta['model'] = spec(model)['name']
     return ret
-
-
-def main(args):
-    # read input test suite and token-level surprisals
-    in_data = utils.load_json(args.input)
-    surprisals = pd.read_csv(args.surprisal, delim_whitespace=True)
-
-    # obtain spec for model
-    spec = utils.get_spec(args.image)
-
-    # obtain tokens and unk mask for sentences
-    tokens = utils.tokenize_file(args.sentences, args.image)
-    unks = utils.unkify_file(args.sentences, args.image)
-
-    # aggregate token-level --> region-level surprisals
-    out_data = aggregate_surprisals(surprisals, tokens, unks, in_data, spec)
-    utils.write_json(out_data, args.output)
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='aggregate surprisal')
-    parser.add_argument('--surprisal', type=Path,
-                        help='path to file containing token-based surprisals')
-    parser.add_argument('--sentences', type=Path,
-                        help='path to file containing pre-tokenized sentences')
-
-    parser.add_argument('--image', type=str, help='Docker image name')
-    parser.add_argument('--input', type=Path,
-                        help='path to JSON file with input data')
-    parser.add_argument('--output', '-o', type=Path,
-                        help='path to JSON file to write output data')
-    args = parser.parse_args()
-    main(args)

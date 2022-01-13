@@ -203,12 +203,6 @@ def _run_container_get_stdout(*args, **kwargs):
     _run_container(*args, **kwargs)
     return out.getvalue()
 
-def get_spec(image):
-    """
-    Gets model spec from specified Docker image.
-    """
-    return json.loads(_run_container_get_stdout(image, "spec"))
-
 def tokenize_file(sentence_path, image):
     """
     Tokenizes file at sentence_path according to specified Docker image.

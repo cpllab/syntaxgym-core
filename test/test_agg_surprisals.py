@@ -1,10 +1,7 @@
 from copy import deepcopy
 from io import StringIO
 import itertools
-from pathlib import Path
 from pprint import pprint
-from tempfile import NamedTemporaryFile
-from typing import List
 
 import pytest
 
@@ -15,9 +12,9 @@ import lm_zoo as Z
 from syntaxgym import aggregate_surprisals
 from syntaxgym.agg_surprisals import compute_mapping_heuristic, compute_mapping_huggingface
 from syntaxgym.suite import Suite, Region
-from syntaxgym.utils import TokenMismatch, METRICS, tokenize_file, get_spec
+from syntaxgym.utils import TokenMismatch, METRICS
 
-from conftest import LM_ZOO_IMAGES, with_images
+from conftest import with_images
 
 
 surprisals_f = StringIO("""sentence_id\ttoken_id\ttoken\tsurprisal
@@ -241,7 +238,7 @@ def test_mismatch(suite):
 
 
 @with_images("lmzoo-basic-eos-sos")
-def test_mapping_eos_sos(client, built_image):
+def test_mapping_eos_sos(client, built_model):
     regions = [
         {"region_number": 1, "content": "This"},
         {"region_number": 2, "content": "is"},
@@ -249,7 +246,7 @@ def test_mapping_eos_sos(client, built_image):
         {"region_number": 4, "content": "test."}
     ]
     regions = [Region(**r) for r in regions]
-    spec = get_spec(built_image)
+    spec = Z.spec(built_model)
     tokens = "<s> This is a test . </s>".split()
 
     mapping = compute_mapping_heuristic(tokens, regions, spec)
@@ -262,7 +259,7 @@ def test_mapping_eos_sos(client, built_image):
 
 
 @with_images("lmzoo-basic")
-def test_unk(client, built_image):
+def test_unk(client, built_model):
     regions = [
         {"region_number": 1, "content": "This"},
         {"region_number": 2, "content": "is WEIRDADVERB"},
@@ -270,7 +267,7 @@ def test_unk(client, built_image):
         {"region_number": 4, "content": "WEIRDNOUN."}
     ]
     regions = [Region(**r) for r in regions]
-    spec = get_spec(built_image)
+    spec = Z.spec(built_model)
     tokens = "This is <unk> a <unk> .".split()
 
     mapping = compute_mapping_heuristic(tokens, regions, spec)
@@ -290,7 +287,7 @@ def test_unk(client, built_image):
 
 
 @with_images("lmzoo-basic")
-def test_consecutive_unk(client, built_image):
+def test_consecutive_unk(client, built_model):
     """
     Consecutive UNKs are mapped to regions by lookahead -- we look ahead in the
     token string for the next non-unk token, and associate all unks up to that
@@ -303,7 +300,7 @@ def test_consecutive_unk(client, built_image):
         {"region_number": 4, "content": "WEIRDADVERB test WEIRDADJECTIVE WEIRDNOUN."}
     ]
     regions = [Region(**r) for r in regions]
-    spec = get_spec(built_image)
+    spec = Z.spec(built_model)
     tokens = "This is a <unk> test <unk> <unk> .".split()
 
     mapping = compute_mapping_heuristic(tokens, regions, spec)
@@ -323,7 +320,7 @@ def test_consecutive_unk(client, built_image):
 
 
 @with_images("lmzoo-basic")
-def test_consecutive_unk2(client, built_image):
+def test_consecutive_unk2(client, built_model):
     """
     consecutive unks in the middle of a region, with non-unks following in the
     same region
@@ -336,7 +333,7 @@ def test_consecutive_unk2(client, built_image):
         {"region_number": 5, "content": "content."}
     ]
     regions = [Region(**r) for r in regions]
-    spec = get_spec(built_image)
+    spec = Z.spec(built_model)
     tokens = "This is a <unk> test <unk> <unk> and some more content .".split()
 
     mapping = compute_mapping_heuristic(tokens, regions, spec)
@@ -358,7 +355,7 @@ def test_consecutive_unk2(client, built_image):
 
 
 @with_images("lmzoo-basic")
-def test_consecutive_unk3(client, built_image):
+def test_consecutive_unk3(client, built_model):
     """
     consecutive unks at the end of a region, with more regions after
     """
@@ -370,7 +367,7 @@ def test_consecutive_unk3(client, built_image):
         {"region_number": 5, "content": "and some more content."}
     ]
     regions = [Region(**r) for r in regions]
-    spec = get_spec(built_image)
+    spec = Z.spec(built_model)
     tokens = "This is a <unk> test <unk> <unk> and some more content .".split()
 
     mapping = compute_mapping_heuristic(tokens, regions, spec)
@@ -392,7 +389,7 @@ def test_consecutive_unk3(client, built_image):
 
 
 @with_images("lmzoo-basic")
-def test_empty_regions2(client, built_image):
+def test_empty_regions2(client, built_model):
     """
     handle consecutive empty regions
     """
@@ -409,7 +406,7 @@ def test_empty_regions2(client, built_image):
         {'content': 'after the audition.', 'region_number': 10}
     ]
     regions = [Region(**r) for r in regions]
-    spec = get_spec(built_image)
+    spec = Z.spec(built_model)
     tokens = ['Peter', 'calls', 'the', 'candidates', 'that', 'the', 'jury',
               'will', 'firmly', 'wait', 'after', 'the', '<unk>']
 
@@ -442,7 +439,7 @@ def test_empty_regions2(client, built_image):
 
 
 @with_images("lmzoo-basic-eos-sos-same")
-def test_boundary_tokens_same(client, built_image):
+def test_boundary_tokens_same(client, built_model):
     """
     Work with images whose boundary tokens are exactly the same at EOS and BOS.
     """
@@ -453,7 +450,7 @@ def test_boundary_tokens_same(client, built_image):
         {"region_number": 4, "content": "test."}
     ]
     regions = [Region(**r) for r in regions]
-    spec = get_spec(built_image)
+    spec = Z.spec(built_model)
     tokens = "<BOUNDARY> This is a test . <BOUNDARY>".split()
 
     mapping = compute_mapping_heuristic(tokens, regions, spec)

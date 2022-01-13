@@ -2,20 +2,14 @@
 Supporting code for running SyntaxGym CLI tests.
 """
 
-from functools import lru_cache, wraps
-from io import BytesIO, StringIO
-import json
+from functools import wraps
 import logging
-import os
 from pathlib import Path
-import socket
 import sys
-import tempfile
 
 import pytest
 
 import docker
-import docker.tls
 
 # Silence a few loud modules
 logging.getLogger("docker").setLevel(logging.ERROR)
@@ -63,6 +57,11 @@ def built_image(client, request):
 
     build_image(client, image, tag)
     return ":".join((image, tag))
+
+
+@pytest.fixture(scope="module")
+def built_model(built_image):
+    return Z.registry[f"docker://{built_image}"]
 
 
 def build_image(client, image, tag="latest"):

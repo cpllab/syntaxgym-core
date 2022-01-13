@@ -22,10 +22,6 @@ def image(request):
     return ":".join((image_ref, tag))
 
 
-def test_get_spec(image):
-    utils.get_spec(image)
-
-
 def test_tokenize(sentence_file, image):
     expected = "This is a test sentence . <eos>\nThis is a second test sentence . <eos>"
     expected = expected.split("\n")

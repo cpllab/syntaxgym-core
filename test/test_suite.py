@@ -19,7 +19,6 @@ L = logging.getLogger(__name__)
 import lm_zoo as Z
 
 from syntaxgym.suite import Suite, Sentence, Region
-from syntaxgym.utils import tokenize_file, get_spec
 
 from conftest import LM_ZOO_IMAGES, with_images
 
@@ -39,11 +38,12 @@ def spec_schema():
 
 
 @with_images(*LM_ZOO_IMAGES)
-def test_specs(client, built_image, spec_schema):
+def test_specs(client, registry, built_image, spec_schema):
     """
     Validate specs against the lm-zoo standard.
     """
-    jsonschema.validate(instance=get_spec(built_image), schema=spec_schema)
+    jsonschema.validate(instance=Z.spec(registry[f"docker://{built_image}"]),
+                        schema=spec_schema)
 
 
 @pytest.mark.parametrize("region_str", ["test ", " test", " "])
