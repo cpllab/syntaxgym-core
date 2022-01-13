@@ -3,18 +3,17 @@ from pathlib import Path
 from typing import Union, Dict, TextIO
 
 from lm_zoo import get_registry, spec, tokenize, unkify, get_surprisals
-from lm_zoo.models import Model
+from lm_zoo.models import Model, HuggingFaceModel
 import pandas as pd
 
 from syntaxgym import utils
 from syntaxgym.agg_surprisals import aggregate_surprisals
-from syntaxgym.get_sentences import get_sentences
 from syntaxgym.suite import Suite
 
 __version__ = "0.7a2"
 
 
-def _load_suite(suite_ref: Union[str, Path, TextIO, Dict, Suite]):
+def _load_suite(suite_ref: Union[str, Path, TextIO, Dict, Suite]) -> Suite:
     if isinstance(suite_ref, Suite):
         return suite_ref
 
@@ -28,7 +27,7 @@ def _load_suite(suite_ref: Union[str, Path, TextIO, Dict, Suite]):
     return Suite.from_dict(suite)
 
 
-def compute_surprisals(model: Model, suite):
+def compute_surprisals(model: Model, suite) -> Suite:
     """
     Compute per-region surprisals for a language model on the given suite.
 
@@ -42,20 +41,18 @@ def compute_surprisals(model: Model, suite):
         ``suite_file``, now including per-region surprisal data
     """
     suite = _load_suite(suite)
-    image_spec = spec(model)
 
     # Convert to sentences
-    suite_sentences = get_sentences(suite)
+    suite_sentences = list(suite.iter_sentences())
 
     # First compute surprisals
     surprisals_df = get_surprisals(model, suite_sentences)
 
-    # Track tokens+unks
+    # Track tokens
     tokens = tokenize(model, suite_sentences)
-    unks = unkify(model, suite_sentences)
 
     # Now aggregate over regions and get result df
-    result = aggregate_surprisals(surprisals_df, tokens, unks, suite, image_spec)
+    result = aggregate_surprisals(model, surprisals_df, tokens, suite)
 
     return result
 

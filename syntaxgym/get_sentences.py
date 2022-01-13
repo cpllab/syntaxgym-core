@@ -2,14 +2,19 @@ import json
 import argparse
 from pathlib import Path
 
-def get_sentences(in_data):
+from syntaxgym.suite import Suite
+
+
+def get_sentences(suite: Suite):
     sentences = []
-    for item in in_data.items:
+    for item in suite.items:
         for cond in item['conditions']:
-            regions = [region['content'].lstrip() for region in cond['regions'] if region['content'].strip() != '']
+            regions = [region['content'].lstrip() for region in cond['regions']
+                       if region['content'].strip() != '']
             sentence = ' '.join(regions)
             sentences.append(sentence)
     return sentences
+
 
 def main(args):
     with open(args.i, 'r') as f:

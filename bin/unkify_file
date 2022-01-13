@@ -1,4 +1,0 @@
-#!/bin/bash
-
-# need to call this in separate script to avoid hanging PIPE in python
-docker run --rm -i "$1" unkify /dev/stdin < $2
