@@ -61,7 +61,7 @@ def built_image(client, request):
 
 @pytest.fixture(scope="module")
 def built_model(built_image):
-    return Z.registry[f"docker://{built_image}"]
+    return Z.get_registry()[f"docker://{built_image}"]
 
 
 def build_image(client, image, tag="latest"):

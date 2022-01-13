@@ -574,11 +574,6 @@ def test_dynamic_case(registry, client, description, image, regions, tokens,
     if tokens is None:
         # Tokenize using image.
         tokens = Z.tokenize(model, [" ".join(r.content for r in regions)])[0]
-        # with NamedTemporaryFile("w") as sentence_f:
-        #     sentence_f.write(" ".join(r["content"] for r in regions) + "\n")
-        #     sentence_f.flush()
-        #
-        #     tokens = tokenize_file(sentence_f.name, ":".join((image, tag)))[0]
 
     spec = Z.spec(model)
 
