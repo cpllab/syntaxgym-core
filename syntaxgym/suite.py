@@ -164,7 +164,8 @@ this when detokenizing here.
 
 
 class Sentence(object):
-    def __init__(self, spec, tokens, unks, item_num=None, condition_name='', regions=None):
+    def __init__(self, tokens, unks=None, item_num=None,
+                 condition_name='', regions=None):
         self.tokens = tokens
         self.unks = unks
         self.item_num = item_num
@@ -173,7 +174,28 @@ class Sentence(object):
         self.content = ' '.join(r.content for r in self.regions)
         self.oovs = {region["region_number"]: [] for region in regions}
 
-        # compute region-to-token mapping upon initialization
+    def __eq__(self, other):
+        return hash(self) == hash(other)
+
+    def __hash__(self):
+        return hash((tuple(self.tokens),
+                     tuple(self.unks) if self.unks is not None else None,
+                     self.item_num,
+                     self.condition_name,
+                     tuple(self.regions),
+                     self.content,
+                     tuple((r_number, tuple(oovs))
+                           for r_number, oovs in self.oovs.items())))
+
+    def compute_region2tokens(self, spec: dict):
+        """
+        Infer the mapping between sentence tokens and regions based on
+        heuristic algorithm.
+
+        Used as backup when model tokenizers do not provide a detokenization
+        procedure.
+        """
+
         self.region2tokens = self.tokenize_regions(spec)
         for i, r in enumerate(self.regions):
             r.tokens = self.region2tokens[r.region_number]

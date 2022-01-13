@@ -66,7 +66,9 @@ def test_eos_sos(client, built_image):
     spec = get_spec(built_image)
     tokens = "<s> This is a test . </s>".split()
     unks = [0, 0, 0, 0, 0, 0, 0]
-    sentence = Sentence(spec, tokens, unks, regions=regions)
+
+    sentence = Sentence(tokens, unks, regions=regions)
+    sentence.compute_region2tokens(spec)
     assert sentence.region2tokens == {
         1: ["<s>", "This"],
         2: ["is"],
@@ -86,7 +88,8 @@ def test_unk(client, built_image):
     spec = get_spec(built_image)
     tokens = "This is <unk> a <unk> .".split()
     unks = [0, 0, 1, 0, 1, 0]
-    sentence = Sentence(spec, tokens, unks, regions=regions)
+    sentence = Sentence(tokens, unks, regions=regions)
+    sentence.compute_region2tokens(spec)
 
     assert sentence.region2tokens == {
         1: ["This"],
@@ -119,7 +122,8 @@ def test_consecutive_unk(client, built_image):
     spec = get_spec(built_image)
     tokens = "This is a <unk> test <unk> <unk> .".split()
     unks = [0, 0, 0, 1, 0, 1, 1, 1]
-    sentence = Sentence(spec, tokens, unks, regions=regions)
+    sentence = Sentence(tokens, unks, regions=regions)
+    sentence.compute_region2tokens(spec)
 
     assert sentence.region2tokens == {
         1: ["This"],
@@ -152,7 +156,8 @@ def test_consecutive_unk2(client, built_image):
     spec = get_spec(built_image)
     tokens = "This is a <unk> test <unk> <unk> and some more content .".split()
     unks = [0, 0, 0, 1, 0, 1, 1, 1]
-    sentence = Sentence(spec, tokens, unks, regions=regions)
+    sentence = Sentence(tokens, unks, regions=regions)
+    sentence.compute_region2tokens(spec)
 
     assert sentence.region2tokens == {
         1: ["This"],
@@ -186,7 +191,8 @@ def test_consecutive_unk3(client, built_image):
     spec = get_spec(built_image)
     tokens = "This is a <unk> test <unk> <unk> and some more content .".split()
     unks = [0, 0, 0, 1, 0, 1, 1, 1]
-    sentence = Sentence(spec, tokens, unks, regions=regions)
+    sentence = Sentence(tokens, unks, regions=regions)
+    sentence.compute_region2tokens(spec)
 
     assert sentence.region2tokens == {
         1: ["This"],
@@ -226,7 +232,8 @@ def test_empty_regions2(client, built_image):
     tokens = ['Peter', 'calls', 'the', 'candidates', 'that', 'the', 'jury',
               'will', 'firmly', 'wait', 'after', 'the', '<unk>']
     unks = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
-    sentence = Sentence(spec, tokens, unks, regions=regions)
+    sentence = Sentence(tokens, unks, regions=regions)
+    sentence.compute_region2tokens(spec)
 
     assert sentence.region2tokens == {
         1: ["Peter"],
@@ -269,7 +276,8 @@ def test_boundary_tokens_same(client, built_image):
     spec = get_spec(built_image)
     tokens = "<BOUNDARY> This is a test . <BOUNDARY>".split()
     unks = [0, 0, 0, 0, 0, 0, 0]
-    sentence = Sentence(spec, tokens, unks, regions=regions)
+    sentence = Sentence(tokens, unks, regions=regions)
+    sentence.compute_region2tokens(spec)
     assert sentence.region2tokens == {
         1: ["<BOUNDARY>", "This"],
         2: ["is"],
@@ -368,11 +376,13 @@ DYNAMIC_CASES = [
 
 ]
 
+
 @pytest.mark.parametrize(argnames=("description", "image", "regions", "tokens",
                                    "expected_region2tokens", "expected_oovs"),
                          argvalues=DYNAMIC_CASES,
                          ids=[x[0] for x in DYNAMIC_CASES])
-def test_dynamic_case(client, description, image, regions, tokens, expected_region2tokens, expected_oovs):
+def test_dynamic_case(client, description, image, regions, tokens,
+                      expected_region2tokens, expected_oovs):
     if isinstance(image, str):
         image = image
         tag = "latest"
@@ -405,8 +415,8 @@ def test_dynamic_case(client, description, image, regions, tokens, expected_regi
     print("\n\nTokens:")
     print(tokens)
 
-    # TODO do we need unks ?
-    sentence = Sentence(spec, tokens, unks=None, regions=regions)
+    sentence = Sentence(tokens, regions=regions)
+    sentence.compute_region2tokens(spec)
 
     if expected_region2tokens is not None:
         assert sentence.region2tokens == expected_region2tokens
@@ -476,8 +486,7 @@ def test_dynamic_case_huggingface(registry, description, model_ref,
     print("\n\nTokens:")
     print(tokens)
 
-    # TODO do we need unks ?
-    sentence = Sentence(spec, tokens, unks=None, regions=regions)
+    sentence = Sentence(tokens, regions=regions)
 
     if expected_region2tokens is not None:
         assert sentence.region2tokens == expected_region2tokens

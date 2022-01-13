@@ -2,11 +2,13 @@ from copy import deepcopy
 from io import StringIO
 import itertools
 from pathlib import Path
+from typing import List
 
 import pytest
 
 import numpy as np
 import pandas as pd
+import lm_zoo as Z
 
 from syntaxgym import aggregate_surprisals, Suite
 from syntaxgym.utils import TokenMismatch, METRICS
@@ -34,7 +36,7 @@ surprisals_f = StringIO("""sentence_id\ttoken_id\ttoken\tsurprisal
 1\t18           <eos>   0.007771""")
 surprisals = pd.read_csv(surprisals_f, delim_whitespace=True)
 
-suite = {
+suite_json = {
     "meta": {
         "name": "subordination_orc-orc",
         "metric": "sum",
@@ -101,7 +103,12 @@ suite = {
         },
     ],
 }
-suite = Suite.from_dict(suite)
+
+
+@pytest.fixture
+def suite():
+    return Suite.from_dict(suite_json)
+
 
 tokens = ["After the man who a friend had helped shot the bird that he had been tracking secretly . <eos>".split()]
 unks = [[0 for _ in tokens_i] for tokens_i in tokens]
@@ -134,41 +141,69 @@ spec = {
 }
 
 
-def test_no_inplace():
+# TODO: aggregate-surprisals now requires `model` argument. need a dummy model
+# shim here. lmzoo provides one but it's tedious with a fs setup :/
+class DummyModel(Z.models.DummyModel):
+
+    rets = {
+        "tokenize": tokens,
+        "get_surprisals": surprisals,
+        "unkify": unks,
+        "spec": spec,
+    }
+
+    def __init__(self, surprisals=None, tokens=None, unks=None):
+        if surprisals is not None:
+            self.rets["get_surprisals"] = surprisals
+        if tokens is not None:
+            self.rets["tokenize"] = tokens
+        if unks is not None:
+            self.rets["unkify"] = unks
+
+    def get_result(self, command: str, *args):
+        return self.rets[command]
+
+
+model = DummyModel()
+
+
+def test_no_inplace(suite):
+    print(suite)
     old_suite = deepcopy(suite)
     old_surprisals = surprisals.copy()
 
-    result = aggregate_surprisals(surprisals, tokens, unks, suite, spec)
+    aggregate_surprisals(model, surprisals, tokens, unks, suite)
 
     assert suite == old_suite
     assert surprisals.equals(old_surprisals)
 
 
 @pytest.mark.parametrize("metric", ["sum", "mean"])
-def test_basic(metric):
+def test_basic(suite, metric):
     suite_ = deepcopy(suite)
     suite_.meta["metric"] = metric
 
-    result = aggregate_surprisals(surprisals, tokens, unks, suite_, spec)
+    result = aggregate_surprisals(model, surprisals, tokens, unks, suite_)
 
     metric_fn = METRICS[metric]
     np.testing.assert_almost_equal(result.items[0]["conditions"][0]["regions"][0]["metric_value"][metric],
                                    metric_fn(surprisals.iloc[:3].surprisal))
 
 
-def test_tokenization_too_short():
+def test_tokenization_too_short(suite):
     """
     throw error when tokens list missing tokens from surprisals list
     """
     # NB missing final <eos> token
     tokens = ["After the man who a friend had helped shot the bird that he had been tracking secretly .".split()]
     unks = [[0 for _ in tokens_i] for tokens_i in tokens]
+    model = DummyModel(tokens=tokens, unks=unks)
 
     with pytest.raises(ValueError):
-        aggregate_surprisals(surprisals, tokens, unks, suite, spec)
+        aggregate_surprisals(model, surprisals, tokens, unks, suite)
 
 
-def test_tokenization_too_long():
+def test_tokenization_too_long(suite):
     """
     throw error when surprisals list missing tokens from token list
     """
@@ -178,11 +213,13 @@ def test_tokenization_too_long():
     surp = surprisals.copy()
     surp = surp[~(surp.token == "helped")]
 
+    model = DummyModel(surprisals=surp, tokens=tokens, unks=unks)
+
     with pytest.raises(ValueError):
-        aggregate_surprisals(surp, tokens, unks, suite, spec)
+        aggregate_surprisals(model, surp, tokens, unks, suite)
 
 
-def test_mismatch():
+def test_mismatch(suite):
     """
     throw error when regions and tokens can't be matched
     """
@@ -193,4 +230,4 @@ def test_mismatch():
     surp.loc[surp.token == "helped", "token"] = "hAAAlped"
 
     with pytest.raises(TokenMismatch):
-        aggregate_surprisals(surp, tokens, unks, suite, spec)
+        aggregate_surprisals(model, surp, tokens, unks, suite)

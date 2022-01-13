@@ -8,6 +8,7 @@ import pytest
 import lm_zoo as Z
 
 from syntaxgym import compute_surprisals, evaluate
+from syntaxgym.agg_surprisals import prepare_sentences, prepare_sentences_huggingface
 from syntaxgym.suite import Suite
 
 zoo = Z.get_registry()
@@ -30,7 +31,9 @@ huggingface_model_word_refs = [
 
 
 huggingface_model_subword_refs = [
-    "hf-internal-testing/tiny-xlm-roberta"
+    "hf-internal-testing/tiny-xlm-roberta",
+    "hf-internal-testing/tiny-random-gpt_neo",
+    "hf-internal-testing/tiny-random-reformer",
 ]
 """Subword-tokenization HF models"""
 
@@ -41,19 +44,49 @@ huggingface_model = pytest.fixture(
     params=huggingface_model_word_refs + huggingface_model_subword_refs)
 
 
+def _assert_suite_results_equivalent(s1, s2, metric="sum"):
+    for i1, i2 in zip(s1.items, s2.items):
+        for c1, c2 in zip(i1["conditions"], i2["conditions"]):
+            for r1, r2 in zip(c1["regions"], c2["regions"]):
+                np.testing.assert_almost_equal(
+                    r1["metric_value"][metric],
+                    r2["metric_value"][metric],
+                    err_msg=(f"{i1['item_number']} "
+                             f"{c1['condition_name']} "
+                             f"{r1['region_number']}"))
+
+
 def test_hf_deterministic(dummy_suite_json, huggingface_model):
     """
     Test that suite evaluations are deterministic across multiple invocations.
     """
 
     suite = Suite.from_dict(dummy_suite_json)
-    surps_df = compute_surprisals(huggingface_model, suite)
+    s1 = compute_surprisals(huggingface_model, suite)
 
     # Again!
-    surps_df2 = compute_surprisals(huggingface_model, suite)
+    s2 = compute_surprisals(huggingface_model, suite)
 
-    for i1, i2 in zip(surps_df.items, surps_df2.items):
-        for c1, c2 in zip(i1["conditions"], i2["conditions"]):
-            for r1, r2 in zip(c1["regions"], c2["regions"]):
-                np.testing.assert_almost_equal(r1["metric_value"]["sum"],
-                                               r2["metric_value"]["sum"])
+    _assert_suite_results_equivalent(s1, s2)
+
+
+def test_huggingface_sentences(dummy_suite_json, huggingface_model):
+    """
+    Test that the two sentence detokenization algorithms agree on results.
+    """
+    if not huggingface_model.provides_token_offsets:
+        pytest.skip("only relevant for models which support HF agg_surprisals")
+
+    suite = Suite.from_dict(dummy_suite_json)
+    sentences = list(suite.iter_sentences())
+
+    surprisals_df = Z.get_surprisals(huggingface_model, sentences)
+    tokens = Z.tokenize(huggingface_model, sentences)
+    unks = Z.unkify(huggingface_model, sentences)
+
+    default_results = prepare_sentences(
+        huggingface_model, surprisals_df, tokens, unks, suite)
+    hf_results = prepare_sentences_huggingface(
+        huggingface_model, surprisals_df, tokens, suite)
+
+    assert default_results == hf_results
