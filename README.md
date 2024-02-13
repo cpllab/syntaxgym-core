@@ -1,3 +1,5 @@
+# DEPRECATED: This project is no longer supported.
+
 # SyntaxGym Core
 
 ![MIT License](https://img.shields.io/github/license/cpllab/syntaxgym-core)
